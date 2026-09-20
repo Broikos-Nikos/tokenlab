@@ -1,0 +1,15 @@
+{
+  "checked": "2026-09-20",
+  "source": "https://developers.openai.com/api/docs/pricing",
+  "note": "Standard tier, per million tokens, in US dollars. Batch, flex and long context tiers differ. Regional processing endpoints carry a 10 percent uplift for models released on or after 2026-03-05. These are the only numbers in this repository that are not measured here, which is why they carry a date and a link.",
+  "models": [
+    { "id": "gpt-6-astra", "label": "GPT-6 Astra", "encoding": "o200k_base", "inputPerMillion": 10.0, "outputPerMillion": 50.0 },
+    { "id": "gpt-5.6-sol", "label": "GPT-5.6 Sol", "encoding": "o200k_base", "inputPerMillion": 4.0, "outputPerMillion": 20.0 },
+    { "id": "gpt-5.6-terra", "label": "GPT-5.6 Terra", "encoding": "o200k_base", "inputPerMillion": 2.0, "outputPerMillion": 12.0 },
+    { "id": "gpt-5.6-luna", "label": "GPT-5.6 Luna", "encoding": "o200k_base", "inputPerMillion": 0.2, "outputPerMillion": 1.2 },
+    { "id": "gpt-5.5", "label": "GPT-5.5", "encoding": "o200k_base", "inputPerMillion": 5.0, "outputPerMillion": 30.0 },
+    { "id": "gpt-4.1", "label": "GPT-4.1", "encoding": "o200k_base", "inputPerMillion": 2.0, "outputPerMillion": 8.0 },
+    { "id": "gpt-4o", "label": "GPT-4o", "encoding": "o200k_base", "inputPerMillion": 2.5, "outputPerMillion": 10.0 },
+    { "id": "gpt-4o-mini", "label": "GPT-4o mini", "encoding": "o200k_base", "inputPerMillion": 0.15, "outputPerMillion": 0.6 }
+  ]
+}

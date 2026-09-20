@@ -1,0 +1,279 @@
+{
+  "generatedAt": "2026-09-20",
+  "corpus": {
+    "name": "tokenlab-aligned-40",
+    "pairs": 40,
+    "registers": [
+      "conversational",
+      "news",
+      "technical",
+      "commerce",
+      "formal"
+    ],
+    "built": "2026-09-20",
+    "method": "Forty sentence pairs written by hand in both languages, not machine translated, spread over five registers. Each pair says the same thing the way a native speaker would say it in that language, so the comparison measures the writing systems and the tokenizers rather than translationese."
+  },
+  "headline": {
+    "o200kRatio": 2.09,
+    "cl100kRatio": 5.14,
+    "improvement": 2.46
+  },
+  "encodings": {
+    "o200k_base": {
+      "label": "o200k",
+      "vocabularySize": 200006,
+      "totals": {
+        "elTokens": 1160,
+        "enTokens": 556,
+        "elWords": 478,
+        "enWords": 495
+      },
+      "ratio": 2.09,
+      "ratioInterval95": [
+        1.97,
+        2.2
+      ],
+      "tokensPerWord": {
+        "el": 2.43,
+        "en": 1.12
+      },
+      "byRegister": [
+        {
+          "register": "conversational",
+          "n": 8,
+          "el": 174,
+          "en": 110,
+          "ratio": 1.58
+        },
+        {
+          "register": "news",
+          "n": 8,
+          "el": 256,
+          "en": 117,
+          "ratio": 2.19
+        },
+        {
+          "register": "technical",
+          "n": 8,
+          "el": 256,
+          "en": 110,
+          "ratio": 2.33
+        },
+        {
+          "register": "commerce",
+          "n": 8,
+          "el": 246,
+          "en": 110,
+          "ratio": 2.24
+        },
+        {
+          "register": "formal",
+          "n": 8,
+          "el": 228,
+          "en": 109,
+          "ratio": 2.09
+        }
+      ],
+      "worstPair": {
+        "ratio": 2.79,
+        "en": "Customer service answers by phone on weekdays and by email at all times.",
+        "el": "Η εξυπηρέτηση πελατών απαντά τηλεφωνικά τις εργάσιμες ημέρες και με ηλεκτρονικό ταχυδρομείο οποιαδήποτε στιγμή.",
+        "enTokens": 14,
+        "elTokens": 39
+      }
+    },
+    "cl100k_base": {
+      "label": "cl100k",
+      "vocabularySize": 100264,
+      "totals": {
+        "elTokens": 2864,
+        "enTokens": 557,
+        "elWords": 478,
+        "enWords": 495
+      },
+      "ratio": 5.14,
+      "ratioInterval95": [
+        4.81,
+        5.47
+      ],
+      "tokensPerWord": {
+        "el": 5.99,
+        "en": 1.13
+      },
+      "byRegister": [
+        {
+          "register": "conversational",
+          "n": 8,
+          "el": 390,
+          "en": 110,
+          "ratio": 3.55
+        },
+        {
+          "register": "news",
+          "n": 8,
+          "el": 613,
+          "en": 118,
+          "ratio": 5.19
+        },
+        {
+          "register": "technical",
+          "n": 8,
+          "el": 637,
+          "en": 110,
+          "ratio": 5.79
+        },
+        {
+          "register": "commerce",
+          "n": 8,
+          "el": 626,
+          "en": 110,
+          "ratio": 5.69
+        },
+        {
+          "register": "formal",
+          "n": 8,
+          "el": 598,
+          "en": 109,
+          "ratio": 5.49
+        }
+      ],
+      "worstPair": {
+        "ratio": 7.36,
+        "en": "Customer service answers by phone on weekdays and by email at all times.",
+        "el": "Η εξυπηρέτηση πελατών απαντά τηλεφωνικά τις εργάσιμες ημέρες και με ηλεκτρονικό ταχυδρομείο οποιαδήποτε στιγμή.",
+        "enTokens": 14,
+        "elTokens": 103
+      }
+    },
+    "p50k_base": {
+      "label": "p50k",
+      "vocabularySize": 50281,
+      "totals": {
+        "elTokens": 3633,
+        "enTokens": 561,
+        "elWords": 478,
+        "enWords": 495
+      },
+      "ratio": 6.48,
+      "ratioInterval95": [
+        6.07,
+        6.87
+      ],
+      "tokensPerWord": {
+        "el": 7.6,
+        "en": 1.13
+      },
+      "byRegister": [
+        {
+          "register": "conversational",
+          "n": 8,
+          "el": 506,
+          "en": 110,
+          "ratio": 4.6
+        },
+        {
+          "register": "news",
+          "n": 8,
+          "el": 762,
+          "en": 119,
+          "ratio": 6.4
+        },
+        {
+          "register": "technical",
+          "n": 8,
+          "el": 817,
+          "en": 111,
+          "ratio": 7.36
+        },
+        {
+          "register": "commerce",
+          "n": 8,
+          "el": 787,
+          "en": 112,
+          "ratio": 7.03
+        },
+        {
+          "register": "formal",
+          "n": 8,
+          "el": 761,
+          "en": 109,
+          "ratio": 6.98
+        }
+      ],
+      "worstPair": {
+        "ratio": 8.77,
+        "en": "Returns are accepted within fourteen days, provided the item is unused.",
+        "el": "Οι επιστροφές γίνονται δεκτές εντός δεκατεσσάρων ημερών, εφόσον το προϊόν δεν έχει χρησιμοποιηθεί.",
+        "enTokens": 13,
+        "elTokens": 114
+      }
+    },
+    "r50k_base": {
+      "label": "r50k",
+      "vocabularySize": 50257,
+      "totals": {
+        "elTokens": 3633,
+        "enTokens": 561,
+        "elWords": 478,
+        "enWords": 495
+      },
+      "ratio": 6.48,
+      "ratioInterval95": [
+        6.07,
+        6.87
+      ],
+      "tokensPerWord": {
+        "el": 7.6,
+        "en": 1.13
+      },
+      "byRegister": [
+        {
+          "register": "conversational",
+          "n": 8,
+          "el": 506,
+          "en": 110,
+          "ratio": 4.6
+        },
+        {
+          "register": "news",
+          "n": 8,
+          "el": 762,
+          "en": 119,
+          "ratio": 6.4
+        },
+        {
+          "register": "technical",
+          "n": 8,
+          "el": 817,
+          "en": 111,
+          "ratio": 7.36
+        },
+        {
+          "register": "commerce",
+          "n": 8,
+          "el": 787,
+          "en": 112,
+          "ratio": 7.03
+        },
+        {
+          "register": "formal",
+          "n": 8,
+          "el": 761,
+          "en": 109,
+          "ratio": 6.98
+        }
+      ],
+      "worstPair": {
+        "ratio": 8.77,
+        "en": "Returns are accepted within fourteen days, provided the item is unused.",
+        "el": "Οι επιστροφές γίνονται δεκτές εντός δεκατεσσάρων ημερών, εφόσον το προϊόν δεν έχει χρησιμοποιηθεί.",
+        "enTokens": 13,
+        "elTokens": 114
+      }
+    }
+  },
+  "pricing": {
+    "checked": "2026-09-20",
+    "source": "https://developers.openai.com/api/docs/pricing"
+  }
+}

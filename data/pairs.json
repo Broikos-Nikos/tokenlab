@@ -1,0 +1,52 @@
+{
+  "name": "tokenlab-aligned-40",
+  "built": "2026-09-20",
+  "method": "Forty sentence pairs written by hand in both languages, not machine translated, spread over five registers. Each pair says the same thing the way a native speaker would say it in that language, so the comparison measures the writing systems and the tokenizers rather than translationese.",
+  "license": "CC0",
+  "pairs": [
+    { "register": "conversational", "en": "I will be there in ten minutes, the traffic is terrible today.", "el": "Θα είμαι εκεί σε δέκα λεπτά, έχει απαίσια κίνηση σήμερα." },
+    { "register": "conversational", "en": "Can you send me the photos from last night before you go to sleep?", "el": "Μπορείς να μου στείλεις τις φωτογραφίες από χθες το βράδυ πριν κοιμηθείς;" },
+    { "register": "conversational", "en": "We ran out of coffee again, put it on the list.", "el": "Ξεμείναμε πάλι από καφέ, βάλε το στη λίστα." },
+    { "register": "conversational", "en": "She said the keys are under the mat, but I could not find them.", "el": "Είπε ότι τα κλειδιά είναι κάτω από το χαλάκι, αλλά δεν τα βρήκα." },
+    { "register": "conversational", "en": "Do not worry about it, we will sort it out tomorrow morning.", "el": "Μην ανησυχείς καθόλου, θα το τακτοποιήσουμε αύριο το πρωί." },
+    { "register": "conversational", "en": "The weather is finally cooling down, I slept with the window open.", "el": "Ο καιρός επιτέλους δροσίζει, κοιμήθηκα με το παράθυρο ανοιχτό." },
+    { "register": "conversational", "en": "He has been talking about that trip for three years now.", "el": "Τρία χρόνια τώρα μιλάει για εκείνο το ταξίδι." },
+    { "register": "conversational", "en": "Call me when you land and tell me how it went.", "el": "Πάρε με όταν προσγειωθείς να μου πεις πώς πήγε." },
+
+    { "register": "news", "en": "The finance ministry announced the new measures will take effect at the start of the year.", "el": "Το υπουργείο Οικονομικών ανακοίνωσε ότι τα νέα μέτρα θα ισχύσουν από την αρχή του έτους." },
+    { "register": "news", "en": "Firefighters worked through the night to contain the blaze on the island.", "el": "Οι πυροσβέστες δούλεψαν όλη τη νύχτα για να περιορίσουν τη φωτιά στο νησί." },
+    { "register": "news", "en": "Unemployment fell for the fourth consecutive quarter, according to the statistical authority.", "el": "Η ανεργία υποχώρησε για τέταρτο συνεχόμενο τρίμηνο, σύμφωνα με τη στατιστική αρχή." },
+    { "register": "news", "en": "The court postponed the hearing until the defence submits the remaining documents.", "el": "Το δικαστήριο ανέβαλε την εκδίκαση έως ότου η υπεράσπιση καταθέσει τα υπόλοιπα έγγραφα." },
+    { "register": "news", "en": "Ferry services to the eastern islands were suspended because of gale force winds.", "el": "Τα δρομολόγια των πλοίων προς τα ανατολικά νησιά διακόπηκαν λόγω θυελλωδών ανέμων." },
+    { "register": "news", "en": "The mayor said the renovation of the central square will finish before the summer.", "el": "Ο δήμαρχος δήλωσε ότι η ανάπλαση της κεντρικής πλατείας θα ολοκληρωθεί πριν το καλοκαίρι." },
+    { "register": "news", "en": "Researchers published the findings after a two year study across eleven hospitals.", "el": "Οι ερευνητές δημοσίευσαν τα ευρήματα ύστερα από διετή μελέτη σε έντεκα νοσοκομεία." },
+    { "register": "news", "en": "Tourist arrivals broke the previous record, driven mainly by the shoulder season.", "el": "Οι αφίξεις τουριστών έσπασαν το προηγούμενο ρεκόρ, κυρίως χάρη στην περίοδο εκτός αιχμής." },
+
+    { "register": "technical", "en": "The request failed because the authentication token had already expired.", "el": "Το αίτημα απέτυχε επειδή το διακριτικό ταυτοποίησης είχε ήδη λήξει." },
+    { "register": "technical", "en": "Install the dependencies, run the build, and open the page on port three thousand.", "el": "Εγκαταστήστε τις εξαρτήσεις, εκτελέστε το build και ανοίξτε τη σελίδα στη θύρα τρεις χιλιάδες." },
+    { "register": "technical", "en": "The database migration adds an index on the created at column.", "el": "Η μετάπτωση της βάσης προσθέτει ευρετήριο στη στήλη ημερομηνίας δημιουργίας." },
+    { "register": "technical", "en": "Every response is cached for five minutes unless the client sends a no cache header.", "el": "Κάθε απόκριση αποθηκεύεται προσωρινά για πέντε λεπτά, εκτός αν ο πελάτης στείλει κεφαλίδα χωρίς προσωρινή αποθήκευση." },
+    { "register": "technical", "en": "The function returns null when the input string contains no valid characters.", "el": "Η συνάρτηση επιστρέφει κενή τιμή όταν το κείμενο εισόδου δεν περιέχει έγκυρους χαρακτήρες." },
+    { "register": "technical", "en": "We moved the heavy computation into a worker so the interface stops freezing.", "el": "Μεταφέραμε τον βαρύ υπολογισμό σε ξεχωριστό νήμα ώστε να σταματήσει να κολλάει η διεπαφή." },
+    { "register": "technical", "en": "Logging is disabled in production to keep the payload small.", "el": "Η καταγραφή είναι απενεργοποιημένη στην παραγωγή για να παραμείνει μικρό το φορτίο." },
+    { "register": "technical", "en": "The model was trained from random initialisation on a corpus the repository generates itself.", "el": "Το μοντέλο εκπαιδεύτηκε από τυχαία αρχικοποίηση σε σώμα κειμένων που παράγει το ίδιο το αποθετήριο." },
+
+    { "register": "commerce", "en": "Free delivery on orders over fifty euros, dispatched the same working day.", "el": "Δωρεάν αποστολή για παραγγελίες άνω των πενήντα ευρώ, με αποστολή την ίδια εργάσιμη ημέρα." },
+    { "register": "commerce", "en": "The jacket is water resistant and comes in three colours and five sizes.", "el": "Το μπουφάν είναι αδιάβροχο και διατίθεται σε τρία χρώματα και πέντε μεγέθη." },
+    { "register": "commerce", "en": "Returns are accepted within fourteen days, provided the item is unused.", "el": "Οι επιστροφές γίνονται δεκτές εντός δεκατεσσάρων ημερών, εφόσον το προϊόν δεν έχει χρησιμοποιηθεί." },
+    { "register": "commerce", "en": "Add the item to your basket and the discount is applied at checkout.", "el": "Προσθέστε το προϊόν στο καλάθι και η έκπτωση εφαρμόζεται κατά την ολοκλήρωση της παραγγελίας." },
+    { "register": "commerce", "en": "Out of stock in your size, but we can notify you when it returns.", "el": "Εξαντλήθηκε στο μέγεθός σας, αλλά μπορούμε να σας ειδοποιήσουμε μόλις επιστρέψει." },
+    { "register": "commerce", "en": "Pay in three instalments with no interest and no hidden charges.", "el": "Πληρώστε σε τρεις δόσεις χωρίς τόκο και χωρίς κρυφές χρεώσεις." },
+    { "register": "commerce", "en": "Customer service answers by phone on weekdays and by email at all times.", "el": "Η εξυπηρέτηση πελατών απαντά τηλεφωνικά τις εργάσιμες ημέρες και με ηλεκτρονικό ταχυδρομείο οποιαδήποτε στιγμή." },
+    { "register": "commerce", "en": "The warranty covers manufacturing defects for two full years from purchase.", "el": "Η εγγύηση καλύπτει κατασκευαστικά ελαττώματα για δύο πλήρη έτη από την αγορά." },
+
+    { "register": "formal", "en": "All human beings are born free and equal in dignity and rights.", "el": "Όλοι οι άνθρωποι γεννιούνται ελεύθεροι και ίσοι στην αξιοπρέπεια και τα δικαιώματα." },
+    { "register": "formal", "en": "Everyone has the right to education, and education shall be free at the elementary stage.", "el": "Καθένας έχει δικαίωμα στην εκπαίδευση, και η εκπαίδευση είναι δωρεάν στη στοιχειώδη βαθμίδα." },
+    { "register": "formal", "en": "No one shall be subjected to arbitrary arrest, detention or exile.", "el": "Κανείς δεν υποβάλλεται σε αυθαίρετη σύλληψη, κράτηση ή εξορία." },
+    { "register": "formal", "en": "The contracting parties agree to resolve any dispute through the competent courts.", "el": "Τα συμβαλλόμενα μέρη συμφωνούν να επιλύουν κάθε διαφορά μέσω των αρμόδιων δικαστηρίων." },
+    { "register": "formal", "en": "The present document enters into force on the date of its signature.", "el": "Το παρόν έγγραφο τίθεται σε ισχύ κατά την ημερομηνία της υπογραφής του." },
+    { "register": "formal", "en": "The processing of personal data is carried out in accordance with the applicable regulation.", "el": "Η επεξεργασία των δεδομένων προσωπικού χαρακτήρα διενεργείται σύμφωνα με τον ισχύοντα κανονισμό." },
+    { "register": "formal", "en": "Applications submitted after the deadline will not be considered under any circumstances.", "el": "Αιτήσεις που υποβάλλονται μετά την καταληκτική ημερομηνία δεν λαμβάνονται υπόψη σε καμία περίπτωση." },
+    { "register": "formal", "en": "The committee shall convene at least twice per calendar year.", "el": "Η επιτροπή συνέρχεται τουλάχιστον δύο φορές ανά ημερολογιακό έτος." }
+  ]
+}

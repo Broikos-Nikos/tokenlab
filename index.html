@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>tokenlab, what Greek costs a tokenizer</title>
+    <meta
+      name="description"
+      content="Type Greek, watch a tokenizer shatter it, watch the bill. Measured on forty aligned sentence pairs across four encodings."
+    />
+    <link rel="preload" href="./fonts/manrope-var.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="./fonts/robotomono-var.woff2" as="font" type="font/woff2" crossorigin />
+  </head>
+  <body>
+    <div class="grain" aria-hidden="true"></div>
+
+    <header class="masthead">
+      <span class="wordmark">tokenlab</span>
+      <p class="standfirst">
+        The same sentence, in Greek and in English. One of them costs
+        <span class="ratio-inline" data-headline-ratio>more</span>.
+      </p>
+    </header>
+
+    <main>
+      <section class="stage" aria-label="Tokenizer">
+        <div class="stage-head">
+          <div class="lang-toggle" role="group" aria-label="Language">
+            <button type="button" data-lang="el" class="is-on" aria-pressed="true">
+              <span lang="el">Ελληνικά</span>
+            </button>
+            <button type="button" data-lang="en" aria-pressed="false">English</button>
+          </div>
+          <button type="button" class="shuffle" data-shuffle>
+            another sentence
+          </button>
+        </div>
+
+        <label class="sr-only" for="input">Text to tokenize</label>
+        <textarea
+          id="input"
+          spellcheck="false"
+          autocomplete="off"
+          rows="2"
+          aria-describedby="live-summary"
+        ></textarea>
+
+        <div class="encodings" role="group" aria-label="Encoding">
+          <!-- filled by script -->
+        </div>
+
+        <output class="tokens" id="tokens" aria-live="off"></output>
+
+        <p class="fracture-note" data-fracture-note hidden>
+          <span data-fracture-count>0</span> pieces of this text cost more than
+          one token each. The tokenizer had no token for them, so it spelled
+          them out in raw bytes and charged for every byte.
+        </p>
+      </section>
+
+      <section class="meter" aria-label="Cost">
+        <div class="readout">
+          <div class="big">
+            <span class="figure" data-token-count>0</span>
+            <span class="unit">tokens</span>
+          </div>
+          <p class="sub" id="live-summary">
+            <span data-words>0</span> words,
+            <span data-tpw>0</span> per word
+          </p>
+        </div>
+
+        <div class="compare" data-compare hidden>
+          <span class="compare-figure" data-compare-ratio>1.0x</span>
+          <span class="compare-label">
+            what this sentence costs in Greek, against the same sentence in
+            English
+          </span>
+        </div>
+
+        <div class="bill">
+          <label for="model">per thousand requests on</label>
+          <select id="model" data-model></select>
+          <div class="price">
+            <span class="currency">$</span><span data-cost>0.00</span>
+          </div>
+          <p class="price-note" data-price-note></p>
+        </div>
+      </section>
+    </main>
+
+    <section class="findings" aria-label="The measurement">
+      <h2>The measurement</h2>
+      <p class="findings-lede" data-findings-lede></p>
+      <div class="table-wrap">
+        <table data-findings-table>
+          <caption class="sr-only">
+            Greek to English token ratio by encoding
+          </caption>
+          <thead>
+            <tr>
+              <th scope="col">encoding</th>
+              <th scope="col">used by</th>
+              <th scope="col">Greek costs</th>
+              <th scope="col">95% interval</th>
+              <th scope="col">tokens per Greek word</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <p class="method" data-method></p>
+    </section>
+
+    <footer>
+      <p>
+        Every number on this page is produced by
+        <code>npm run measure</code> in this repository. Prices are the one
+        exception and they carry a date.
+      </p>
+    </footer>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

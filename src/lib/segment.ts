@@ -28,8 +28,25 @@ export interface Segment {
 
 const REPLACEMENT = '�'
 
-function isReadable(s: string): boolean {
-  return s.length > 0 && !s.includes(REPLACEMENT)
+/** No UTF-8 character is longer than four bytes, so no run needs more tokens. */
+const MAX_RUN = 4
+
+/**
+ * A replacement character in the decoded text means one of two things, and they
+ * have to be told apart or the second one eats the document.
+ *
+ * Either the bytes so far are an incomplete character, in which case the run
+ * must keep growing, or the input genuinely contained U+FFFD, in which case the
+ * run is already finished and waiting for more will swallow everything after it.
+ *
+ * Re-encoding separates them. A complete piece of text encodes back to exactly
+ * the tokens it came from. An incomplete one does not.
+ */
+function isReadable(encoder: Encoder, s: string, ids: number[]): boolean {
+  if (s.length === 0) return false
+  if (!s.includes(REPLACEMENT)) return true
+  const again = encoder.encode(s)
+  return again.length === ids.length && again.every((v, i) => v === ids[i])
 }
 
 export function segment(encoder: Encoder, ids: number[]): Segment[] {
@@ -41,7 +58,7 @@ export function segment(encoder: Encoder, ids: number[]): Segment[] {
     if (pending.length === 0) start = i
     pending.push(ids[i])
     const text = encoder.decode(pending)
-    if (isReadable(text)) {
+    if (isReadable(encoder, text, pending) || pending.length >= MAX_RUN) {
       out.push({
         ids: pending,
         text,

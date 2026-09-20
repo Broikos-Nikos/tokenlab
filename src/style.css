@@ -22,8 +22,11 @@
   --ink-lift: oklch(0.21 0.016 265);
   --edge: oklch(0.3 0.02 265);
   --text: oklch(0.93 0.008 265);
-  --text-dim: oklch(0.68 0.012 265);
-  --text-faint: oklch(0.52 0.014 265);
+  --text-dim: oklch(0.78 0.012 265);
+  /* 4.5:1 is the bar and 0.52 measured 3.22:1 on --ink-lift. This clears it on
+     both grounds, which collapses three text levels into two. That is the
+     honest outcome: the palette had one dim step too many. */
+  --text-faint: oklch(0.645 0.014 265);
 
   --accent: oklch(0.78 0.15 var(--hue));
   --accent-soft: oklch(0.42 0.08 var(--hue));
@@ -107,7 +110,7 @@ body {
 .standfirst {
   margin: 0.65rem 0 0;
   max-width: 24ch;
-  font-size: clamp(2rem, 1.1rem + 4.2vw, 4.25rem);
+  font-size: clamp(2.4rem, 1.2rem + 5vw, 5.5rem);
   font-weight: 800;
   line-height: 1.02;
   letter-spacing: -0.035em;
@@ -216,8 +219,7 @@ textarea {
   transition: border-color 220ms ease, box-shadow 220ms ease;
 }
 
-textarea:focus {
-  outline: none;
+textarea:focus-visible {
   border-color: var(--accent-soft);
   box-shadow: 0 0 0 4px oklch(0.5 0.1 var(--hue) / 0.18);
 }
@@ -374,9 +376,9 @@ textarea:focus {
 }
 
 .figure {
-  font-size: clamp(2.8rem, 2rem + 3vw, 4rem);
-  font-weight: 800;
-  letter-spacing: -0.04em;
+  font-size: clamp(2.2rem, 1.6rem + 2vw, 3rem);
+  font-weight: 600;
+  letter-spacing: -0.01em;
   line-height: 1;
   font-variant-numeric: tabular-nums;
   color: var(--accent);
@@ -405,9 +407,9 @@ textarea:focus {
 
 .compare-figure {
   display: block;
-  font-size: clamp(2rem, 1.4rem + 2vw, 2.7rem);
-  font-weight: 800;
-  letter-spacing: -0.03em;
+  font-size: clamp(1.9rem, 1.4rem + 1.6vw, 2.5rem);
+  font-weight: 600;
+  letter-spacing: -0.01em;
   line-height: 1;
   font-variant-numeric: tabular-nums;
   color: oklch(0.85 0.14 32);
@@ -468,6 +470,32 @@ textarea:focus {
   font-size: 0.72rem;
   color: var(--text-faint);
   line-height: 1.4;
+}
+
+/* An unpriceable count is not a price, so the currency sign goes with it. */
+.bill.is-unpriceable .currency {
+  display: none;
+}
+
+.bill.is-unpriceable .price {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--text-faint);
+}
+
+.noscript {
+  margin: 0;
+  padding: 1rem var(--gutter);
+  background: var(--alarm-wash);
+  color: oklch(0.92 0.05 32);
+  font-size: 0.9rem;
+}
+
+/* The slot is reserved whether or not the number has arrived, so the headline
+   does not reflow under the reader when it does. */
+.ratio-inline {
+  display: inline-block;
+  min-width: 4.5ch;
 }
 
 /* ---------------------------------------------------------------- findings */

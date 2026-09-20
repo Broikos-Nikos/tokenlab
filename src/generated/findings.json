@@ -1,5 +1,6 @@
 {
   "generatedAt": "2026-09-20",
+  "olderPairIdentical": true,
   "corpus": {
     "name": "tokenlab-aligned-40",
     "pairs": 40,
@@ -16,7 +17,14 @@
   "headline": {
     "o200kRatio": 2.09,
     "cl100kRatio": 5.14,
-    "improvement": 2.46
+    "improvement": 2.46,
+    "scriptCost": 2.015,
+    "vocabularyCost": {
+      "o200k": 1.036,
+      "cl100k": 2.552,
+      "p50k": 3.214,
+      "r50k": 3.214
+    }
   },
   "encodings": {
     "o200k_base": {
@@ -26,7 +34,11 @@
         "elTokens": 1160,
         "enTokens": 556,
         "elWords": 478,
-        "enWords": 495
+        "enWords": 495,
+        "elChars": 3178,
+        "enChars": 2908,
+        "elBytes": 5859,
+        "enBytes": 2908
       },
       "ratio": 2.09,
       "ratioInterval95": [
@@ -37,41 +49,66 @@
         "el": 2.43,
         "en": 1.12
       },
+      "lengthControlled": {
+        "byteRatio": 2.015,
+        "charRatio": 1.093,
+        "bytesPerToken": {
+          "el": 5.05,
+          "en": 5.23
+        },
+        "tokensPerByteRatio": 1.036,
+        "vocabularyPenaltyPercent": 3.6
+      },
       "byRegister": [
         {
           "register": "conversational",
           "n": 8,
           "el": 174,
           "en": 110,
-          "ratio": 1.58
+          "ratio": 1.58,
+          "elTokensPerWord": 2.23,
+          "enTokensPerWord": 1.13,
+          "wordRatio": 0.804
         },
         {
           "register": "news",
           "n": 8,
           "el": 256,
           "en": 117,
-          "ratio": 2.19
+          "ratio": 2.19,
+          "elTokensPerWord": 2.46,
+          "enTokensPerWord": 1.14,
+          "wordRatio": 1.01
         },
         {
           "register": "technical",
           "n": 8,
           "el": 256,
           "en": 110,
-          "ratio": 2.33
+          "ratio": 2.33,
+          "elTokensPerWord": 2.46,
+          "enTokensPerWord": 1.11,
+          "wordRatio": 1.051
         },
         {
           "register": "commerce",
           "n": 8,
           "el": 246,
           "en": 110,
-          "ratio": 2.24
+          "ratio": 2.24,
+          "elTokensPerWord": 2.46,
+          "enTokensPerWord": 1.12,
+          "wordRatio": 1.02
         },
         {
           "register": "formal",
           "n": 8,
           "el": 228,
           "en": 109,
-          "ratio": 2.09
+          "ratio": 2.09,
+          "elTokensPerWord": 2.48,
+          "enTokensPerWord": 1.11,
+          "wordRatio": 0.939
         }
       ],
       "worstPair": {
@@ -80,6 +117,12 @@
         "el": "Η εξυπηρέτηση πελατών απαντά τηλεφωνικά τις εργάσιμες ημέρες και με ηλεκτρονικό ταχυδρομείο οποιαδήποτε στιγμή.",
         "enTokens": 14,
         "elTokens": 39
+      },
+      "figureSentence": {
+        "el": 37,
+        "en": 17,
+        "elWords": 14,
+        "elChars": 94
       }
     },
     "cl100k_base": {
@@ -89,7 +132,11 @@
         "elTokens": 2864,
         "enTokens": 557,
         "elWords": 478,
-        "enWords": 495
+        "enWords": 495,
+        "elChars": 3178,
+        "enChars": 2908,
+        "elBytes": 5859,
+        "enBytes": 2908
       },
       "ratio": 5.14,
       "ratioInterval95": [
@@ -100,41 +147,66 @@
         "el": 5.99,
         "en": 1.13
       },
+      "lengthControlled": {
+        "byteRatio": 2.015,
+        "charRatio": 1.093,
+        "bytesPerToken": {
+          "el": 2.05,
+          "en": 5.22
+        },
+        "tokensPerByteRatio": 2.552,
+        "vocabularyPenaltyPercent": 155.2
+      },
       "byRegister": [
         {
           "register": "conversational",
           "n": 8,
           "el": 390,
           "en": 110,
-          "ratio": 3.55
+          "ratio": 3.55,
+          "elTokensPerWord": 5,
+          "enTokensPerWord": 1.13,
+          "wordRatio": 0.804
         },
         {
           "register": "news",
           "n": 8,
           "el": 613,
           "en": 118,
-          "ratio": 5.19
+          "ratio": 5.19,
+          "elTokensPerWord": 5.89,
+          "enTokensPerWord": 1.15,
+          "wordRatio": 1.01
         },
         {
           "register": "technical",
           "n": 8,
           "el": 637,
           "en": 110,
-          "ratio": 5.79
+          "ratio": 5.79,
+          "elTokensPerWord": 6.13,
+          "enTokensPerWord": 1.11,
+          "wordRatio": 1.051
         },
         {
           "register": "commerce",
           "n": 8,
           "el": 626,
           "en": 110,
-          "ratio": 5.69
+          "ratio": 5.69,
+          "elTokensPerWord": 6.26,
+          "enTokensPerWord": 1.12,
+          "wordRatio": 1.02
         },
         {
           "register": "formal",
           "n": 8,
           "el": 598,
           "en": 109,
-          "ratio": 5.49
+          "ratio": 5.49,
+          "elTokensPerWord": 6.5,
+          "enTokensPerWord": 1.11,
+          "wordRatio": 0.939
         }
       ],
       "worstPair": {
@@ -143,6 +215,12 @@
         "el": "Η εξυπηρέτηση πελατών απαντά τηλεφωνικά τις εργάσιμες ημέρες και με ηλεκτρονικό ταχυδρομείο οποιαδήποτε στιγμή.",
         "enTokens": 14,
         "elTokens": 103
+      },
+      "figureSentence": {
+        "el": 82,
+        "en": 17,
+        "elWords": 14,
+        "elChars": 94
       }
     },
     "p50k_base": {
@@ -152,7 +230,11 @@
         "elTokens": 3633,
         "enTokens": 561,
         "elWords": 478,
-        "enWords": 495
+        "enWords": 495,
+        "elChars": 3178,
+        "enChars": 2908,
+        "elBytes": 5859,
+        "enBytes": 2908
       },
       "ratio": 6.48,
       "ratioInterval95": [
@@ -163,41 +245,66 @@
         "el": 7.6,
         "en": 1.13
       },
+      "lengthControlled": {
+        "byteRatio": 2.015,
+        "charRatio": 1.093,
+        "bytesPerToken": {
+          "el": 1.61,
+          "en": 5.18
+        },
+        "tokensPerByteRatio": 3.214,
+        "vocabularyPenaltyPercent": 221.4
+      },
       "byRegister": [
         {
           "register": "conversational",
           "n": 8,
           "el": 506,
           "en": 110,
-          "ratio": 4.6
+          "ratio": 4.6,
+          "elTokensPerWord": 6.49,
+          "enTokensPerWord": 1.13,
+          "wordRatio": 0.804
         },
         {
           "register": "news",
           "n": 8,
           "el": 762,
           "en": 119,
-          "ratio": 6.4
+          "ratio": 6.4,
+          "elTokensPerWord": 7.33,
+          "enTokensPerWord": 1.16,
+          "wordRatio": 1.01
         },
         {
           "register": "technical",
           "n": 8,
           "el": 817,
           "en": 111,
-          "ratio": 7.36
+          "ratio": 7.36,
+          "elTokensPerWord": 7.86,
+          "enTokensPerWord": 1.12,
+          "wordRatio": 1.051
         },
         {
           "register": "commerce",
           "n": 8,
           "el": 787,
           "en": 112,
-          "ratio": 7.03
+          "ratio": 7.03,
+          "elTokensPerWord": 7.87,
+          "enTokensPerWord": 1.14,
+          "wordRatio": 1.02
         },
         {
           "register": "formal",
           "n": 8,
           "el": 761,
           "en": 109,
-          "ratio": 6.98
+          "ratio": 6.98,
+          "elTokensPerWord": 8.27,
+          "enTokensPerWord": 1.11,
+          "wordRatio": 0.939
         }
       ],
       "worstPair": {
@@ -206,6 +313,12 @@
         "el": "Οι επιστροφές γίνονται δεκτές εντός δεκατεσσάρων ημερών, εφόσον το προϊόν δεν έχει χρησιμοποιηθεί.",
         "enTokens": 13,
         "elTokens": 114
+      },
+      "figureSentence": {
+        "el": 98,
+        "en": 17,
+        "elWords": 14,
+        "elChars": 94
       }
     },
     "r50k_base": {
@@ -215,7 +328,11 @@
         "elTokens": 3633,
         "enTokens": 561,
         "elWords": 478,
-        "enWords": 495
+        "enWords": 495,
+        "elChars": 3178,
+        "enChars": 2908,
+        "elBytes": 5859,
+        "enBytes": 2908
       },
       "ratio": 6.48,
       "ratioInterval95": [
@@ -226,41 +343,66 @@
         "el": 7.6,
         "en": 1.13
       },
+      "lengthControlled": {
+        "byteRatio": 2.015,
+        "charRatio": 1.093,
+        "bytesPerToken": {
+          "el": 1.61,
+          "en": 5.18
+        },
+        "tokensPerByteRatio": 3.214,
+        "vocabularyPenaltyPercent": 221.4
+      },
       "byRegister": [
         {
           "register": "conversational",
           "n": 8,
           "el": 506,
           "en": 110,
-          "ratio": 4.6
+          "ratio": 4.6,
+          "elTokensPerWord": 6.49,
+          "enTokensPerWord": 1.13,
+          "wordRatio": 0.804
         },
         {
           "register": "news",
           "n": 8,
           "el": 762,
           "en": 119,
-          "ratio": 6.4
+          "ratio": 6.4,
+          "elTokensPerWord": 7.33,
+          "enTokensPerWord": 1.16,
+          "wordRatio": 1.01
         },
         {
           "register": "technical",
           "n": 8,
           "el": 817,
           "en": 111,
-          "ratio": 7.36
+          "ratio": 7.36,
+          "elTokensPerWord": 7.86,
+          "enTokensPerWord": 1.12,
+          "wordRatio": 1.051
         },
         {
           "register": "commerce",
           "n": 8,
           "el": 787,
           "en": 112,
-          "ratio": 7.03
+          "ratio": 7.03,
+          "elTokensPerWord": 7.87,
+          "enTokensPerWord": 1.14,
+          "wordRatio": 1.02
         },
         {
           "register": "formal",
           "n": 8,
           "el": 761,
           "en": 109,
-          "ratio": 6.98
+          "ratio": 6.98,
+          "elTokensPerWord": 8.27,
+          "enTokensPerWord": 1.11,
+          "wordRatio": 0.939
         }
       ],
       "worstPair": {
@@ -269,6 +411,12 @@
         "el": "Οι επιστροφές γίνονται δεκτές εντός δεκατεσσάρων ημερών, εφόσον το προϊόν δεν έχει χρησιμοποιηθεί.",
         "enTokens": 13,
         "elTokens": 114
+      },
+      "figureSentence": {
+        "el": 98,
+        "en": 17,
+        "elWords": 14,
+        "elChars": 94
       }
     }
   },

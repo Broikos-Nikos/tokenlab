@@ -14,6 +14,19 @@
   <body>
     <div class="grain" aria-hidden="true"></div>
 
+    <!--
+      The chip list is not a live region on purpose: read aloud it is a wall of
+      single letters. This is, and it carries the same information in one line.
+    -->
+    <p class="sr-only" role="status" aria-live="polite" data-announce></p>
+
+    <noscript>
+      <p class="noscript">
+        This page tokenizes text in your browser, so it needs JavaScript. The
+        measurement it reports is in the README of the repository and does not.
+      </p>
+    </noscript>
+
     <header class="masthead">
       <span class="wordmark">tokenlab</span>
       <p class="standfirst">
@@ -52,9 +65,12 @@
         <output class="tokens" id="tokens" aria-live="off"></output>
 
         <p class="fracture-note" data-fracture-note hidden>
-          <span data-fracture-count>0</span> pieces of this text cost more than
-          one token each. The tokenizer had no token for them, so it spelled
-          them out in raw bytes and charged for every byte.
+          <span data-fracture-count>0</span>
+          <span data-fracture-body>
+            pieces of this text cost more than one token each. The tokenizer had
+            no token for them, so it spelled them out in raw bytes and charged
+            for every byte.
+          </span>
         </p>
       </section>
 

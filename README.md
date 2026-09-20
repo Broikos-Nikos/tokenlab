@@ -14,6 +14,16 @@ Type Greek into the page and watch a tokenizer take it apart. Switch the
 encoding and watch the same sentence go from word pieces to single letters to
 raw bytes, with the bill updating as it happens.
 
+![The page opens on cl100k, where every Greek letter is its own token, then heals to o200k, where they collapse back into word pieces](docs/shatter.gif)
+
+That is the real page in a real browser, recorded by `npm run capture`. One
+sentence, pinned so the recording can be checked: 82 tokens on `cl100k` and 37
+on `o200k`. The price only appears once the selected encoding is the one the
+chosen model actually uses, and a vocabulary that has not arrived yet says
+loading rather than pretending to be selected.
+
+The same thing standing still:
+
 | `o200k`, 37 tokens for 14 Greek words | `cl100k`, 82 tokens for the same 94 characters |
 |---|---|
 | ![37 tokens, two and a half per word](docs/shatter-o200k.png) | ![82 tokens, nearly one per character](docs/shatter-cl100k.png) |

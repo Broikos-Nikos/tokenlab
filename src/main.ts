@@ -101,22 +101,38 @@ function buildModelSelect() {
 
 async function setEncoding(id: EncodingId) {
   const request = ++encodingRequest
+
+  // Nothing about the page moves until the vocabulary is actually here. A
+  // pressed button, a recoloured page and a headline number are all assertions
+  // about which encoding is producing the tokens on screen, and for as long as
+  // a megabyte of vocabulary is still in flight none of them would be true.
+  // While it loads the button says so instead.
+  for (const b of el.encodings.querySelectorAll<HTMLButtonElement>('.enc')) {
+    const target = b.dataset.enc === id
+    b.classList.toggle('is-loading', target)
+    b.setAttribute('aria-busy', String(target))
+  }
+
+  const next = await loadEncoder(id)
+  // A slower vocabulary asked for first must not overwrite a faster one asked
+  // for second.
+  if (request !== encodingRequest) return
+
+  state.encoding = id
+  encoder = next
+
   const meta = metaFor(id)
   document.documentElement.style.setProperty('--hue', String(meta.hue))
   for (const b of el.encodings.querySelectorAll<HTMLButtonElement>('.enc')) {
     const on = b.dataset.enc === id
     b.classList.toggle('is-on', on)
+    b.classList.remove('is-loading')
     b.setAttribute('aria-pressed', String(on))
+    b.setAttribute('aria-busy', 'false')
   }
   const f = findings.encodings as Record<string, { ratio: number }>
   el.headlineRatio.textContent = `${f[id]!.ratio}x more`
 
-  const next = await loadEncoder(id)
-  // A slower vocabulary that was asked for first must not overwrite a faster
-  // one that was asked for second.
-  if (request !== encodingRequest) return
-  state.encoding = id
-  encoder = next
   staggerNext = true
   render()
 }
@@ -327,6 +343,15 @@ function renderFindings() {
 
 /* ----------------------------------------------------------------- wire up */
 
+/** `?pair=N`, clamped, or null when it is absent or not a number. */
+function pinnedPair(): number | null {
+  const raw = new URLSearchParams(location.search).get('pair')
+  if (raw === null) return null
+  const n = Number.parseInt(raw, 10)
+  if (!Number.isFinite(n)) return null
+  return Math.min(Math.max(n, 0), corpus.pairs.length - 1)
+}
+
 /** Any deliberate act by the visitor cancels the opening move. */
 function cancelHeal() {
   if (healTimer !== undefined) {
@@ -370,7 +395,12 @@ async function boot() {
   // Seed the textarea before anything is awaited, so the page is never a
   // focusable empty box that silently discards what is typed into it, and so
   // the sentence is on screen while the vocabulary is still arriving.
-  state.pairIndex = Math.floor(Math.random() * corpus.pairs.length)
+  //
+  // ?pair=N pins the sentence. It is what makes a link to this page point at a
+  // particular example rather than at a shuffle, and it is what lets the
+  // recording in the README be reproducible: a capture of a random sentence
+  // cannot have its numbers checked against anything.
+  state.pairIndex = pinnedPair() ?? Math.floor(Math.random() * corpus.pairs.length)
   const pair = corpus.pairs[state.pairIndex]!
   el.input.value = state.lang === 'el' ? pair.el : pair.en
   el.input.setAttribute('lang', state.lang)

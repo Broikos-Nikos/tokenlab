@@ -10,7 +10,8 @@
     "preview": "vite preview",
     "measure": "tsx tools/measure.ts",
     "typecheck": "tsc --noEmit",
-    "check": "tsx tools/check-claims.ts"
+    "check": "tsx tools/check-claims.ts",
+    "capture": "node tools/capture.mjs"
   },
   "dependencies": {
     "gpt-tokenizer": "4.0.0"

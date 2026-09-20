@@ -271,6 +271,36 @@ textarea:focus-visible {
   color: oklch(0.78 0.06 var(--enc-hue, 168));
 }
 
+/* A vocabulary is about a megabyte. Until it lands, this button is a request,
+   not a state, and it should not look like one. */
+.enc.is-loading {
+  color: oklch(0.9 0.02 var(--enc-hue, 168));
+  border-color: oklch(0.45 0.07 var(--enc-hue, 168));
+  border-style: dashed;
+}
+
+.enc.is-loading::after {
+  content: 'loading';
+  position: absolute;
+  inset: auto 0.6rem 0.28rem auto;
+  font-family: var(--sans);
+  font-size: 0.6rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: oklch(0.8 0.08 var(--enc-hue, 168));
+  animation: enc-pulse 1.1s ease-in-out infinite;
+}
+
+.enc {
+  position: relative;
+}
+
+@keyframes enc-pulse {
+  50% {
+    opacity: 0.35;
+  }
+}
+
 /* ------------------------------------------------------------------ tokens */
 
 .tokens {

@@ -63,6 +63,15 @@ add(
 
 // ---- the picture ----------------------------------------------------------
 
+// The recording is pinned to one sentence precisely so its numbers can be
+// checked like any other. An unpinned capture would put uncheckable numbers at
+// the top of the README, which is where this project has been wrong before.
+add(
+  'the token counts in the caption under the recording',
+  `${enc('cl100k_base').figureSentence.el} tokens on \`cl100k\` and ` +
+    `${enc('o200k_base').figureSentence.el} on \`o200k\``,
+)
+
 add('the o200k count on the left picture', `\`o200k\`, ${enc('o200k_base').figureSentence.el} tokens`)
 add('the cl100k count on the right picture', `\`cl100k\`, ${enc('cl100k_base').figureSentence.el} tokens`)
 add('the word count under the pictures', `for ${enc('o200k_base').figureSentence.elWords} Greek words`)

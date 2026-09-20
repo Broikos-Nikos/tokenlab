@@ -1,10 +1,10 @@
 # tokenlab
 
-**Greek costs 2.09 times the tokens of English on the newest OpenAI vocabulary.
-Almost none of that is the tokenizer.** Greek is 2.015 times the UTF-8 bytes of
-English before anything tokenizes it, and `o200k` adds 3.6 percent on top of
-that. The same measurement on `cl100k` adds 155 percent, and on `p50k` and
-`r50k` it adds 221 percent.
+**Greek costs 2.06 times the tokens of English on the newest OpenAI vocabulary.
+Almost none of that is the tokenizer.** Greek is 2.004 times the UTF-8 bytes of
+English before anything tokenizes it, and `o200k` adds 2.9 percent on top of
+that. The same measurement on `cl100k` adds 156 percent, and on `p50k` and
+`r50k` it adds 220 percent.
 
 That is the finding, and the first version of this README did not have it,
 because a raw token ratio measures the writing system and the vocabulary at once
@@ -40,13 +40,13 @@ totals, not a mean of per sentence ratios. Intervals are a paired bootstrap,
 
 | encoding | used by | raw token ratio | 95% interval | bytes per token, Greek | vocabulary cost beyond the script |
 |---|---|---|---|---|---|
-| `o200k_base` | GPT-6, GPT-5.x, GPT-4.1, GPT-4o | 2.09x | 1.97 to 2.20 | 5.05 | **+3.6%** |
-| `cl100k_base` | GPT-4, GPT-3.5 Turbo, text-embedding-3 | 5.14x | 4.81 to 5.47 | 2.05 | **+155%** |
-| `p50k_base` | Codex, davinci-002 | 6.48x | 6.07 to 6.87 | 1.61 | **+221%** |
-| `r50k_base` | GPT-3, GPT-2 | 6.48x | 6.07 to 6.87 | 1.61 | **+221%** |
+| `o200k_base` | GPT-6, GPT-5.x, GPT-4.1, GPT-4o | 2.06x | 1.94 to 2.18 | 5.10 | **+2.9%** |
+| `cl100k_base` | GPT-4, GPT-3.5 Turbo, text-embedding-3 | 5.12x | 4.79 to 5.45 | 2.05 | **+156%** |
+| `p50k_base` | Codex, davinci-002 | 6.42x | 6.00 to 6.82 | 1.62 | **+220%** |
+| `r50k_base` | GPT-3, GPT-2 | 6.42x | 6.00 to 6.82 | 1.62 | **+220%** |
 
-English gets 5.23 bytes per token on `o200k` and 5.22 on `cl100k`, essentially
-unchanged. Greek goes from 2.05 to 5.05 between the two. That is what the last
+English gets 5.24 bytes per token on `o200k` and 5.24 on `cl100k`, unchanged to
+two decimals. Greek goes from 2.05 to 5.10 between the two. That is what the last
 column is measuring: how many tokens the vocabulary spends per byte of Greek,
 against how many it spends per byte of English.
 
@@ -62,13 +62,15 @@ npm run check     # asserts every number above against that file
 ```
 
 The page reads `findings.json` directly. This README cannot, because it is
-prose, so `npm run check` holds the two together: it rebuilds all 29 numeric
-claims on this page from the measurement and fails by name if any of them has
+prose, so `npm run check` holds the two together: it rebuilds every numeric
+claim on this page from the measurement and fails by name if any of them has
 drifted. It runs as part of `npm run build`, so the README cannot go stale
-without the build going red.
+without the build going red. It also refuses any corpus pair that is not marked
+`provenance: written`.
 
-It earned its place on its first run, by catching a bytes per token figure that
-had been typed by hand as 1.63 when the measurement said 1.61.
+It earned its place twice. On its first run it caught a bytes per token figure
+that had been typed by hand and was wrong. When the corpus was revised it named
+all twenty claims that had moved, which is a job nobody does correctly by eye.
 
 Prices in [`data/pricing.json`](data/pricing.json) are the one set of numbers
 not measured here, and they carry the date they were checked and the page they
@@ -76,7 +78,7 @@ came from.
 
 ## What the numbers say
 
-`o200k` has effectively closed the Greek vocabulary gap. A 3.6 percent residual
+`o200k` has effectively closed the Greek vocabulary gap. A 2.9 percent residual
 is not something anyone should design around. What remains is the script: Greek
 is two UTF-8 bytes a letter and English is one, and no vocabulary can undo that.
 
@@ -89,8 +91,8 @@ The register spread is smaller than it looks. The raw ratio runs 1.58x to 2.33x
 across registers on `o200k`, but most of that is the author writing the
 conversational Greek 20 percent shorter than its English partner. Measured in
 tokens per Greek word, which is what a Greek cost model actually uses, the spread
-is 2.23 to 2.48, an 11 percent difference. On `cl100k` the same comparison is
-5.00 to 6.50, a 30 percent difference, and that one is genuinely the tokenizer.
+is 2.23 to 2.46, a 10 percent difference. On `cl100k` the same comparison is
+5.00 to 6.59, a 32 percent difference, and that one is genuinely the tokenizer.
 
 ## Run it
 
@@ -125,10 +127,14 @@ arrives.
 - The pairs are written by one bilingual author. A different author would write
   different Greek and the raw ratio would move. The byte controlled figure is
   much less sensitive to that, which is another reason to prefer it.
-- Two of the eight formal pairs are taken from the Universal Declaration of
-  Human Rights rather than written from scratch. It is public domain and it is
-  aligned, but it is not what `data/pairs.json` says about itself, and that will
-  be corrected.
+- Every pair carries a `provenance` field and `written` is the only value the
+  corpus accepts, which `npm run check` enforces. Three formal pairs adapted
+  from the Universal Declaration of Human Rights were removed on 2026-09-21:
+  public domain and properly aligned, but the Greek side of it is an official
+  translation of the English, which is the one thing this method exists to keep
+  out. Removing them moved the headline from 2.09x to 2.06x and the o200k
+  vocabulary penalty from 3.6 percent to 2.9 percent, so the finding did not
+  depend on them.
 - Only the four tiktoken encodings are covered. Llama, Gemma and Qwen use
   SentencePiece vocabularies that are not here yet, and Greek behaves
   differently on each.

@@ -12,18 +12,18 @@
       "formal"
     ],
     "built": "2026-09-20",
-    "method": "Forty sentence pairs written by hand in both languages, not machine translated, spread over five registers. Each pair says the same thing the way a native speaker would say it in that language, so the comparison measures the writing systems and the tokenizers rather than translationese."
+    "method": "Forty sentence pairs written by hand in both languages, not machine translated and not taken from any parallel corpus, spread over five registers. Each pair says the same thing the way a native speaker would say it in that language, so the comparison measures the writing systems and the tokenizers rather than translationese. Every pair carries a provenance field, and written is the only value this corpus accepts: an official translation, however well aligned, is translationese by construction and would measure the wrong thing."
   },
   "headline": {
-    "o200kRatio": 2.09,
-    "cl100kRatio": 5.14,
-    "improvement": 2.46,
-    "scriptCost": 2.015,
+    "o200kRatio": 2.06,
+    "cl100kRatio": 5.12,
+    "improvement": 2.49,
+    "scriptCost": 2.004,
     "vocabularyCost": {
-      "o200k": 1.036,
-      "cl100k": 2.552,
-      "p50k": 3.214,
-      "r50k": 3.214
+      "o200k": 1.029,
+      "cl100k": 2.557,
+      "p50k": 3.203,
+      "r50k": 3.203
     }
   },
   "encodings": {
@@ -31,33 +31,33 @@
       "label": "o200k",
       "vocabularySize": 200006,
       "totals": {
-        "elTokens": 1160,
-        "enTokens": 556,
-        "elWords": 478,
-        "enWords": 495,
-        "elChars": 3178,
-        "enChars": 2908,
-        "elBytes": 5859,
-        "enBytes": 2908
+        "elTokens": 1142,
+        "enTokens": 554,
+        "elWords": 473,
+        "enWords": 494,
+        "elChars": 3155,
+        "enChars": 2904,
+        "elBytes": 5820,
+        "enBytes": 2904
       },
-      "ratio": 2.09,
+      "ratio": 2.06,
       "ratioInterval95": [
-        1.97,
-        2.2
+        1.94,
+        2.18
       ],
       "tokensPerWord": {
-        "el": 2.43,
+        "el": 2.41,
         "en": 1.12
       },
       "lengthControlled": {
-        "byteRatio": 2.015,
-        "charRatio": 1.093,
+        "byteRatio": 2.004,
+        "charRatio": 1.086,
         "bytesPerToken": {
-          "el": 5.05,
-          "en": 5.23
+          "el": 5.1,
+          "en": 5.24
         },
-        "tokensPerByteRatio": 1.036,
-        "vocabularyPenaltyPercent": 3.6
+        "tokensPerByteRatio": 1.029,
+        "vocabularyPenaltyPercent": 2.9
       },
       "byRegister": [
         {
@@ -103,12 +103,12 @@
         {
           "register": "formal",
           "n": 8,
-          "el": 228,
-          "en": 109,
-          "ratio": 2.09,
-          "elTokensPerWord": 2.48,
-          "enTokensPerWord": 1.11,
-          "wordRatio": 0.939
+          "el": 210,
+          "en": 107,
+          "ratio": 1.96,
+          "elTokensPerWord": 2.41,
+          "enTokensPerWord": 1.1,
+          "wordRatio": 0.897
         }
       ],
       "worstPair": {
@@ -129,33 +129,33 @@
       "label": "cl100k",
       "vocabularySize": 100264,
       "totals": {
-        "elTokens": 2864,
-        "enTokens": 557,
-        "elWords": 478,
-        "enWords": 495,
-        "elChars": 3178,
-        "enChars": 2908,
-        "elBytes": 5859,
-        "enBytes": 2908
+        "elTokens": 2839,
+        "enTokens": 554,
+        "elWords": 473,
+        "enWords": 494,
+        "elChars": 3155,
+        "enChars": 2904,
+        "elBytes": 5820,
+        "enBytes": 2904
       },
-      "ratio": 5.14,
+      "ratio": 5.12,
       "ratioInterval95": [
-        4.81,
-        5.47
+        4.79,
+        5.45
       ],
       "tokensPerWord": {
-        "el": 5.99,
-        "en": 1.13
+        "el": 6,
+        "en": 1.12
       },
       "lengthControlled": {
-        "byteRatio": 2.015,
-        "charRatio": 1.093,
+        "byteRatio": 2.004,
+        "charRatio": 1.086,
         "bytesPerToken": {
           "el": 2.05,
-          "en": 5.22
+          "en": 5.24
         },
-        "tokensPerByteRatio": 2.552,
-        "vocabularyPenaltyPercent": 155.2
+        "tokensPerByteRatio": 2.557,
+        "vocabularyPenaltyPercent": 155.7
       },
       "byRegister": [
         {
@@ -201,12 +201,12 @@
         {
           "register": "formal",
           "n": 8,
-          "el": 598,
-          "en": 109,
-          "ratio": 5.49,
-          "elTokensPerWord": 6.5,
-          "enTokensPerWord": 1.11,
-          "wordRatio": 0.939
+          "el": 573,
+          "en": 106,
+          "ratio": 5.41,
+          "elTokensPerWord": 6.59,
+          "enTokensPerWord": 1.09,
+          "wordRatio": 0.897
         }
       ],
       "worstPair": {
@@ -227,33 +227,33 @@
       "label": "p50k",
       "vocabularySize": 50281,
       "totals": {
-        "elTokens": 3633,
+        "elTokens": 3601,
         "enTokens": 561,
-        "elWords": 478,
-        "enWords": 495,
-        "elChars": 3178,
-        "enChars": 2908,
-        "elBytes": 5859,
-        "enBytes": 2908
+        "elWords": 473,
+        "enWords": 494,
+        "elChars": 3155,
+        "enChars": 2904,
+        "elBytes": 5820,
+        "enBytes": 2904
       },
-      "ratio": 6.48,
+      "ratio": 6.42,
       "ratioInterval95": [
-        6.07,
-        6.87
+        6,
+        6.82
       ],
       "tokensPerWord": {
-        "el": 7.6,
-        "en": 1.13
+        "el": 7.61,
+        "en": 1.14
       },
       "lengthControlled": {
-        "byteRatio": 2.015,
-        "charRatio": 1.093,
+        "byteRatio": 2.004,
+        "charRatio": 1.086,
         "bytesPerToken": {
-          "el": 1.61,
+          "el": 1.62,
           "en": 5.18
         },
-        "tokensPerByteRatio": 3.214,
-        "vocabularyPenaltyPercent": 221.4
+        "tokensPerByteRatio": 3.203,
+        "vocabularyPenaltyPercent": 220.3
       },
       "byRegister": [
         {
@@ -299,12 +299,12 @@
         {
           "register": "formal",
           "n": 8,
-          "el": 761,
+          "el": 729,
           "en": 109,
-          "ratio": 6.98,
-          "elTokensPerWord": 8.27,
-          "enTokensPerWord": 1.11,
-          "wordRatio": 0.939
+          "ratio": 6.69,
+          "elTokensPerWord": 8.38,
+          "enTokensPerWord": 1.12,
+          "wordRatio": 0.897
         }
       ],
       "worstPair": {
@@ -325,33 +325,33 @@
       "label": "r50k",
       "vocabularySize": 50257,
       "totals": {
-        "elTokens": 3633,
+        "elTokens": 3601,
         "enTokens": 561,
-        "elWords": 478,
-        "enWords": 495,
-        "elChars": 3178,
-        "enChars": 2908,
-        "elBytes": 5859,
-        "enBytes": 2908
+        "elWords": 473,
+        "enWords": 494,
+        "elChars": 3155,
+        "enChars": 2904,
+        "elBytes": 5820,
+        "enBytes": 2904
       },
-      "ratio": 6.48,
+      "ratio": 6.42,
       "ratioInterval95": [
-        6.07,
-        6.87
+        6,
+        6.82
       ],
       "tokensPerWord": {
-        "el": 7.6,
-        "en": 1.13
+        "el": 7.61,
+        "en": 1.14
       },
       "lengthControlled": {
-        "byteRatio": 2.015,
-        "charRatio": 1.093,
+        "byteRatio": 2.004,
+        "charRatio": 1.086,
         "bytesPerToken": {
-          "el": 1.61,
+          "el": 1.62,
           "en": 5.18
         },
-        "tokensPerByteRatio": 3.214,
-        "vocabularyPenaltyPercent": 221.4
+        "tokensPerByteRatio": 3.203,
+        "vocabularyPenaltyPercent": 220.3
       },
       "byRegister": [
         {
@@ -397,12 +397,12 @@
         {
           "register": "formal",
           "n": 8,
-          "el": 761,
+          "el": 729,
           "en": 109,
-          "ratio": 6.98,
-          "elTokensPerWord": 8.27,
-          "enTokensPerWord": 1.11,
-          "wordRatio": 0.939
+          "ratio": 6.69,
+          "elTokensPerWord": 8.38,
+          "enTokensPerWord": 1.12,
+          "wordRatio": 0.897
         }
       ],
       "worstPair": {

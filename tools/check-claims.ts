@@ -37,6 +37,8 @@ const add = (about: string, must: string) => claims.push({ about, must })
 
 const enc = (id: string) => f.encodings[id]
 const pct = (n: number) => (Number.isInteger(n) ? String(n) : n.toFixed(1))
+/** English needs the article to agree with how the number is read aloud. */
+const article = (n: number) => (n === 8 || n === 11 || n === 18 || (n >= 80 && n < 90) ? 'an' : 'a')
 
 // ---- the headline ---------------------------------------------------------
 
@@ -89,23 +91,25 @@ for (const [id, label] of [
   const [lo, hi] = e.ratioInterval95
   add(`${label} raw ratio in the table`, `| ${e.ratio}x |`)
   add(`${label} interval in the table`, `| ${lo.toFixed(2)} to ${hi.toFixed(2)} |`)
-  add(`${label} bytes per Greek token in the table`, `| ${e.lengthControlled.bytesPerToken.el} |`)
+  // Two decimals always, so a column of figures lines up instead of showing
+  // 5.1 next to 1.62 because one of them happened to round short.
+  add(`${label} bytes per Greek token in the table`, `| ${e.lengthControlled.bytesPerToken.el.toFixed(2)} |`)
 }
 
 // ---- the prose around the table -------------------------------------------
 
 add(
   'English bytes per token on o200k',
-  `English gets ${enc('o200k_base').lengthControlled.bytesPerToken.en} bytes per token`,
+  `English gets ${enc('o200k_base').lengthControlled.bytesPerToken.en.toFixed(2)} bytes per token`,
 )
 add(
   'English bytes per token on cl100k',
-  `${enc('cl100k_base').lengthControlled.bytesPerToken.en} on \`cl100k\``,
+  `${enc('cl100k_base').lengthControlled.bytesPerToken.en.toFixed(2)} on \`cl100k\``,
 )
 add(
   'Greek bytes per token, both ends',
-  `Greek goes from ${enc('cl100k_base').lengthControlled.bytesPerToken.el} to ` +
-    `${enc('o200k_base').lengthControlled.bytesPerToken.el}`,
+  `Greek goes from ${enc('cl100k_base').lengthControlled.bytesPerToken.el.toFixed(2)} to ` +
+    `${enc('o200k_base').lengthControlled.bytesPerToken.el.toFixed(2)}`,
 )
 
 // ---- the register claim, the one that was overstated ----------------------
@@ -128,8 +132,8 @@ const reg = (id: string) => {
 const o = reg('o200k_base')
 const c = reg('cl100k_base')
 add('the raw register spread on o200k', `runs ${o.rawLo}x to ${o.rawHi}x across registers`)
-add('the honest register spread on o200k', `${o.tpwLo} to ${o.tpwHi}, an ${o.spreadPct} percent difference`)
-add('the register spread on cl100k', `${c.tpwLo.toFixed(2)} to ${c.tpwHi.toFixed(2)}, a ${c.spreadPct} percent difference`)
+add('the honest register spread on o200k', `${o.tpwLo} to ${o.tpwHi}, ${article(o.spreadPct)} ${o.spreadPct} percent difference`)
+add('the register spread on cl100k', `${c.tpwLo.toFixed(2)} to ${c.tpwHi.toFixed(2)}, ${article(c.spreadPct)} ${c.spreadPct} percent difference`)
 
 // ---- the corpus ------------------------------------------------------------
 
@@ -161,8 +165,18 @@ if (failed > 0) {
   process.exit(1)
 }
 
-// The corpus file describes itself, and that description is a claim too.
+// The corpus file describes itself, and that description is a claim too. It was
+// wrong once: the method said every pair was written by hand in both languages
+// while three of them were adapted from an official translation.
 const corpus = JSON.parse(readFileSync(resolve(root, 'data/pairs.json'), 'utf8'))
+const notWritten = corpus.pairs.filter((p: { provenance?: string }) => p.provenance !== 'written')
+if (notWritten.length > 0) {
+  console.error(
+    `FAIL  ${notWritten.length} pairs in data/pairs.json are not marked provenance "written", ` +
+      `but the method in that file says every pair was written by hand in both languages.`,
+  )
+  process.exit(1)
+}
 if (corpus.pairs.length !== f.corpus.pairs) {
   console.error(`FAIL  data/pairs.json has ${corpus.pairs.length} pairs, findings.json says ${f.corpus.pairs}`)
   process.exit(1)

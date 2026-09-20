@@ -56,6 +56,20 @@ export interface Encoder {
   id: EncodingId
   encode(text: string): number[]
   decode(ids: number[]): string
+  /**
+   * The raw UTF-8 bytes of one token.
+   *
+   * This exists because `decode` cannot be used to answer the question. In
+   * gpt-tokenizer 4.0.0 there is one module level `TextDecoder` shared by every
+   * call, fed with `{ stream: true }` and never flushed, so decoding anything
+   * that ends mid character leaves those bytes inside the decoder and the next
+   * call anywhere in the page picks them up. Drawing tokens means asking about
+   * incomplete pieces constantly, which is exactly the thing that poisons it.
+   *
+   * Bytes have no such problem. Given bytes, this project does its own UTF-8
+   * assembly with its own decoder and the whole class of corruption goes away.
+   */
+  tokenBytes(id: number): Uint8Array
   vocabularySize: number
 }
 
@@ -63,7 +77,16 @@ type EncodingModule = {
   encode: (text: string) => number[]
   decode: (ids: Iterable<number>) => string
   vocabularySize: number
+  /** The GptEncoding instance. Typed loosely here and narrowed at runtime. */
+  default?: unknown
 }
+
+/** The one piece of gpt-tokenizer internals this project depends on. */
+interface ByteSource {
+  tryDecodeToken(id: number): string | Uint8Array | undefined
+}
+
+const utf8 = new TextEncoder()
 
 const loaders: Record<EncodingId, () => Promise<EncodingModule>> = {
   o200k_base: () => import('gpt-tokenizer/encoding/o200k_base'),
@@ -77,12 +100,31 @@ const cache = new Map<EncodingId, Promise<Encoder>>()
 export function loadEncoder(id: EncodingId): Promise<Encoder> {
   let pending = cache.get(id)
   if (!pending) {
-    pending = loaders[id]().then((mod) => ({
-      id,
-      encode: (text: string) => mod.encode(text),
-      decode: (ids: number[]) => mod.decode(ids),
-      vocabularySize: mod.vocabularySize,
-    }))
+    pending = loaders[id]().then((mod) => {
+      const core = (mod.default as { bytePairEncodingCoreProcessor?: ByteSource } | undefined)
+        ?.bytePairEncodingCoreProcessor
+      if (typeof core?.tryDecodeToken !== 'function') {
+        // Pinned to gpt-tokenizer 4.0.0 in package.json, and npm run check
+        // round trips every encoding over a set of inputs that catch this. If
+        // the shape ever changes, fail loudly here rather than drawing text
+        // nobody typed.
+        throw new Error(
+          `gpt-tokenizer no longer exposes per token bytes for ${id}. ` +
+            `See the note on Encoder.tokenBytes: decode() cannot substitute for it.`,
+        )
+      }
+      return {
+        id,
+        encode: (text: string) => mod.encode(text),
+        decode: (ids: number[]) => mod.decode(ids),
+        tokenBytes: (tokenId: number) => {
+          const raw = core.tryDecodeToken(tokenId)
+          if (raw === undefined) return new Uint8Array()
+          return typeof raw === 'string' ? utf8.encode(raw) : raw
+        },
+        vocabularySize: mod.vocabularySize,
+      }
+    })
     cache.set(id, pending)
   }
   return pending

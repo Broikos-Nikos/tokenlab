@@ -114,9 +114,15 @@ arrives.
 - `src/lib/segment.ts` turns token ids into things you can look at. The
   interesting case: when a tokenizer has no token for a character it emits the
   raw UTF-8 bytes, so one character becomes several tokens and none of them
-  decodes to anything on its own. Those are the red chips. Telling that apart
-  from a replacement character that was genuinely in the input takes a
-  re-encode, and getting it wrong swallows the rest of the document.
+  decodes to anything on its own. Those are the red chips. It works in bytes
+  and assembles UTF-8 itself, because `gpt-tokenizer` shares one streaming
+  `TextDecoder` across every `decode` call and never flushes it, so decoding a
+  prefix that ends mid character poisons the next call anywhere on the page.
+  That bug drew the first line of the Odyssey with characters nobody had typed.
+- `tools/check-segments.ts` is the gate that would have caught it: every
+  encoding, over polytonic Greek, Coptic, Linear B, Korean, emoji, NFD and
+  every prefix of a line as it is typed, the drawn text must equal the typed
+  text exactly.
 - `tools/measure.ts` the measurement, run by `npm run measure`.
 - `data/pairs.json` the corpus, forty pairs, CC0.
 

@@ -3,20 +3,31 @@
  *
  * The interesting case is the one this whole project is about. On an encoding
  * that never learned Greek, a single Greek letter does not get a token. It gets
- * split into its raw UTF-8 bytes, and each byte is a token. Decoding one of
- * those ids on its own gives you nothing, or a replacement character, because
- * half a character is not a character.
+ * split into its raw UTF-8 bytes, and each byte is a token. So a segment is not
+ * always one token. It is the smallest run of tokens whose bytes form whole
+ * characters, and a segment with `ids.length > 1` is text the tokenizer had to
+ * spell out, which is exactly the thing worth drawing.
  *
- * So a segment is not always one token. It is the smallest run of tokens that
- * decodes to real text. A segment with `ids.length > 1` is a character the
- * tokenizer had to spell out in bytes, and that is exactly the thing worth
- * drawing.
+ * This works in bytes rather than in decoded strings, and that is not a
+ * stylistic choice. An earlier version grew a run of ids and called
+ * `encoder.decode` on it after every token, treating decode as a pure function
+ * of its argument. It is not one. gpt-tokenizer 4.0.0 shares a single
+ * `TextDecoder` across every call and feeds it `{ stream: true }` without ever
+ * flushing, so decoding a prefix that ends mid character leaves those bytes
+ * inside the decoder, and the next call anywhere on the page receives them
+ * prepended to its own output.
+ *
+ * The visible result was that the first line of the Odyssey came back with
+ * characters in it that nobody had typed, on a page whose entire job is to show
+ * you what happened to your text. Assembling the bytes here, with a decoder this
+ * file owns, makes the whole class of corruption impossible rather than
+ * unlikely.
  */
 
 import type { Encoder } from './tokenizers'
 
 export interface Segment {
-  /** The token ids that had to be taken together to get readable text. */
+  /** The token ids that had to be taken together to form whole characters. */
   ids: number[]
   /** The text those ids decode to. */
   text: string
@@ -24,41 +35,43 @@ export interface Segment {
   splitIntoBytes: boolean
   /** Index of the first token in the full sequence. */
   start: number
+  /**
+   * True when the run never formed whole characters, which happens only if the
+   * id list itself ends mid character. Such a segment is a fact about the input,
+   * not a measurement of the tokenizer, and nothing should charge for it.
+   */
+  incomplete?: boolean
 }
 
-const REPLACEMENT = '�'
-
-/** No UTF-8 character is longer than four bytes, so no run needs more tokens. */
-const MAX_RUN = 4
-
 /**
- * A replacement character in the decoded text means one of two things, and they
- * have to be told apart or the second one eats the document.
- *
- * Either the bytes so far are an incomplete character, in which case the run
- * must keep growing, or the input genuinely contained U+FFFD, in which case the
- * run is already finished and waiting for more will swallow everything after it.
- *
- * Re-encoding separates them. A complete piece of text encodes back to exactly
- * the tokens it came from. An incomplete one does not.
+ * Strict, and stateless because nothing is ever streamed through it. Throws on
+ * anything that is not complete, valid UTF-8, which is precisely the test this
+ * file needs: it is how a run knows it has finished.
  */
-function isReadable(encoder: Encoder, s: string, ids: number[]): boolean {
-  if (s.length === 0) return false
-  if (!s.includes(REPLACEMENT)) return true
-  const again = encoder.encode(s)
-  return again.length === ids.length && again.every((v, i) => v === ids[i])
+const strict = new TextDecoder('utf-8', { fatal: true })
+const lossy = new TextDecoder('utf-8')
+
+function decodeComplete(bytes: Uint8Array): string | null {
+  try {
+    return strict.decode(bytes)
+  } catch {
+    return null
+  }
 }
 
 export function segment(encoder: Encoder, ids: number[]): Segment[] {
   const out: Segment[] = []
   let pending: number[] = []
+  let bytes: number[] = []
   let start = 0
 
   for (let i = 0; i < ids.length; i++) {
     if (pending.length === 0) start = i
     pending.push(ids[i])
-    const text = encoder.decode(pending)
-    if (isReadable(encoder, text, pending) || pending.length >= MAX_RUN) {
+    for (const b of encoder.tokenBytes(ids[i])) bytes.push(b)
+
+    const text = decodeComplete(new Uint8Array(bytes))
+    if (text !== null) {
       out.push({
         ids: pending,
         text,
@@ -66,17 +79,18 @@ export function segment(encoder: Encoder, ids: number[]): Segment[] {
         start,
       })
       pending = []
+      bytes = []
     }
   }
 
-  // Anything still pending never resolved into readable text. Emit it as is so
-  // the token count stays truthful, which matters more than the display.
+  // Only reachable when the id list itself ends part way through a character.
   if (pending.length > 0) {
     out.push({
       ids: pending,
-      text: encoder.decode(pending),
-      splitIntoBytes: pending.length > 1,
+      text: lossy.decode(new Uint8Array(bytes)),
+      splitIntoBytes: false,
       start,
+      incomplete: true,
     })
   }
 

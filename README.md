@@ -32,8 +32,8 @@ totals, not a mean of per sentence ratios. Intervals are a paired bootstrap,
 |---|---|---|---|---|---|
 | `o200k_base` | GPT-6, GPT-5.x, GPT-4.1, GPT-4o | 2.09x | 1.97 to 2.20 | 5.05 | **+3.6%** |
 | `cl100k_base` | GPT-4, GPT-3.5 Turbo, text-embedding-3 | 5.14x | 4.81 to 5.47 | 2.05 | **+155%** |
-| `p50k_base` | Codex, davinci-002 | 6.48x | 6.07 to 6.87 | 1.63 | **+221%** |
-| `r50k_base` | GPT-3, GPT-2 | 6.48x | 6.07 to 6.87 | 1.63 | **+221%** |
+| `p50k_base` | Codex, davinci-002 | 6.48x | 6.07 to 6.87 | 1.61 | **+221%** |
+| `r50k_base` | GPT-3, GPT-2 | 6.48x | 6.07 to 6.87 | 1.61 | **+221%** |
 
 English gets 5.23 bytes per token on `o200k` and 5.22 on `cl100k`, essentially
 unchanged. Greek goes from 2.05 to 5.05 between the two. That is what the last
@@ -47,13 +47,22 @@ Reproduce all of it:
 
 ```bash
 npm install
-npm run measure
+npm run measure   # writes src/generated/findings.json
+npm run check     # asserts every number above against that file
 ```
 
-That writes `src/generated/findings.json`, which is what the page and this table
-read. Prices in [`data/pricing.json`](data/pricing.json) are the one set of
-numbers not measured here, and they carry the date they were checked and the
-page they came from.
+The page reads `findings.json` directly. This README cannot, because it is
+prose, so `npm run check` holds the two together: it rebuilds all 29 numeric
+claims on this page from the measurement and fails by name if any of them has
+drifted. It runs as part of `npm run build`, so the README cannot go stale
+without the build going red.
+
+It earned its place on its first run, by catching a bytes per token figure that
+had been typed by hand as 1.63 when the measurement said 1.61.
+
+Prices in [`data/pricing.json`](data/pricing.json) are the one set of numbers
+not measured here, and they carry the date they were checked and the page they
+came from.
 
 ## What the numbers say
 

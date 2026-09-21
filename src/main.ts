@@ -23,6 +23,7 @@ const el = {
   cost: document.querySelector<HTMLElement>('[data-cost]')!,
   priceNote: document.querySelector<HTMLElement>('[data-price-note]')!,
   headlineRatio: document.querySelector<HTMLElement>('[data-headline-ratio]')!,
+  split: document.querySelector<HTMLElement>('[data-split]')!,
   fractureNote: document.querySelector<HTMLElement>('[data-fracture-note]')!,
   fractureCount: document.querySelector<HTMLElement>('[data-fracture-count]')!,
   fractureBody: document.querySelector<HTMLElement>('[data-fracture-body]')!,
@@ -206,8 +207,18 @@ async function setEncoding(id: EncodingId): Promise<boolean> {
     b.setAttribute('aria-pressed', String(on))
   }
   setBusy(id, false)
-  const f = findings.encodings as Record<string, { ratio: number }>
+  const f = findings.encodings as unknown as Record<string, EncodingFinding>
   el.headlineRatio.textContent = `${f[id]!.ratio}x more`
+
+  // Say which part of that is the alphabet and which part is this vocabulary,
+  // because the ratio on its own credits all of it to the vocabulary.
+  const lc = f[id]!.lengthControlled
+  const add = lc.vocabularyPenaltyPercent
+  el.split.innerHTML =
+    `Most of that is the alphabet. Greek is ` +
+    `<strong>${findings.headline.scriptCost}x</strong> the bytes of English before any ` +
+    `tokenizer runs, and ${meta.label} adds ` +
+    `<strong>${add < 10 ? add.toFixed(1) : Math.round(add)}%</strong> on top.`
 
   staggerNext = true
   render()
@@ -389,25 +400,40 @@ function render() {
 
 /* ------------------------------------------------------------ the findings */
 
+interface EncodingFinding {
+  ratio: number
+  ratioInterval95: [number, number]
+  tokensPerWord: { el: number; en: number }
+  lengthControlled: {
+    bytesPerToken: { el: number; en: number }
+    vocabularyPenaltyPercent: number
+  }
+}
+
 function renderFindings() {
   const f = findings as typeof findings
   el.findingsLede.textContent =
     `Across ${f.corpus.pairs} aligned sentence pairs in ${f.corpus.registers.length} registers, ` +
     `Greek costs ${f.encodings.o200k_base.ratio} times the tokens of English on the newest ` +
     `OpenAI vocabulary and ${f.encodings.cl100k_base.ratio} times on the one before it. ` +
-    `The newer vocabulary cut the Greek penalty by ${f.headline.improvement} times.`
+    `But Greek is ${f.headline.scriptCost} times the UTF-8 bytes of English before any ` +
+    `tokenizer is involved, so the last column is the part that is actually the ` +
+    `vocabulary: the newest one has all but closed the gap, and the one still under ` +
+    `most cost models built for GPT-4 has not.`
 
   const rows: string[] = []
   for (const meta of ENCODINGS) {
-    const e = (f.encodings as Record<string, typeof f.encodings.o200k_base>)[meta.id]
+    const e = (f.encodings as unknown as Record<string, EncodingFinding>)[meta.id]
     if (!e) continue
+    const add = e.lengthControlled.vocabularyPenaltyPercent
     rows.push(
       `<tr style="--row-hue:${meta.hue}">` +
         `<td>${meta.label}</td>` +
         `<td class="dim">${meta.models}</td>` +
         `<td data-ratio style="color:oklch(0.85 0.13 ${meta.hue})">${e.ratio}x</td>` +
-        `<td class="dim">${e.ratioInterval95[0]} to ${e.ratioInterval95[1]}</td>` +
-        `<td class="dim">${e.tokensPerWord.el} against ${e.tokensPerWord.en} in English</td>` +
+        `<td class="dim">${e.ratioInterval95[0].toFixed(2)} to ${e.ratioInterval95[1].toFixed(2)}</td>` +
+        `<td class="dim">${e.lengthControlled.bytesPerToken.el.toFixed(2)}</td>` +
+        `<td data-ratio style="color:oklch(0.85 0.13 ${meta.hue})">+${add.toFixed(1)}%</td>` +
         `</tr>`,
     )
   }

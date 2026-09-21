@@ -676,3 +676,19 @@ footer code {
     transition-duration: 1ms !important;
   }
 }
+
+/* The correction under the headline. Quieter than the claim it qualifies, but
+   not so quiet that a visitor leaves with the uncorrected reading. */
+.split {
+  margin: 0.9rem 0 0;
+  max-width: 46ch;
+  font-size: clamp(0.95rem, 0.9rem + 0.3vw, 1.15rem);
+  line-height: 1.5;
+  color: var(--text-dim);
+}
+
+.split strong {
+  color: var(--text);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}

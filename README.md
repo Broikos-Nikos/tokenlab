@@ -197,7 +197,7 @@ open. Commit messages cite the identifiers in it.
   out. Removing them moved the headline from 2.09x to 2.06x and the o200k
   vocabulary penalty from 3.6 percent to 2.9 percent, so the finding did not
   depend on them.
-- Only the four tiktoken encodings are covered. Llama, Gemma and Qwen use
+- Only the four encodings in the registry are covered, all of them tiktoken. Llama, Gemma and Qwen use
   SentencePiece vocabularies that are not here yet, and Greek behaves
   differently on each.
 - The corpus is NFC normalised. Greek written in NFD, which happens when text

@@ -21,6 +21,7 @@ import { readFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { hashInputs } from './inputs-hash'
+import { ENCODINGS } from '../src/lib/encodings'
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const readme = readFileSync(resolve(root, 'README.md'), 'utf8')
@@ -127,12 +128,9 @@ add('the character count, now in the prose rather than a caption', `${enc('o200k
  * The "used by" column is a label rather than a measurement, so it lives here.
  * Putting it in the assertion means a row cannot be mislabelled either.
  */
-const USED_BY: Record<string, string> = {
-  o200k_base: 'GPT-6, GPT-5.x, GPT-4.1, GPT-4o',
-  cl100k_base: 'GPT-4, GPT-3.5 Turbo, text-embedding-3',
-  p50k_base: 'Codex, davinci-002',
-  r50k_base: 'GPT-3, GPT-2',
-}
+const USED_BY: Record<string, string> = Object.fromEntries(
+  ENCODINGS.map((e) => [e.id, e.models]),
+)
 
 for (const id of Object.keys(USED_BY)) {
   const e = enc(id)
@@ -223,6 +221,11 @@ add('the corpus size where the table is introduced', `${capital(pairWord)} sente
 add('the corpus size in how it works', `the corpus, ${pairWord} pairs`)
 add('the corpus size in the honest limits', `${capital(pairWord)} pairs is a small corpus`)
 add('the number of registers', `across ${spell(f.corpus.registers.length)} registers`)
+add(
+  'the number of encodings, wherever the README counts them',
+  `${spell(ENCODINGS.length)} encodings`,
+  2,
+)
 add('the bootstrap size', `${(10000).toLocaleString('en-US')} resamples`)
 
 // ---- run -------------------------------------------------------------------

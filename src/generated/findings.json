@@ -5,7 +5,12 @@
     "bootstrapSamples": 10000,
     "seed": 20260920
   },
-  "olderPairIdentical": true,
+  "identicalEncodings": [
+    [
+      "p50k_base",
+      "r50k_base"
+    ]
+  ],
   "corpus": {
     "name": "tokenlab-aligned-40",
     "pairs": 40,

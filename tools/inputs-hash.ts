@@ -17,7 +17,8 @@ export interface HashablePair {
   el: string
 }
 
-export const ENCODING_IDS = ['o200k_base', 'cl100k_base', 'p50k_base', 'r50k_base'] as const
+export { ENCODING_IDS } from '../src/lib/encodings'
+import { ENCODING_IDS } from '../src/lib/encodings'
 export const BOOTSTRAP_SAMPLES = 10_000
 export const SEED = 20260920
 

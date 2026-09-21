@@ -27,6 +27,7 @@ import { cpSync, mkdtempSync, readFileSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { ENCODINGS } from '../src/lib/encodings'
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const committed = resolve(root, 'src/generated/findings.json')
@@ -115,8 +116,46 @@ for (const file of ['src/main.ts', 'index.html']) {
   }
 }
 
+/* ------------------------------------------------- the registry itself */
+
+/**
+ * The alarm hue, reserved for a character that cost more than one token. An
+ * encoding tinted near it hides the finding on the encoding where the finding
+ * is worst, which happened once: cl100k shipped at hue 28 against an alarm at
+ * 32 and the red chips were invisible on it.
+ */
+const ALARM_HUE = 32
+const MIN_SEPARATION = 100
+
+const hueDistance = (a: number, b: number) => {
+  const d = Math.abs(a - b) % 360
+  return d > 180 ? 360 - d : d
+}
+
+const seen = new Set<number>()
+for (const e of ENCODINGS) {
+  if (seen.has(e.hue)) {
+    failed = true
+    console.error(`FAIL  two encodings share hue ${e.hue}, so the page cannot tell them apart`)
+  }
+  seen.add(e.hue)
+
+  const d = hueDistance(e.hue, ALARM_HUE)
+  if (d < MIN_SEPARATION) {
+    failed = true
+    console.error(
+      `FAIL  ${e.id} is hue ${e.hue}, ${d} degrees from the alarm hue ${ALARM_HUE}`,
+    )
+    console.error(
+      `      an encoding within ${MIN_SEPARATION} degrees of the alarm hides the ` +
+        `fractured chips, which is the whole finding`,
+    )
+  }
+}
+
 if (failed) process.exit(1)
 
 console.log(
-  `findings.json reproduces from tools/measure.ts, and the page spells out none of its numbers`,
+  `findings.json reproduces from tools/measure.ts, the page spells out none of its ` +
+    `numbers, and ${ENCODINGS.length} encodings each have a hue clear of the alarm`,
 )

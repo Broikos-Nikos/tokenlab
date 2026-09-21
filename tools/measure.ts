@@ -20,6 +20,7 @@ import { readFileSync, writeFileSync, mkdirSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { hashInputs, BOOTSTRAP_SAMPLES, SEED } from './inputs-hash'
+import { ENCODINGS } from '../src/lib/encodings'
 
 const here = dirname(fileURLToPath(import.meta.url))
 const root = resolve(here, '..')
@@ -38,12 +39,6 @@ interface Corpus {
   pairs: Pair[]
 }
 
-const ENCODINGS = [
-  { id: 'o200k_base', label: 'o200k' },
-  { id: 'cl100k_base', label: 'cl100k' },
-  { id: 'p50k_base', label: 'p50k' },
-  { id: 'r50k_base', label: 'r50k' },
-] as const
 
 const WORD = /[\p{L}\p{N}][\p{L}\p{N}\p{M}'’-]*/gu
 const countWords = (s: string) => (s.match(WORD) ?? []).length
@@ -254,11 +249,24 @@ async function main() {
   const o200k = encodings['o200k_base'] as Enc
   const cl100k = encodings['cl100k_base'] as Enc
 
-  // p50k and r50k are different vocabularies that happen to tokenize this corpus
-  // identically. Saying so is the difference between one result and two.
-  const p50k = encodings['p50k_base'] as Enc
-  const r50k = encodings['r50k_base'] as Enc
-  const olderPairIdentical = p50k.ratio === r50k.ratio
+  /*
+   * Which encodings tokenize this corpus identically, whichever they turn out
+   * to be. This was a hardcoded p50k against r50k comparison, so a fifth
+   * encoding that matched one of them would have gone unmentioned, and a
+   * corpus that separated those two would have left the sentence saying they
+   * agree.
+   */
+  const identicalGroups: string[][] = []
+  for (const e of ENCODINGS) {
+    const mine = (encodings[e.id] as { totals: { elTokens: number; enTokens: number } }).totals
+    const group = identicalGroups.find((g) => {
+      const other = (encodings[g[0]] as { totals: { elTokens: number; enTokens: number } }).totals
+      return other.elTokens === mine.elTokens && other.enTokens === mine.enTokens
+    })
+    if (group) group.push(e.id)
+    else identicalGroups.push([e.id])
+  }
+  const identical = identicalGroups.filter((g) => g.length > 1)
 
   /*
    * No wall clock anywhere in this file.
@@ -285,7 +293,7 @@ async function main() {
     // saying every number on it comes from this file. They come from this file
     // now.
     method: { bootstrapSamples: BOOTSTRAP_SAMPLES, seed: SEED },
-    olderPairIdentical,
+    identicalEncodings: identical,
     corpus: {
       name: corpus.name,
       pairs: corpus.pairs.length,
@@ -304,12 +312,14 @@ async function main() {
        * on o200k the vocabulary has all but stopped contributing.
        */
       scriptCost: o200k.lengthControlled.byteRatio,
-      vocabularyCost: {
-        o200k: o200k.lengthControlled.tokensPerByteRatio,
-        cl100k: cl100k.lengthControlled.tokensPerByteRatio,
-        p50k: p50k.lengthControlled.tokensPerByteRatio,
-        r50k: r50k.lengthControlled.tokensPerByteRatio,
-      },
+      // Keyed by label, built from the registry, so a fifth encoding appears
+      // here without anyone remembering to add it.
+      vocabularyCost: Object.fromEntries(
+        ENCODINGS.map((e) => [
+          e.label,
+          (encodings[e.id] as Enc).lengthControlled.tokensPerByteRatio,
+        ]),
+      ),
     },
     encodings,
     pricing: { checked: pricing.checked, source: pricing.source },
@@ -345,8 +355,12 @@ async function main() {
         `${(pct > 0 ? '+' : '') + pct}%  (${plo}% to ${phi}%)${flag}`,
     )
   }
-  if (olderPairIdentical) {
-    console.log('\np50k and r50k tokenize this corpus identically. One result, not two.')
+  for (const g of identical) {
+    const labels = g.map((id) => ENCODINGS.find((e) => e.id === id)!.label)
+    console.log(
+      `\n${labels.slice(0, -1).join(', ')} and ${labels.at(-1)} tokenize this corpus ` +
+        `identically. ${labels.length} vocabularies, one result.`,
+    )
   }
   console.log(`
 corpus dated ${findings.corpusDated}, inputs ${inputsHash}`)

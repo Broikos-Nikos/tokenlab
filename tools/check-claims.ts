@@ -30,10 +30,22 @@ interface Claim {
   about: string
   /** The exact text that must appear in README.md, built from the measurement. */
   must: string
+  /**
+   * How many times it must appear. One, almost always.
+   *
+   * This field is the answer to a real hole. Claims used to be a substring test
+   * against the whole document, and the strings for p50k and r50k were
+   * character for character identical because the two encodings measure the
+   * same on this corpus. Deleting the entire r50k row from the table left all
+   * thirty claims passing. A claim that can be satisfied by a different row is
+   * not checking anything, so every claim now says how many times it should be
+   * found and is failed for finding too few or too many.
+   */
+  count: number
 }
 
 const claims: Claim[] = []
-const add = (about: string, must: string) => claims.push({ about, must })
+const add = (about: string, must: string, count = 1) => claims.push({ about, must, count })
 
 const enc = (id: string) => f.encodings[id]
 const pct = (n: number) => (Number.isInteger(n) ? String(n) : n.toFixed(1))
@@ -58,10 +70,19 @@ add(
   'what cl100k adds',
   `on \`cl100k\` adds ${Math.round(enc('cl100k_base').lengthControlled.vocabularyPenaltyPercent)} percent`,
 )
-add(
-  'what the two older vocabularies add',
-  `\`r50k\` it adds ${Math.round(enc('r50k_base').lengthControlled.vocabularyPenaltyPercent)} percent`,
-)
+// The sentence says "on `p50k` and `r50k` it adds N percent", one number for two
+// encodings. That is only true while they measure the same, so the checker
+// verifies the premise before it verifies the sentence.
+const p50kPenalty = Math.round(enc('p50k_base').lengthControlled.vocabularyPenaltyPercent)
+const r50kPenalty = Math.round(enc('r50k_base').lengthControlled.vocabularyPenaltyPercent)
+if (p50kPenalty !== r50kPenalty) {
+  console.error(
+    `FAIL  the README says p50k and r50k add the same amount, and they no longer do ` +
+      `(${p50kPenalty}% against ${r50kPenalty}%). That sentence has to be split.`,
+  )
+  process.exit(1)
+}
+add('what the two older vocabularies add', `\`p50k\` and\n\`r50k\` it adds ${r50kPenalty} percent`)
 
 // ---- the picture ----------------------------------------------------------
 
@@ -81,19 +102,36 @@ add('the character count under the pictures', `same ${enc('o200k_base').figureSe
 
 // ---- the table ------------------------------------------------------------
 
-for (const [id, label] of [
-  ['o200k_base', 'o200k_base'],
-  ['cl100k_base', 'cl100k_base'],
-  ['p50k_base', 'p50k_base'],
-  ['r50k_base', 'r50k_base'],
-] as const) {
+/**
+ * Each row is asserted whole, keyed by its encoding, rather than cell by cell.
+ * Cell by cell was the hole: `| 6.42x |` is true of two different rows, so the
+ * check could be satisfied by the wrong one, or by one that was still there
+ * after the other had been deleted.
+ *
+ * The "used by" column is a label rather than a measurement, so it lives here.
+ * Putting it in the assertion means a row cannot be mislabelled either.
+ */
+const USED_BY: Record<string, string> = {
+  o200k_base: 'GPT-6, GPT-5.x, GPT-4.1, GPT-4o',
+  cl100k_base: 'GPT-4, GPT-3.5 Turbo, text-embedding-3',
+  p50k_base: 'Codex, davinci-002',
+  r50k_base: 'GPT-3, GPT-2',
+}
+
+for (const id of Object.keys(USED_BY)) {
   const e = enc(id)
   const [lo, hi] = e.ratioInterval95
-  add(`${label} raw ratio in the table`, `| ${e.ratio}x |`)
-  add(`${label} interval in the table`, `| ${lo.toFixed(2)} to ${hi.toFixed(2)} |`)
-  // Two decimals always, so a column of figures lines up instead of showing
-  // 5.1 next to 1.62 because one of them happened to round short.
-  add(`${label} bytes per Greek token in the table`, `| ${e.lengthControlled.bytesPerToken.el.toFixed(2)} |`)
+  // The table is exact to one decimal. The prose above it rounds, which is a
+  // different job, and both are checked.
+  const penalty = e.lengthControlled.vocabularyPenaltyPercent.toFixed(1)
+  add(
+    `the whole ${id} row of the table`,
+    `| \`${id}\` | ${USED_BY[id]} | ${e.ratio}x | ` +
+      `${lo.toFixed(2)} to ${hi.toFixed(2)} | ` +
+      // Two decimals always, so a column of figures lines up instead of showing
+      // 5.1 next to 1.62 because one of them happened to round short.
+      `${e.lengthControlled.bytesPerToken.el.toFixed(2)} | **+${penalty}%** |`,
+  )
 }
 
 // ---- the prose around the table -------------------------------------------
@@ -137,7 +175,31 @@ add('the register spread on cl100k', `${c.tpwLo.toFixed(2)} to ${c.tpwHi.toFixed
 
 // ---- the corpus ------------------------------------------------------------
 
-add('the corpus size', `Forty sentence pairs`)
+/**
+ * The corpus size was hand typed at both ends: a literal in this file and a word
+ * in the README, with `f.corpus.pairs` read by neither. Three pairs were removed
+ * on 2026-09-21 and nothing here would have noticed if the word had stayed
+ * wrong. It is spelled from the measurement now, and every place the README
+ * says it is asserted, including the lower case one.
+ */
+const ONES = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine',
+  'ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen',
+  'eighteen', 'nineteen']
+const TENS = ['', '', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety']
+
+function spell(n: number): string {
+  if (n < 20) return ONES[n]
+  if (n < 100) return n % 10 === 0 ? TENS[Math.floor(n / 10)] : `${TENS[Math.floor(n / 10)]} ${ONES[n % 10]}`
+  throw new Error(`no spelling for ${n}; add one rather than typing it into the README`)
+}
+
+const capital = (s: string) => s[0].toUpperCase() + s.slice(1)
+const pairWord = spell(f.corpus.pairs)
+
+add('the corpus size where the table is introduced', `${capital(pairWord)} sentence pairs`)
+add('the corpus size in how it works', `the corpus, ${pairWord} pairs`)
+add('the corpus size in the honest limits', `${capital(pairWord)} pairs is a small corpus`)
+add('the number of registers', `across ${spell(f.corpus.registers.length)} registers`)
 add('the bootstrap size', `${(10000).toLocaleString('en-US')} resamples`)
 
 // ---- run -------------------------------------------------------------------
@@ -148,13 +210,26 @@ add('the bootstrap size', `${(10000).toLocaleString('en-US')} resamples`)
 const flatten = (s: string) => s.replace(/\s+/g, ' ').trim()
 const haystack = flatten(readme)
 
+function occurrences(hay: string, needle: string): number {
+  if (needle === '') return 0
+  let n = 0
+  let at = hay.indexOf(needle)
+  while (at !== -1) {
+    n++
+    at = hay.indexOf(needle, at + 1)
+  }
+  return n
+}
+
 let failed = 0
 for (const c2 of claims) {
   const want = flatten(c2.must)
-  if (haystack.includes(want)) continue
+  const found = occurrences(haystack, want)
+  if (found === c2.count) continue
   failed++
   console.error(`FAIL  ${c2.about}`)
-  console.error(`      README.md must contain: ${JSON.stringify(want)}`)
+  console.error(`      expected ${c2.count} occurrence(s) in README.md, found ${found}`)
+  console.error(`      ${JSON.stringify(want)}`)
 }
 
 if (failed > 0) {
@@ -179,6 +254,17 @@ if (notWritten.length > 0) {
 }
 if (corpus.pairs.length !== f.corpus.pairs) {
   console.error(`FAIL  data/pairs.json has ${corpus.pairs.length} pairs, findings.json says ${f.corpus.pairs}`)
+  process.exit(1)
+}
+
+// The corpus describes its own size in prose too, and that sentence went stale
+// once already.
+const methodSize = `${capital(pairWord)} sentence pairs`
+if (!flatten(corpus.method).includes(methodSize)) {
+  console.error(
+    `FAIL  the method in data/pairs.json does not say "${methodSize}", ` +
+      `but the file holds ${corpus.pairs.length} pairs.`,
+  )
   process.exit(1)
 }
 

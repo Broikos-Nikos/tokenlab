@@ -41,9 +41,9 @@ totals, not a mean of per sentence ratios. Intervals are a paired bootstrap,
 | encoding | used by | raw token ratio | 95% interval | bytes per token, Greek | vocabulary cost beyond the script |
 |---|---|---|---|---|---|
 | `o200k_base` | GPT-6, GPT-5.x, GPT-4.1, GPT-4o | 2.06x | 1.94 to 2.18 | 5.10 | **+2.9%** |
-| `cl100k_base` | GPT-4, GPT-3.5 Turbo, text-embedding-3 | 5.12x | 4.79 to 5.45 | 2.05 | **+156%** |
-| `p50k_base` | Codex, davinci-002 | 6.42x | 6.00 to 6.82 | 1.62 | **+220%** |
-| `r50k_base` | GPT-3, GPT-2 | 6.42x | 6.00 to 6.82 | 1.62 | **+220%** |
+| `cl100k_base` | GPT-4, GPT-3.5 Turbo, text-embedding-3 | 5.12x | 4.79 to 5.45 | 2.05 | **+155.7%** |
+| `p50k_base` | Codex, davinci-002 | 6.42x | 6.00 to 6.82 | 1.62 | **+220.3%** |
+| `r50k_base` | GPT-3, GPT-2 | 6.42x | 6.00 to 6.82 | 1.62 | **+220.3%** |
 
 English gets 5.24 bytes per token on `o200k` and 5.24 on `cl100k`, unchanged to
 two decimals. Greek goes from 2.05 to 5.10 between the two. That is what the last

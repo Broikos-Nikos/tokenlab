@@ -63,8 +63,15 @@ jobs:
       # the binary is the authority on its own copyright and not the prose
       # beside it. That needs fontTools, which is not on a clean runner, and
       # the first push to this repository failed here rather than anywhere
-      # interesting. Pinned, so the gate cannot change underneath the build.
-      - run: python -m pip install --disable-pip-version-check fonttools==4.62.1
+      # interesting.
+      #
+      # The [woff] extra is not optional: woff2 is brotli compressed, so
+      # fontTools without it opens the file and then cannot decompress the
+      # table it was asked for. That was the second failed push.
+      #
+      # Pinned to the version this was verified against locally, so the thing
+      # that reads the licence records is the same thing in both places.
+      - run: python -m pip install --disable-pip-version-check "fonttools[woff]==4.63.0"
       - run: npm run build
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:

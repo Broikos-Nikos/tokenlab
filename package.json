@@ -15,7 +15,7 @@
     "check:claims": "tsx tools/check-claims.ts",
     "check:segments": "tsx tools/check-segments.ts",
     "check:loading": "node tools/check-loading.mjs",
-    "verify": "npm run build && npm run check:loading"
+    "verify": "node tools/verify.mjs"
   },
   "dependencies": {
     "gpt-tokenizer": "4.0.0"

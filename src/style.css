@@ -50,6 +50,17 @@
   box-sizing: border-box;
 }
 
+/*
+ * The browser hides [hidden] with a display: none it loses to any author rule
+ * that sets display. Adding `display: flex` to an element that is hidden by
+ * default therefore unhides it, silently, and the page shipped one release with
+ * a permanent empty red error bar in the middle of it because of exactly that.
+ * This makes the attribute mean what it says regardless of what is added later.
+ */
+[hidden] {
+  display: none !important;
+}
+
 html {
   -webkit-text-size-adjust: 100%;
 }

@@ -57,6 +57,31 @@ const wants = (name) => ONLY === '' || ONLY === name
 const browser = await chromium.launch()
 
 // ---------------------------------------------------------------- failure
+if (wants('healthy')) {
+  // The state every visitor actually sees. This section exists because the page
+  // shipped a release with a permanent empty red error bar on it: an author
+  // `display: flex` had quietly defeated the `hidden` attribute, and nothing
+  // looked at the healthy page, only at the broken one.
+  console.log('a normal load, nothing wrong')
+  const page = await browser.newPage()
+  await page.goto(BASE, { waitUntil: 'domcontentloaded' })
+  await page.waitForTimeout(3500)
+
+  const alertBox = await page.locator('[data-load-error]').boundingBox()
+  check('no error bar is on screen when nothing has failed', alertBox === null, JSON.stringify(alertBox))
+
+  for (const sel of ['[data-load-error]', '[data-fracture-note]', '[data-compare]']) {
+    const el = page.locator(sel)
+    const hiddenAttr = await el.getAttribute('hidden')
+    if (hiddenAttr === null) continue
+    const box = await el.boundingBox()
+    check(`${sel} marked hidden actually takes no space`, box === null, JSON.stringify(box))
+  }
+
+  check('tokens are drawn', (await page.locator('.tok').count()) > 0)
+  await page.close()
+}
+
 if (wants('failure')) {
   console.log('a vocabulary that never arrives')
   const page = await browser.newPage()

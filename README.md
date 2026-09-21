@@ -169,15 +169,17 @@ it exists for:
 | `npm run check:segments` | the page drawing text that was never typed, and the red chips quietly not being drawn at all. 92 cases across four encodings, including every prefix of a polytonic line as it is typed, plus twelve exact fracture counts. |
 | `npm run check:loading` | a page that looks broken while every number on it is correct, and a red chip that exists in the data but not on screen. Runs against the built output in a real browser. |
 | `npm run check:measurement` | a `findings.json` that is no longer what `tools/measure.ts` produces, and a number spelled into the page instead of read from the measurement. Found one on its first run that four other gates had missed. |
+| `npm run check:licences` | a font whose licence file, embedded records and prose do not all agree. The binary is the authority, not the README. |
 | `npm run build` | all of the above except the browser one, before anything is written to `dist/`. |
 
-Eight separate agents have audited this project, one assigned perspective each,
+Nine separate agents have audited this project, one assigned perspective each,
 none of them allowed to edit it: a recruiter with ten seconds, a hiring engineer
 with three minutes, a deep reviewer, a hostile stranger, a measurement auditor, a
 design eye, a performance and access pass, and a maintainer six months from now. Between them they found a shared
 `TextDecoder` in a dependency that was corrupting polytonic Greek, a headline
 figure published without the interval that would have shown it straddling zero,
-and an empty red error bar that had shipped to every visitor.
+and an empty red error bar that had shipped to every visitor, and a font licence
+file that named neither the font nor its copyright holder.
 
 [`docs/AUDITS.md`](docs/AUDITS.md) is the full list, including what is still
 open. Commit messages cite the identifiers in it.
@@ -206,5 +208,11 @@ open. Commit messages cite the identifiers in it.
 
 ## Licence
 
-Code MIT. Corpus CC0. Fonts are Manrope and Roboto Mono, both SIL Open Font
-License, subset to Latin, Greek and punctuation, licences in `public/fonts/`.
+Code MIT. Corpus CC0.
+
+The two fonts are under different licences and the difference is not cosmetic:
+Manrope is **SIL Open Font License 1.1**, Roboto Mono as distributed by Google
+Fonts is **Apache License 2.0**. Both are subset to Latin, Greek, punctuation
+and currency, and both binaries carry their own copyright and licence records.
+[`public/fonts/README.md`](public/fonts/README.md) names the copyright holder
+for each, links the full text, and records how the subsets were made.

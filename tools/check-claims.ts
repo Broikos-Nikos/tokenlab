@@ -95,10 +95,11 @@ add(
     `${enc('o200k_base').figureSentence.el} on \`o200k\``,
 )
 
-add('the o200k count on the left picture', `\`o200k\`, ${enc('o200k_base').figureSentence.el} tokens`)
-add('the cl100k count on the right picture', `\`cl100k\`, ${enc('cl100k_base').figureSentence.el} tokens`)
-add('the word count under the pictures', `for ${enc('o200k_base').figureSentence.elWords} Greek words`)
-add('the character count under the pictures', `same ${enc('o200k_base').figureSentence.elChars} characters`)
+add('the o200k count on the left picture', `\`o200k\`, ${enc('o200k_base').figureSentence.el} tokens for ${enc('o200k_base').figureSentence.elWords} Greek words`)
+// Both captions in the same unit. They were in two different ones, which is
+// not a comparison a reader can make in the two seconds they give it.
+add('the cl100k count on the right picture', `\`cl100k\`, ${enc('cl100k_base').figureSentence.el} tokens for the same ${enc('o200k_base').figureSentence.elWords} words`)
+add('the character count, now in the prose rather than a caption', `${enc('o200k_base').figureSentence.elChars} characters of Greek`)
 
 // ---- the table ------------------------------------------------------------
 

@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "An interactive tokenizer visualiser for Greek. Watch what Greek costs you.",
+  "description": "An interactive page that shows what tokenizers do to Greek text, and what it costs. Type Greek, watch it shatter into tokens, watch the price update.",
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && npm run check && vite build",
@@ -29,5 +29,15 @@
   "allowScripts": {
     "esbuild@0.28.2": true,
     "esbuild@0.25.12": true
-  }
+  },
+  "keywords": [
+    "greek",
+    "tokenizer",
+    "bpe",
+    "tiktoken",
+    "typescript",
+    "data-visualization",
+    "llm",
+    "nlp"
+  ]
 }

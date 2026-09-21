@@ -1,20 +1,11 @@
 # tokenlab
 
-**Greek costs 2.06 times the tokens of English on the newest OpenAI vocabulary.
-Almost none of that is the tokenizer.** Greek is 2.004 times the UTF-8 bytes of
-English before anything tokenizes it, and `o200k` adds 2.9 percent on top of
-that. The same measurement on `cl100k` adds 156 percent, and on `p50k` and
-`r50k` it adds 220 percent.
+AI models charge by the token, which is a chunk of text a few letters long. The
+same sentence written in Greek is chopped into far more chunks than the English
+one, so it costs more to send. This page shows that happening, live, on text you
+type.
 
-That is the finding, and the first version of this README did not have it,
-because a raw token ratio measures the writing system and the vocabulary at once
-and hands the credit to the vocabulary.
-
-Type Greek into the page and watch a tokenizer take it apart. Switch the
-encoding and watch the same sentence go from word pieces to single letters to
-raw bytes, with the bill updating as it happens.
-
-![The page opens on cl100k, where every Greek letter is its own token, then heals to o200k, where they collapse back into word pieces](docs/shatter.gif)
+![The page opens on an old vocabulary, where every Greek letter is its own token, then switches to the newest one, where they collapse back into word pieces](docs/shatter.gif)
 
 That is the real page in a real browser, recorded by `npm run capture`. One
 sentence, pinned so the recording can be checked: 82 tokens on `cl100k` and 37
@@ -22,14 +13,27 @@ on `o200k`. The price only appears once the selected encoding is the one the
 chosen model actually uses, and a vocabulary that has not arrived yet says
 loading rather than pretending to be selected.
 
-The same thing standing still:
+The same moment standing still, the same sentence both times:
 
-| `o200k`, 37 tokens for 14 Greek words | `cl100k`, 82 tokens for the same 94 characters |
+| the newest vocabulary, `o200k`, 37 tokens for 14 Greek words | the one before it, `cl100k`, 82 tokens for the same 14 words |
 |---|---|
-| ![37 tokens, two and a half per word](docs/shatter-o200k.png) | ![82 tokens, nearly one per character](docs/shatter-cl100k.png) |
+| ![37 tokens, two and a half per word](docs/shatter-o200k.png) | ![82 tokens, nearly one per letter](docs/shatter-cl100k.png) |
 
 The English word `build` sitting in the middle of that Greek sentence is one
-token in both pictures. On the right, every Greek letter around it is its own.
+token in both pictures. On the right, every Greek letter around it is its own:
+94 characters of Greek, 82 tokens.
+
+## The figure, for the reader who wants it
+
+**Greek costs 2.06 times the tokens of English on the newest OpenAI vocabulary.
+Almost none of that is the tokenizer.** Greek is 2.004 times the UTF-8 bytes of
+English before anything tokenizes it, and `o200k` adds 2.9 percent on top of
+that. The same measurement on `cl100k` adds 156 percent, and on `p50k` and
+`r50k` it adds 220 percent.
+
+A raw token ratio measures the writing system and the vocabulary at once and
+hands the credit to the vocabulary, which is why the split above matters more
+than the headline.
 
 ## The numbers
 

@@ -7,7 +7,8 @@ type.
 
 ![The page opens on an old vocabulary, where every Greek letter is its own token, then switches to the newest one, where they collapse back into word pieces](docs/shatter.gif)
 
-That is the real page in a real browser, recorded by `npm run capture`. One
+That is the real page in a real browser, recorded by `npm run capture`, which
+needs `npx playwright install chromium` and `ffmpeg` on the path. One
 sentence, pinned so the recording can be checked: 82 tokens on `cl100k` and 37
 on `o200k`. The price only appears once the selected encoding is the one the
 chosen model actually uses, and a vocabulary that has not arrived yet says
@@ -122,7 +123,16 @@ is 2.23 to 2.46, a 10 percent difference. On `cl100k` the same comparison is
 npm install
 npm run dev      # http://localhost:5173
 npm run build    # static files in dist/, deploys to any static host
+
+npx playwright install chromium   # once, for the two browser driven tools
+npm run verify   # build, then drive the built page in a real browser
 ```
+
+`npm run verify` is the one to run before committing. `npm run build` covers the
+two gates that need no browser; the third needs a served page and a real one,
+because the defect it exists for is a page that looks broken while every number
+on it is correct. CI runs all three on every push and every pull request, and
+nothing deploys unless they pass.
 
 No backend and no API key. The page fetches its own JavaScript, fonts and
 vocabularies from wherever it is hosted and then talks to nothing: no request

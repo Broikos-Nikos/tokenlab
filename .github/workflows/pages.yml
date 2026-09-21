@@ -1,14 +1,26 @@
-# Build and publish the page.
+# Build, gate, and publish the page.
 #
-# npm run build runs both gates before vite writes anything: every number in the
-# README is rebuilt from the measurement, and the segmentation is round tripped
-# over polytonic Greek, Coptic, Linear B, Korean and emoji. A push that breaks
-# either of them fails here instead of publishing.
+# Four gates, and all four run here.
+#
+# `npm run build` runs two of them before vite writes anything: every number in
+# the README is rebuilt from the measurement, and the segmentation is round
+# tripped over polytonic Greek, Coptic, Linear B, Korean and emoji.
+#
+# The third needs a served page and a real browser, so it runs against the built
+# output in its own job. It exists because of a specific regression: an author
+# `display: flex` defeated a `hidden` attribute and put an empty red error bar in
+# the middle of the page on every healthy load. That shipped with a green build,
+# because at the time the only gate that would have caught it was one nothing
+# ran. It is not on the honour system any more.
+#
+# Nothing deploys unless all of them pass, and they run on pull requests too, so
+# a bad change is caught before `main` moves rather than after.
 name: pages
 
 on:
   push:
     branches: [main]
+  pull_request:
   workflow_dispatch:
 
 permissions:
@@ -17,7 +29,7 @@ permissions:
   id-token: write
 
 concurrency:
-  group: pages
+  group: pages-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -31,12 +43,42 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist
+          retention-days: 1
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist
 
-  deploy:
+  loading:
     needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist
+      - run: npx playwright install --with-deps chromium
+      # The gate drives the page the visitor gets, not the dev server.
+      - name: serve the built page and gate it
+        run: |
+          npx vite preview --port 4173 --strictPort &
+          npx wait-on http://localhost:4173/ --timeout 60000
+          TOKENLAB_URL=http://localhost:4173/ npm run check:loading
+
+  deploy:
+    # Only after both gates. A page that looks broken on a healthy load must not
+    # reach anyone just because the numbers happened to be right.
+    needs: [build, loading]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     environment:
       name: github-pages

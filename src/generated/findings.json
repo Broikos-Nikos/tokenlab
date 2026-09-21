@@ -1,6 +1,10 @@
 {
   "corpusDated": "2026-09-21",
   "inputsHash": "46be3d04c521dded",
+  "method": {
+    "bootstrapSamples": 10000,
+    "seed": 20260920
+  },
   "olderPairIdentical": true,
   "corpus": {
     "name": "tokenlab-aligned-40",

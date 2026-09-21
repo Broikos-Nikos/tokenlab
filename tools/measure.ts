@@ -281,6 +281,10 @@ async function main() {
   const findings = {
     corpusDated: corpus.revised ?? corpus.built,
     inputsHash,
+    // The page quoted these as literals in its own source, under a footer
+    // saying every number on it comes from this file. They come from this file
+    // now.
+    method: { bootstrapSamples: BOOTSTRAP_SAMPLES, seed: SEED },
     olderPairIdentical,
     corpus: {
       name: corpus.name,

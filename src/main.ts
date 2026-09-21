@@ -215,7 +215,7 @@ async function setEncoding(id: EncodingId): Promise<boolean> {
   const lc = f[id]!.lengthControlled
   const add = lc.vocabularyPenaltyPercent
   const [plo, phi] = lc.vocabularyPenaltyInterval95
-  // The figure and what forty pairs can actually see of it. Printing the point
+  // The figure and what the corpus can actually see of it. Printing the point
   // estimate alone was the single worst thing in this project: on o200k the
   // interval crosses zero, so the bare number reads as a small penalty when the
   // measurement cannot tell it from none.
@@ -225,7 +225,7 @@ async function setEncoding(id: EncodingId): Promise<boolean> {
     `tokenizer runs, and ${meta.label} adds ` +
     `<strong>${signed(add)}%</strong> on top` +
     (lc.penaltyIndistinguishableFromZero
-      ? `, which forty sentence pairs cannot tell apart from nothing ` +
+      ? `, which ${spell(findings.corpus.pairs)} sentence pairs cannot tell apart from nothing ` +
         `<span class="band">(${signed(plo)} to ${signed(phi)}, includes zero)</span>.`
       : ` <span class="band">(${signed(plo)} to ${signed(phi)})</span>.`)
 
@@ -423,6 +423,25 @@ interface EncodingFinding {
 
 const signed = (n: number) => `${n >= 0 ? '+' : ''}${n.toFixed(1)}`
 
+/**
+ * Small numbers in words, because the sentence they sit in is prose.
+ *
+ * It exists because the page had `forty` typed into it while the corpus size
+ * was a field in findings.json two lines away, under a footer promising that
+ * every number here comes from the measurement.
+ */
+const ONES = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine',
+  'ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen',
+  'eighteen', 'nineteen']
+const TENS = ['', '', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety']
+function spell(n: number): string {
+  if (n < 20) return ONES[n]
+  if (n < 100) {
+    return n % 10 === 0 ? TENS[Math.floor(n / 10)] : `${TENS[Math.floor(n / 10)]} ${ONES[n % 10]}`
+  }
+  return n.toLocaleString('en-US')
+}
+
 function renderFindings() {
   const f = findings as typeof findings
   el.findingsLede.textContent =
@@ -458,7 +477,8 @@ function renderFindings() {
   el.method.textContent =
     `${f.corpus.method} Ratios are totals over totals, not a mean of per sentence ratios. ` +
     `The interval is a paired bootstrap over the ${f.corpus.pairs} pairs, ` +
-    `10,000 resamples, fixed seed. Corpus dated ${f.corpusDated}, inputs ${f.inputsHash}. ` +
+    `${f.method.bootstrapSamples.toLocaleString('en-US')} resamples, fixed seed. ` +
+    `Corpus dated ${f.corpusDated}, inputs ${f.inputsHash}. ` +
     `Re-running the measurement on the same corpus reproduces this file byte for byte.`
 }
 

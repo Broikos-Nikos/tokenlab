@@ -168,12 +168,13 @@ it exists for:
 | `npm run check:claims` | a number in this README that the measurement does not produce. Caught a hand typed `1.63` against a measured `1.61` on its first run. |
 | `npm run check:segments` | the page drawing text that was never typed. 92 cases across four encodings, including every prefix of a polytonic line as it is typed. |
 | `npm run check:loading` | a page that looks broken while every number on it is correct. Runs against the built output in a real browser. |
-| `npm run build` | all of the above except the last, before anything is written to `dist/`. |
+| `npm run check:measurement` | a `findings.json` that is no longer what `tools/measure.ts` produces, and a number spelled into the page instead of read from the measurement. Found one on its first run that four other gates had missed. |
+| `npm run build` | all of the above except the browser one, before anything is written to `dist/`. |
 
-Seven separate agents have audited this project, one assigned perspective each,
+Eight separate agents have audited this project, one assigned perspective each,
 none of them allowed to edit it: a recruiter with ten seconds, a hiring engineer
 with three minutes, a deep reviewer, a hostile stranger, a measurement auditor, a
-design eye, and a performance and access pass. Between them they found a shared
+design eye, a performance and access pass, and a maintainer six months from now. Between them they found a shared
 `TextDecoder` in a dependency that was corrupting polytonic Greek, a headline
 figure published without the interval that would have shown it straddling zero,
 and an empty red error bar that had shipped to every visitor.

@@ -97,6 +97,13 @@ const loaders: Record<EncodingId, () => Promise<EncodingModule>> = {
 
 const cache = new Map<EncodingId, Promise<Encoder>>()
 
+/**
+ * The promise goes into the cache before it settles, which is what makes
+ * concurrent callers share one download. It has to come back out again if it
+ * rejects, or a single failed fetch is cached for the life of the page and
+ * every retry returns the same rejection without touching the network. That is
+ * not a retry, it is a replay.
+ */
 export function loadEncoder(id: EncodingId): Promise<Encoder> {
   let pending = cache.get(id)
   if (!pending) {
@@ -125,6 +132,7 @@ export function loadEncoder(id: EncodingId): Promise<Encoder> {
         vocabularySize: mod.vocabularySize,
       }
     })
+    pending.catch(() => cache.delete(id))
     cache.set(id, pending)
   }
   return pending

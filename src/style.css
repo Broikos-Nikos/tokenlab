@@ -301,6 +301,43 @@ textarea:focus-visible {
   }
 }
 
+/* A vocabulary that never arrived. Said out loud rather than left as an empty
+   box that looks like a page still deciding what to do. */
+.load-error {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem 0.9rem;
+  align-items: center;
+  justify-content: space-between;
+  margin: 0;
+  padding: 0.7rem 0.9rem;
+  border: 1px solid oklch(0.45 0.11 32);
+  border-radius: 10px;
+  background: var(--alarm-wash);
+  color: oklch(0.92 0.06 32);
+  font-size: 0.85rem;
+  line-height: 1.45;
+}
+
+.retry {
+  appearance: none;
+  cursor: pointer;
+  border: 1px solid oklch(0.6 0.13 32);
+  border-radius: 999px;
+  padding: 0.35rem 0.95rem;
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: oklch(0.96 0.03 32);
+  background: oklch(0.38 0.11 32);
+  transition: background 180ms ease;
+}
+
+.retry:hover,
+.retry:focus-visible {
+  background: oklch(0.46 0.13 32);
+}
+
 /* ------------------------------------------------------------------ tokens */
 
 .tokens {

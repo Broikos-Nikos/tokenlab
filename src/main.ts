@@ -26,6 +26,9 @@ const el = {
   fractureNote: document.querySelector<HTMLElement>('[data-fracture-note]')!,
   fractureCount: document.querySelector<HTMLElement>('[data-fracture-count]')!,
   fractureBody: document.querySelector<HTMLElement>('[data-fracture-body]')!,
+  loadError: document.querySelector<HTMLElement>('[data-load-error]')!,
+  loadErrorText: document.querySelector<HTMLElement>('[data-load-error-text]')!,
+  retry: document.querySelector<HTMLButtonElement>('[data-retry]')!,
   findingsLede: document.querySelector<HTMLElement>('[data-findings-lede]')!,
   findingsBody: document.querySelector<HTMLElement>('[data-findings-table] tbody')!,
   bill: document.querySelector<HTMLElement>('.bill')!,
@@ -61,6 +64,51 @@ let staggerNext = true
 
 /** The opening move, cancelled the moment the visitor does anything. */
 let healTimer: number | undefined
+
+/** Set by any deliberate act, and never unset. The opening move is once only. */
+let userActed = false
+
+/** Which vocabulary failed, so the retry knows what to come back to. */
+let failedEncoding: EncodingId | null = null
+
+const RESUME_KEY = 'tokenlab:resume'
+
+/**
+ * Retrying a failed vocabulary means reloading the page, and that is not
+ * laziness.
+ *
+ * A browser caches the result of a module load against its URL, failures
+ * included, so importing the same specifier a second time never reaches the
+ * network and returns the first rejection instead. An in page retry button
+ * would look like a retry and do nothing, which is worse than no button. A
+ * reload is a genuine second attempt, and since the only state worth keeping is
+ * the text, the encoding and the sentence, it survives the trip.
+ */
+function resumeAndReload(encoding: EncodingId) {
+  try {
+    sessionStorage.setItem(
+      RESUME_KEY,
+      JSON.stringify({ text: el.input.value, encoding, custom: state.custom, pair: state.pairIndex }),
+    )
+  } catch {
+    // Private mode, blocked storage. The reload is still worth doing.
+  }
+  location.reload()
+}
+
+function takeResume(): { text: string; encoding: EncodingId; custom: boolean; pair: number } | null {
+  try {
+    const raw = sessionStorage.getItem(RESUME_KEY)
+    if (!raw) return null
+    sessionStorage.removeItem(RESUME_KEY)
+    const v = JSON.parse(raw)
+    if (typeof v?.text !== 'string' || typeof v?.encoding !== 'string') return null
+    if (!ENCODINGS.some((e) => e.id === v.encoding)) return null
+    return v
+  } catch {
+    return null
+  }
+}
 
 /* ------------------------------------------------------------------ chrome */
 
@@ -99,7 +147,19 @@ function buildModelSelect() {
   })
 }
 
-async function setEncoding(id: EncodingId) {
+function setBusy(id: EncodingId, busy: boolean) {
+  const b = el.encodings.querySelector<HTMLButtonElement>(`.enc[data-enc="${id}"]`)
+  if (!b) return
+  b.classList.toggle('is-loading', busy)
+  b.setAttribute('aria-busy', String(busy))
+}
+
+/**
+ * Returns true only if this call is the one that ended up applying. A caller
+ * that arms a follow up needs to know the difference between "done" and
+ * "superseded", because those look identical from the outside of an await.
+ */
+async function setEncoding(id: EncodingId): Promise<boolean> {
   const request = ++encodingRequest
 
   // Nothing about the page moves until the vocabulary is actually here. A
@@ -107,16 +167,33 @@ async function setEncoding(id: EncodingId) {
   // about which encoding is producing the tokens on screen, and for as long as
   // a megabyte of vocabulary is still in flight none of them would be true.
   // While it loads the button says so instead.
-  for (const b of el.encodings.querySelectorAll<HTMLButtonElement>('.enc')) {
-    const target = b.dataset.enc === id
-    b.classList.toggle('is-loading', target)
-    b.setAttribute('aria-busy', String(target))
+  setBusy(id, true)
+  el.loadError.hidden = true
+
+  let next: Encoder
+  try {
+    next = await loadEncoder(id)
+  } catch {
+    setBusy(id, false)
+    // Only the newest request gets to speak. An older one that failed while the
+    // visitor has already moved on is not news.
+    if (request === encodingRequest) {
+      const meta = metaFor(id)
+      el.loadErrorText.textContent =
+        `The ${meta.label} vocabulary did not arrive, so nothing below is ` +
+        `${meta.label}. Check the connection, then try again.`
+      el.loadError.hidden = false
+      failedEncoding = id
+    }
+    return false
   }
 
-  const next = await loadEncoder(id)
   // A slower vocabulary asked for first must not overwrite a faster one asked
   // for second.
-  if (request !== encodingRequest) return
+  if (request !== encodingRequest) {
+    setBusy(id, false)
+    return false
+  }
 
   state.encoding = id
   encoder = next
@@ -126,15 +203,15 @@ async function setEncoding(id: EncodingId) {
   for (const b of el.encodings.querySelectorAll<HTMLButtonElement>('.enc')) {
     const on = b.dataset.enc === id
     b.classList.toggle('is-on', on)
-    b.classList.remove('is-loading')
     b.setAttribute('aria-pressed', String(on))
-    b.setAttribute('aria-busy', 'false')
   }
+  setBusy(id, false)
   const f = findings.encodings as Record<string, { ratio: number }>
   el.headlineRatio.textContent = `${f[id]!.ratio}x more`
 
   staggerNext = true
   render()
+  return true
 }
 
 function setLang(lang: Lang) {
@@ -352,8 +429,19 @@ function pinnedPair(): number | null {
   return Math.min(Math.max(n, 0), corpus.pairs.length - 1)
 }
 
-/** Any deliberate act by the visitor cancels the opening move. */
+/**
+ * Any deliberate act by the visitor cancels the opening move, and that has to
+ * be remembered rather than only acted on.
+ *
+ * `boot` awaits its first `setEncoding` and then arms the heal. A click during
+ * that await supersedes the request, which makes `setEncoding` return early and
+ * resolve normally, so `boot` carried on and armed the heal anyway. Clearing the
+ * timer in the click handler could not help: at that moment there was no timer
+ * to clear, and one was armed a second later. The visitor's choice was undone
+ * 1.8 seconds after they made it, with no way to tell why.
+ */
 function cancelHeal() {
+  userActed = true
   if (healTimer !== undefined) {
     clearTimeout(healTimer)
     healTimer = undefined
@@ -375,6 +463,10 @@ function wire() {
       setLang(b.dataset.lang as Lang)
     })
   }
+
+  el.retry.addEventListener('click', () => {
+    resumeAndReload(failedEncoding ?? state.encoding)
+  })
 
   el.shuffle.addEventListener('click', () => {
     cancelHeal()
@@ -400,22 +492,39 @@ async function boot() {
   // particular example rather than at a shuffle, and it is what lets the
   // recording in the README be reproducible: a capture of a random sentence
   // cannot have its numbers checked against anything.
-  state.pairIndex = pinnedPair() ?? Math.floor(Math.random() * corpus.pairs.length)
+  const resume = takeResume()
+  state.pairIndex = resume?.pair ?? pinnedPair() ?? Math.floor(Math.random() * corpus.pairs.length)
   const pair = corpus.pairs[state.pairIndex]!
-  el.input.value = state.lang === 'el' ? pair.el : pair.en
+  el.input.value = resume ? resume.text : state.lang === 'el' ? pair.el : pair.en
   el.input.setAttribute('lang', state.lang)
+  if (resume) state.custom = resume.custom
 
   // Open on the damage, then heal it. cl100k shatters this sentence into single
   // letters; o200k puts it back together. Watching that happen is the argument
   // the page exists to make, and it costs the visitor nothing to see it.
-  const opensOnShatter = !reduceMotion
-  await setEncoding(opensOnShatter ? 'cl100k_base' : 'o200k_base')
-  if (opensOnShatter) {
+  // A page that came back from a failed load resumes where it was, and the
+  // opening move does not play over the top of that.
+  const opensOnShatter = !reduceMotion && !resume
+  const applied = await setEncoding(resume ? resume.encoding : opensOnShatter ? 'cl100k_base' : 'o200k_base')
+
+  // Three conditions, and all of them matter. The opening move only makes sense
+  // if this page is the one that opened on the shatter, if that request is the
+  // one that actually applied rather than one a click overtook, and if the
+  // visitor has not already made a choice of their own.
+  if (opensOnShatter && applied && !userActed) {
     healTimer = window.setTimeout(() => {
       healTimer = undefined
-      void setEncoding('o200k_base')
+      if (!userActed) void setEncoding('o200k_base')
     }, 1800)
   }
 }
 
-void boot()
+void boot().catch((err) => {
+  // boot has its own error paths for a vocabulary that will not load. Anything
+  // that reaches here is a bug, and a silent unhandled rejection is the worst
+  // way to find out about one.
+  console.error('tokenlab failed to start', err)
+  el.loadErrorText.textContent =
+    'The page failed to start. Reloading is worth a try; if it keeps happening the console has the detail.'
+  el.loadError.hidden = false
+})

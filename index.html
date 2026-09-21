@@ -121,7 +121,12 @@
     <section class="findings" aria-label="The measurement">
       <h2>The measurement</h2>
       <p class="findings-lede" data-findings-lede></p>
-      <div class="table-wrap">
+      <!--
+        A scrollable region has to be focusable or a keyboard visitor cannot
+        reach the half of the table that is off screen on a phone. tabindex and
+        an accessible name are what make it a region rather than a trap.
+      -->
+      <div class="table-wrap" tabindex="0" role="region" aria-label="The measurement, scrollable">
         <table data-findings-table>
           <caption class="sr-only">
             Greek to English token ratio by encoding

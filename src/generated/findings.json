@@ -1,5 +1,6 @@
 {
-  "generatedAt": "2026-09-20",
+  "corpusDated": "2026-09-21",
+  "inputsHash": "46be3d04c521dded",
   "olderPairIdentical": true,
   "corpus": {
     "name": "tokenlab-aligned-40",
@@ -12,6 +13,7 @@
       "formal"
     ],
     "built": "2026-09-20",
+    "revised": "2026-09-21",
     "method": "Forty sentence pairs written by hand in both languages, not machine translated and not taken from any parallel corpus, spread over five registers. Each pair says the same thing the way a native speaker would say it in that language, so the comparison measures the writing systems and the tokenizers rather than translationese. Every pair carries a provenance field, and written is the only value this corpus accepts: an official translation, however well aligned, is translationese by construction and would measure the wrong thing."
   },
   "headline": {

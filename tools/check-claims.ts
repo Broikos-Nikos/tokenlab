@@ -20,6 +20,7 @@
 import { readFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { hashInputs } from './inputs-hash'
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const readme = readFileSync(resolve(root, 'README.md'), 'utf8')
@@ -258,6 +259,22 @@ if (corpus.pairs.length !== f.corpus.pairs) {
   process.exit(1)
 }
 
+// findings.json has to be the measurement of the corpus sitting next to it, not
+// of some earlier version of it. Editing data/pairs.json and forgetting to
+// re-run the measurement would otherwise be silent, and every claim above would
+// then have been checked against the wrong file.
+const recomputed = hashInputs(corpus.pairs)
+if (recomputed !== f.inputsHash) {
+  console.error(
+    `FAIL  src/generated/findings.json was measured from a different corpus.
+` +
+      `      findings.json says ${f.inputsHash}, data/pairs.json hashes to ${recomputed}.
+` +
+      `      Run "npm run measure".`,
+  )
+  process.exit(1)
+}
+
 // The corpus describes its own size in prose too, and that sentence went stale
 // once already.
 const methodSize = `${capital(pairWord)} sentence pairs`
@@ -270,4 +287,4 @@ if (!flatten(corpus.method).includes(methodSize)) {
 }
 
 console.log(`${claims.length} claims in README.md check out against findings.json`)
-console.log(`corpus: ${corpus.pairs.length} pairs, measured ${f.generatedAt}`)
+console.log(`corpus: ${corpus.pairs.length} pairs, dated ${f.corpusDated}, inputs ${f.inputsHash}`)

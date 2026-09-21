@@ -441,7 +441,8 @@ function renderFindings() {
   el.method.textContent =
     `${f.corpus.method} Ratios are totals over totals, not a mean of per sentence ratios. ` +
     `The interval is a paired bootstrap over the ${f.corpus.pairs} pairs, ` +
-    `10,000 resamples, fixed seed. Measured ${f.generatedAt}.`
+    `10,000 resamples, fixed seed. Corpus dated ${f.corpusDated}, inputs ${f.inputsHash}. ` +
+    `Re-running the measurement on the same corpus reproduces this file byte for byte.`
 }
 
 /* ----------------------------------------------------------------- wire up */

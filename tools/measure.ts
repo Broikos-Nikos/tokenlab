@@ -19,6 +19,7 @@
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { hashInputs, BOOTSTRAP_SAMPLES, SEED } from './inputs-hash'
 
 const here = dirname(fileURLToPath(import.meta.url))
 const root = resolve(here, '..')
@@ -32,6 +33,7 @@ interface Pair {
 interface Corpus {
   name: string
   built: string
+  revised?: string
   method: string
   pairs: Pair[]
 }
@@ -67,7 +69,6 @@ const FIGURE_SENTENCE = {
   en: 'Install the dependencies, run the build, and open the page on port three thousand.',
 }
 
-const BOOTSTRAP_SAMPLES = 10_000
 
 /** Deterministic PRNG so the interval is the same on every machine. */
 function mulberry32(seed: number) {
@@ -102,6 +103,7 @@ function bootstrapRatio(el: number[], en: number[], seed: number): [number, numb
 
 const round = (n: number, places = 2) => Number(n.toFixed(places))
 
+
 async function main() {
   const corpus: Corpus = JSON.parse(
     readFileSync(resolve(root, 'data/pairs.json'), 'utf8'),
@@ -122,7 +124,7 @@ async function main() {
     const totalEl = elCounts.reduce((a, b) => a + b, 0)
     const totalEn = enCounts.reduce((a, b) => a + b, 0)
 
-    const [lo, hi] = bootstrapRatio(elCounts, enCounts, 20260920)
+    const [lo, hi] = bootstrapRatio(elCounts, enCounts, SEED)
 
     const elBytes = corpus.pairs.reduce((a, p) => a + utf8Bytes(p.el), 0)
     const enBytes = corpus.pairs.reduce((a, p) => a + utf8Bytes(p.en), 0)
@@ -218,14 +220,34 @@ async function main() {
   const r50k = encodings['r50k_base'] as Enc
   const olderPairIdentical = p50k.ratio === r50k.ratio
 
+  /*
+   * No wall clock anywhere in this file.
+   *
+   * `generatedAt` used to be `new Date()` in UTC, and the corpus dates itself in
+   * local time, so the page reported a measurement dated the day before the
+   * corpus it had just measured. It also meant re-running `npm run measure` on
+   * an unchanged corpus produced a diff every day, which trains a reader to
+   * ignore diffs in the one file that must never drift unnoticed.
+   *
+   * The measurement is a pure function of its inputs, so it is dated by its
+   * inputs. Same corpus, same numbers, byte identical file, and the date shown
+   * is the corpus date, which cannot precede itself.
+   */
+  // Deliberately only over things another script can see without loading a
+  // vocabulary, so `npm run check` can recompute it and catch a findings.json
+  // that is stale against the corpus beside it.
+  const inputsHash = hashInputs(corpus.pairs)
+
   const findings = {
-    generatedAt: new Date().toISOString().slice(0, 10),
+    corpusDated: corpus.revised ?? corpus.built,
+    inputsHash,
     olderPairIdentical,
     corpus: {
       name: corpus.name,
       pairs: corpus.pairs.length,
       registers,
       built: corpus.built,
+      revised: corpus.revised ?? null,
       method: corpus.method,
     },
     headline: {
@@ -274,6 +296,8 @@ async function main() {
   if (olderPairIdentical) {
     console.log('\np50k and r50k tokenize this corpus identically. One result, not two.')
   }
+  console.log(`
+corpus dated ${findings.corpusDated}, inputs ${inputsHash}`)
   console.log('wrote src/generated/findings.json')
 }
 

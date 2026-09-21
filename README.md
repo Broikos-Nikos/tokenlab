@@ -166,8 +166,8 @@ it exists for:
 | gate | what it stops |
 |---|---|
 | `npm run check:claims` | a number in this README that the measurement does not produce. Caught a hand typed `1.63` against a measured `1.61` on its first run. |
-| `npm run check:segments` | the page drawing text that was never typed. 92 cases across four encodings, including every prefix of a polytonic line as it is typed. |
-| `npm run check:loading` | a page that looks broken while every number on it is correct. Runs against the built output in a real browser. |
+| `npm run check:segments` | the page drawing text that was never typed, and the red chips quietly not being drawn at all. 92 cases across four encodings, including every prefix of a polytonic line as it is typed, plus twelve exact fracture counts. |
+| `npm run check:loading` | a page that looks broken while every number on it is correct, and a red chip that exists in the data but not on screen. Runs against the built output in a real browser. |
 | `npm run check:measurement` | a `findings.json` that is no longer what `tools/measure.ts` produces, and a number spelled into the page instead of read from the measurement. Found one on its first run that four other gates had missed. |
 | `npm run build` | all of the above except the browser one, before anything is written to `dist/`. |
 

@@ -14,6 +14,13 @@
  * add up, and no segment may be marked incomplete on input that is whole. Typing
  * is simulated too, one character at a time, because a page is used mid sentence
  * far more often than it is used on a finished one.
+ *
+ * And then the opposite failure, which is subtler and was live for twenty two
+ * ticks. Everything above passes if `splitIntoBytes` is hardcoded to false: the
+ * text still round trips, the ids still add up, and every red chip on the page
+ * silently disappears along with the cost badges and the note under them. That
+ * is the entire argument of the project, deleted, with four gates green. The
+ * fracture table below is the assertion that was missing.
  */
 
 import { segment } from '../src/lib/segment'
@@ -43,6 +50,26 @@ const CASES: [string, string][] = [
   ['one space', ' '],
   ['long Greek', 'Η επεξεργασία των δεδομένων προσωπικού χαρακτήρα διενεργείται σύμφωνα με τον ισχύοντα κανονισμό. '.repeat(4)],
 ]
+
+/**
+ * How many pieces of each sentence each encoding has to spell out in raw bytes.
+ *
+ * Exact counts, not "at least one", because the counts are the finding. `o200k`
+ * covers modern Greek and fractures none of it; `cl100k` fractures two pieces of
+ * the same sentence; the two oldest fracture nineteen. Polytonic Greek fractures
+ * on all four, the newest included, which is worth knowing: the vocabulary that
+ * closed the gap on the Greek people write did not close it on the Greek they
+ * read at school. English fractures on none.
+ *
+ * A fifth encoding has to be added here, which is deliberate: an encoding whose
+ * fracture behaviour nobody wrote down is an encoding nobody looked at.
+ */
+const FRACTURES: Record<string, Record<string, number>> = {
+  o200k_base: { 'modern Greek': 0, 'polytonic Greek': 3, 'plain English': 0 },
+  cl100k_base: { 'modern Greek': 2, 'polytonic Greek': 7, 'plain English': 0 },
+  p50k_base: { 'modern Greek': 19, 'polytonic Greek': 16, 'plain English': 0 },
+  r50k_base: { 'modern Greek': 19, 'polytonic Greek': 16, 'plain English': 0 },
+}
 
 interface Failure {
   encoding: string
@@ -76,6 +103,32 @@ function check(encoder: Encoder, label: string, text: string) {
       label,
       detail: `segments cover ${covered} ids, the text encodes to ${ids.length}`,
     })
+  }
+
+  // The red chips, and the number on each of them.
+  const expected = FRACTURES[encoder.id]?.[label]
+  if (expected !== undefined) {
+    const fractured = segs.filter((s) => s.splitIntoBytes)
+    if (fractured.length !== expected) {
+      failures.push({
+        encoding: encoder.id,
+        label,
+        detail:
+          `${fractured.length} pieces marked as split into bytes, expected ${expected}. ` +
+          `Those are the red chips. If this is zero where it should not be, the page ` +
+          `has stopped showing the thing it exists to show.`,
+      })
+    }
+    for (const f of fractured) {
+      if (f.ids.length < 2) {
+        failures.push({
+          encoding: encoder.id,
+          label,
+          detail: `a segment is marked split into bytes but carries ${f.ids.length} token, ` +
+            `so its cost badge would read ${f.ids.length}`,
+        })
+      }
+    }
   }
 
   for (const [i, s] of segs.entries()) {
@@ -130,4 +183,8 @@ if (failures.length > 0) {
 }
 
 const total = encoders.length * (CASES.length + 1)
-console.log(`${total} segmentation cases round trip exactly, across ${encoders.length} encodings`)
+const asserted = Object.values(FRACTURES).reduce((a, m) => a + Object.keys(m).length, 0)
+console.log(
+  `${total} segmentation cases round trip exactly across ${encoders.length} encodings, ` +
+    `and ${asserted} fracture counts are what they should be`,
+)

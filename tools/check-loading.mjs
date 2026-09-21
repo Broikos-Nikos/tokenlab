@@ -79,6 +79,48 @@ if (wants('healthy')) {
   }
 
   check('tokens are drawn', (await page.locator('.tok').count()) > 0)
+
+  /*
+   * The red chips, in the DOM this time.
+   *
+   * check:segments asserts that segment() marks the right pieces as split into
+   * bytes. That is upstream of everything a visitor sees: the class could stop
+   * being applied, the badge could stop rendering, a CSS rule could hide them,
+   * and every other gate here would stay green. This is the only check that
+   * looks at what is actually on the page.
+   */
+  await page.click("button[data-enc='cl100k_base']")
+  await page.fill('#input', 'Ἄνδρα μοι ἔννεπε, Μοῦσα, πολύτροπον, ὃς μάλα πολλὰ πλάγχθη')
+  await page.waitForTimeout(700)
+
+  const fractured = page.locator('.tok--fractured')
+  const n = await fractured.count()
+  check('red chips are on the page for text that fractures', n > 0, `found ${n}`)
+
+  if (n > 0) {
+    const box = await fractured.first().boundingBox()
+    check('a red chip is actually visible, not just present', box !== null && box.height > 0)
+
+    const badge = await fractured.first().locator('.cost').textContent()
+    check(
+      'the chip carries a cost badge of at least two',
+      Number(badge) >= 2,
+      `badge read ${JSON.stringify(badge)}`,
+    )
+
+    const note = page.locator('[data-fracture-note]')
+    const noteBox = await note.boundingBox()
+    check('the note under them is showing', noteBox !== null && noteBox.height > 0)
+  }
+
+  // And the other half of the claim: the newest vocabulary does not fracture
+  // the Greek people actually write.
+  await page.click("button[data-enc='o200k_base']")
+  await page.fill('#input', 'Θα είμαι εκεί σε δέκα λεπτά, έχει απαίσια κίνηση σήμερα.')
+  await page.waitForTimeout(700)
+  const onNewest = await page.locator('.tok--fractured').count()
+  check('no red chips on modern Greek with the newest vocabulary', onNewest === 0, `found ${onNewest}`)
+
   await page.close()
 }
 

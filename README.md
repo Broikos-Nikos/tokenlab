@@ -170,6 +170,7 @@ it exists for:
 | `npm run check:loading` | a page that looks broken while every number on it is correct, and a red chip that exists in the data but not on screen. Runs against the built output in a real browser. |
 | `npm run check:measurement` | a `findings.json` that is no longer what `tools/measure.ts` produces, and a number spelled into the page instead of read from the measurement. Found one on its first run that four other gates had missed. |
 | `npm run check:licences` | a font whose licence file, embedded records and prose do not all agree. The binary is the authority, not the README. |
+| `npm run check:workflow` | deployment permissions held by any job other than the one that deploys, an action pinned to a mutable tag, and a checkout that leaves its token behind. |
 | `npm run build` | all of the above except the browser one, before anything is written to `dist/`. |
 
 Nine separate agents have audited this project, one assigned perspective each,

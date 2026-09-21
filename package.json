@@ -10,14 +10,15 @@
     "preview": "vite preview",
     "measure": "tsx tools/measure.ts",
     "typecheck": "tsc --noEmit",
-    "check": "npm run check:segments && npm run check:claims && npm run check:measurement && npm run check:licences",
+    "check": "npm run check:segments && npm run check:claims && npm run check:measurement && npm run check:licences && npm run check:workflow",
     "capture": "node tools/capture.mjs",
     "check:claims": "tsx tools/check-claims.ts",
     "check:segments": "tsx tools/check-segments.ts",
     "check:loading": "node tools/check-loading.mjs",
     "verify": "node tools/verify.mjs",
     "check:measurement": "tsx tools/check-measurement.ts",
-    "check:licences": "tsx tools/check-licences.ts"
+    "check:licences": "tsx tools/check-licences.ts",
+    "check:workflow": "tsx tools/check-workflow.ts"
   },
   "dependencies": {
     "gpt-tokenizer": "4.0.0"

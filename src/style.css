@@ -692,3 +692,11 @@ footer code {
   font-weight: 700;
   font-variant-numeric: tabular-nums;
 }
+
+/* The uncertainty on the figure beside it. Quieter than the figure, present
+   always, because the figure alone was the dishonest version. */
+.split .band {
+  color: var(--text-faint);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}

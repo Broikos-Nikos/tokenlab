@@ -59,7 +59,12 @@
           "en": 5.24
         },
         "tokensPerByteRatio": 1.029,
-        "vocabularyPenaltyPercent": 2.9
+        "vocabularyPenaltyPercent": 2.9,
+        "vocabularyPenaltyInterval95": [
+          -2,
+          7.6
+        ],
+        "penaltyIndistinguishableFromZero": true
       },
       "byRegister": [
         {
@@ -157,7 +162,12 @@
           "en": 5.24
         },
         "tokensPerByteRatio": 2.557,
-        "vocabularyPenaltyPercent": 155.7
+        "vocabularyPenaltyPercent": 155.7,
+        "vocabularyPenaltyInterval95": [
+          143.8,
+          167.6
+        ],
+        "penaltyIndistinguishableFromZero": false
       },
       "byRegister": [
         {
@@ -255,7 +265,12 @@
           "en": 5.18
         },
         "tokensPerByteRatio": 3.203,
-        "vocabularyPenaltyPercent": 220.3
+        "vocabularyPenaltyPercent": 220.3,
+        "vocabularyPenaltyInterval95": [
+          205.6,
+          235.2
+        ],
+        "penaltyIndistinguishableFromZero": false
       },
       "byRegister": [
         {
@@ -353,7 +368,12 @@
           "en": 5.18
         },
         "tokensPerByteRatio": 3.203,
-        "vocabularyPenaltyPercent": 220.3
+        "vocabularyPenaltyPercent": 220.3,
+        "vocabularyPenaltyInterval95": [
+          205.6,
+          235.2
+        ],
+        "penaltyIndistinguishableFromZero": false
       },
       "byRegister": [
         {

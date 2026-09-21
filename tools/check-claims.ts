@@ -65,8 +65,22 @@ add(
 )
 add(
   'what o200k adds on top of the script',
-  `adds ${pct(enc('o200k_base').lengthControlled.vocabularyPenaltyPercent)} percent on top`,
+  `\`o200k\` adds ${pct(enc('o200k_base').lengthControlled.vocabularyPenaltyPercent)} percent`,
 )
+// The interval on that figure, which is the whole point of HE-F1: it includes
+// zero, and a README that prints the point estimate without it is breaking its
+// own stated rule two screens further down.
+{
+  const [plo, phi] = enc('o200k_base').lengthControlled.vocabularyPenaltyInterval95
+  add(
+    'the interval on the o200k penalty, and that it includes zero',
+    `the interval runs ${plo.toFixed(1)} to +${phi.toFixed(1)} percent and it includes zero`,
+  )
+}
+{
+  const [plo, phi] = enc('cl100k_base').lengthControlled.vocabularyPenaltyInterval95
+  add('the interval on the cl100k penalty', `interval +${plo.toFixed(1)} to +${phi.toFixed(1)}`)
+}
 add(
   'what cl100k adds',
   `on \`cl100k\` adds ${Math.round(enc('cl100k_base').lengthControlled.vocabularyPenaltyPercent)} percent`,
@@ -125,14 +139,21 @@ for (const id of Object.keys(USED_BY)) {
   const [lo, hi] = e.ratioInterval95
   // The table is exact to one decimal. The prose above it rounds, which is a
   // different job, and both are checked.
-  const penalty = e.lengthControlled.vocabularyPenaltyPercent.toFixed(1)
+  const L = e.lengthControlled
+  const penalty = L.vocabularyPenaltyPercent.toFixed(1)
+  const [plo, phi] = L.vocabularyPenaltyInterval95
+  const sign = (n: number) => `${n >= 0 ? '+' : '-'}${Math.abs(n).toFixed(1)}`
+  // The penalty interval is part of the row, not an optional extra. It was
+  // missing entirely and the figure it belongs to is the one the project leads
+  // with, so it is asserted like everything else.
+  const band = `${sign(plo)} to ${sign(phi)}` + (L.penaltyIndistinguishableFromZero ? ', includes zero' : '')
   add(
     `the whole ${id} row of the table`,
     `| \`${id}\` | ${USED_BY[id]} | ${e.ratio}x | ` +
       `${lo.toFixed(2)} to ${hi.toFixed(2)} | ` +
       // Two decimals always, so a column of figures lines up instead of showing
       // 5.1 next to 1.62 because one of them happened to round short.
-      `${e.lengthControlled.bytesPerToken.el.toFixed(2)} | **+${penalty}%** |`,
+      `${L.bytesPerToken.el.toFixed(2)} | **+${penalty}%** | ${band} |`,
   )
 }
 

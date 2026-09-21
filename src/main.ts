@@ -214,11 +214,20 @@ async function setEncoding(id: EncodingId): Promise<boolean> {
   // because the ratio on its own credits all of it to the vocabulary.
   const lc = f[id]!.lengthControlled
   const add = lc.vocabularyPenaltyPercent
+  const [plo, phi] = lc.vocabularyPenaltyInterval95
+  // The figure and what forty pairs can actually see of it. Printing the point
+  // estimate alone was the single worst thing in this project: on o200k the
+  // interval crosses zero, so the bare number reads as a small penalty when the
+  // measurement cannot tell it from none.
   el.split.innerHTML =
     `Most of that is the alphabet. Greek is ` +
     `<strong>${findings.headline.scriptCost}x</strong> the bytes of English before any ` +
     `tokenizer runs, and ${meta.label} adds ` +
-    `<strong>${add < 10 ? add.toFixed(1) : Math.round(add)}%</strong> on top.`
+    `<strong>${signed(add)}%</strong> on top` +
+    (lc.penaltyIndistinguishableFromZero
+      ? `, which forty sentence pairs cannot tell apart from nothing ` +
+        `<span class="band">(${signed(plo)} to ${signed(phi)}, includes zero)</span>.`
+      : ` <span class="band">(${signed(plo)} to ${signed(phi)})</span>.`)
 
   staggerNext = true
   render()
@@ -407,8 +416,12 @@ interface EncodingFinding {
   lengthControlled: {
     bytesPerToken: { el: number; en: number }
     vocabularyPenaltyPercent: number
+    vocabularyPenaltyInterval95: [number, number]
+    penaltyIndistinguishableFromZero: boolean
   }
 }
+
+const signed = (n: number) => `${n >= 0 ? '+' : ''}${n.toFixed(1)}`
 
 function renderFindings() {
   const f = findings as typeof findings
@@ -418,14 +431,17 @@ function renderFindings() {
     `OpenAI vocabulary and ${f.encodings.cl100k_base.ratio} times on the one before it. ` +
     `But Greek is ${f.headline.scriptCost} times the UTF-8 bytes of English before any ` +
     `tokenizer is involved, so the last column is the part that is actually the ` +
-    `vocabulary: the newest one has all but closed the gap, and the one still under ` +
-    `most cost models built for GPT-4 has not.`
+    `vocabulary: the newest one has closed the gap to within what ${f.corpus.pairs} pairs ` +
+    `can measure, its interval crossing zero, and the one still under most cost models ` +
+    `built for GPT-4 has not.`
 
   const rows: string[] = []
   for (const meta of ENCODINGS) {
     const e = (f.encodings as unknown as Record<string, EncodingFinding>)[meta.id]
     if (!e) continue
     const add = e.lengthControlled.vocabularyPenaltyPercent
+    const [plo, phi] = e.lengthControlled.vocabularyPenaltyInterval95
+    const nul = e.lengthControlled.penaltyIndistinguishableFromZero
     rows.push(
       `<tr style="--row-hue:${meta.hue}">` +
         `<td>${meta.label}</td>` +
@@ -433,7 +449,8 @@ function renderFindings() {
         `<td data-ratio style="color:oklch(0.85 0.13 ${meta.hue})">${e.ratio}x</td>` +
         `<td class="dim">${e.ratioInterval95[0].toFixed(2)} to ${e.ratioInterval95[1].toFixed(2)}</td>` +
         `<td class="dim">${e.lengthControlled.bytesPerToken.el.toFixed(2)}</td>` +
-        `<td data-ratio style="color:oklch(0.85 0.13 ${meta.hue})">+${add.toFixed(1)}%</td>` +
+        `<td data-ratio style="color:oklch(0.85 0.13 ${meta.hue})">${signed(add)}%</td>` +
+        `<td class="dim">${signed(plo)} to ${signed(phi)}${nul ? ', includes zero' : ''}</td>` +
         `</tr>`,
     )
   }

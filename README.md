@@ -27,13 +27,21 @@ token in both pictures. On the right, every Greek letter around it is its own:
 
 **Greek costs 2.06 times the tokens of English on the newest OpenAI vocabulary.
 Almost none of that is the tokenizer.** Greek is 2.004 times the UTF-8 bytes of
-English before anything tokenizes it, and `o200k` adds 2.9 percent on top of
-that. The same measurement on `cl100k` adds 156 percent, and on `p50k` and
-`r50k` it adds 220 percent.
+English before anything tokenizes it. On top of that, `o200k` adds 2.9 percent,
+and forty pairs cannot tell that apart from nothing: the interval runs -2.0 to
++7.6 percent and it includes zero. The same measurement on `cl100k` adds 156
+percent, interval +143.8 to +167.6, which is not a null result, and on `p50k`
+and `r50k` it adds 220 percent.
+
+So the honest sentence is not "o200k charges Greek 2.9 percent". It is that
+whatever `o200k` charges Greek beyond the alphabet, forty sentence pairs cannot
+see it.
 
 A raw token ratio measures the writing system and the vocabulary at once and
 hands the credit to the vocabulary, which is why the split above matters more
-than the headline.
+than the headline. Which is also why that split now carries its own interval:
+the figure this project says matters most was, until 2026-09-21, the only one
+published without one.
 
 ## The numbers
 
@@ -42,12 +50,17 @@ committed in [`data/pairs.json`](data/pairs.json). Ratios are totals over
 totals, not a mean of per sentence ratios. Intervals are a paired bootstrap,
 10,000 resamples, fixed seed.
 
-| encoding | used by | raw token ratio | 95% interval | bytes per token, Greek | vocabulary cost beyond the script |
-|---|---|---|---|---|---|
-| `o200k_base` | GPT-6, GPT-5.x, GPT-4.1, GPT-4o | 2.06x | 1.94 to 2.18 | 5.10 | **+2.9%** |
-| `cl100k_base` | GPT-4, GPT-3.5 Turbo, text-embedding-3 | 5.12x | 4.79 to 5.45 | 2.05 | **+155.7%** |
-| `p50k_base` | Codex, davinci-002 | 6.42x | 6.00 to 6.82 | 1.62 | **+220.3%** |
-| `r50k_base` | GPT-3, GPT-2 | 6.42x | 6.00 to 6.82 | 1.62 | **+220.3%** |
+| encoding | used by | raw token ratio | 95% interval | bytes per token, Greek | vocabulary cost beyond the script | its 95% interval |
+|---|---|---|---|---|---|---|
+| `o200k_base` | GPT-6, GPT-5.x, GPT-4.1, GPT-4o | 2.06x | 1.94 to 2.18 | 5.10 | **+2.9%** | -2.0 to +7.6, includes zero |
+| `cl100k_base` | GPT-4, GPT-3.5 Turbo, text-embedding-3 | 5.12x | 4.79 to 5.45 | 2.05 | **+155.7%** | +143.8 to +167.6 |
+| `p50k_base` | Codex, davinci-002 | 6.42x | 6.00 to 6.82 | 1.62 | **+220.3%** | +205.6 to +235.2 |
+| `r50k_base` | GPT-3, GPT-2 | 6.42x | 6.00 to 6.82 | 1.62 | **+220.3%** | +205.6 to +235.2 |
+
+Both interval columns come from that same paired bootstrap. A pair is the unit
+of resampling, so its Greek tokens, English tokens, Greek bytes and English
+bytes move together, which is what makes the second interval meaningful rather
+than a ratio of two independent guesses.
 
 English gets 5.24 bytes per token on `o200k` and 5.24 on `cl100k`, unchanged to
 two decimals. Greek goes from 2.05 to 5.10 between the two. That is what the last
@@ -82,9 +95,14 @@ came from.
 
 ## What the numbers say
 
-`o200k` has effectively closed the Greek vocabulary gap. A 2.9 percent residual
-is not something anyone should design around. What remains is the script: Greek
-is two UTF-8 bytes a letter and English is one, and no vocabulary can undo that.
+`o200k` has closed the Greek vocabulary gap to within what forty pairs can
+measure. The point estimate is 2.9 percent and the interval crosses zero, so the
+correct reading is that there is no detectable penalty here, not that there is a
+small one. What remains is the script: Greek is two UTF-8 bytes a letter and
+English is one, and no vocabulary can undo that.
+
+A larger corpus could resolve that 2.9 percent into something real or into
+nothing. This one cannot, and saying so is cheaper than pretending otherwise.
 
 `cl100k` is the interesting one. There the vocabulary really does charge Greek
 two and a half times per byte, which means any cost model built on a GPT-4 era

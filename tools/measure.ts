@@ -101,6 +101,38 @@ function bootstrapRatio(el: number[], en: number[], seed: number): [number, numb
   return [lo, hi]
 }
 
+/**
+ * The same paired resampling, over the quantity the project actually leads with.
+ *
+ * This was missing, and its absence was the worst thing in the repository. The
+ * vocabulary penalty is the number `measure.ts` argues is the one worth
+ * publishing and the README says matters more than the headline, and it was the
+ * only number here printed without an interval, sitting one column to the right
+ * of an interval that does not cover it. The four per pair quantities are
+ * resampled together, because a pair is the unit: its Greek tokens, its English
+ * tokens, its Greek bytes and its English bytes move as one observation.
+ */
+function bootstrapPenalty(
+  elTok: number[], enTok: number[], elByt: number[], enByt: number[], seed: number,
+): [number, number] {
+  const rand = mulberry32(seed)
+  const n = elTok.length
+  const out: number[] = new Array(BOOTSTRAP_SAMPLES)
+  for (let s = 0; s < BOOTSTRAP_SAMPLES; s++) {
+    let a = 0, b = 0, c = 0, d = 0
+    for (let i = 0; i < n; i++) {
+      const k = Math.floor(rand() * n)
+      a += elTok[k]; b += elByt[k]; c += enTok[k]; d += enByt[k]
+    }
+    out[s] = b === 0 || c === 0 || d === 0 ? 0 : (a / b) / (c / d)
+  }
+  out.sort((x, y) => x - y)
+  return [
+    (out[Math.floor(0.025 * BOOTSTRAP_SAMPLES)] - 1) * 100,
+    (out[Math.floor(0.975 * BOOTSTRAP_SAMPLES)] - 1) * 100,
+  ]
+}
+
 const round = (n: number, places = 2) => Number(n.toFixed(places))
 
 
@@ -126,8 +158,10 @@ async function main() {
 
     const [lo, hi] = bootstrapRatio(elCounts, enCounts, SEED)
 
-    const elBytes = corpus.pairs.reduce((a, p) => a + utf8Bytes(p.el), 0)
-    const enBytes = corpus.pairs.reduce((a, p) => a + utf8Bytes(p.en), 0)
+    const elByteCounts = corpus.pairs.map((p) => utf8Bytes(p.el))
+    const enByteCounts = corpus.pairs.map((p) => utf8Bytes(p.en))
+    const elBytes = elByteCounts.reduce((a, b) => a + b, 0)
+    const enBytes = enByteCounts.reduce((a, b) => a + b, 0)
     const elChars = corpus.pairs.reduce((a, p) => a + [...p.el].length, 0)
     const enChars = corpus.pairs.reduce((a, p) => a + [...p.en].length, 0)
 
@@ -170,6 +204,9 @@ async function main() {
 
     const elPerByte = totalEl / elBytes
     const enPerByte = totalEn / enBytes
+    const [penaltyLo, penaltyHi] = bootstrapPenalty(
+      elCounts, enCounts, elByteCounts, enByteCounts, SEED,
+    )
 
     encodings[enc.id] = {
       label: enc.label,
@@ -195,6 +232,9 @@ async function main() {
         /** Above 1.0 is what this vocabulary costs Greek beyond the script itself. */
         tokensPerByteRatio: round(elPerByte / enPerByte, 3),
         vocabularyPenaltyPercent: round((elPerByte / enPerByte - 1) * 100, 1),
+        vocabularyPenaltyInterval95: [round(penaltyLo, 1), round(penaltyHi, 1)],
+        /** True when this corpus cannot tell this vocabulary's penalty from none. */
+        penaltyIndistinguishableFromZero: penaltyLo <= 0 && penaltyHi >= 0,
       },
       byRegister,
       worstPair: worst,
@@ -279,18 +319,26 @@ async function main() {
   console.log(
     `Greek is ${o200k.lengthControlled.byteRatio}x the UTF-8 bytes of English before any tokenizer runs.\n`,
   )
-  console.log('encoding  raw ratio   95% interval    vocabulary cost beyond the script')
+  console.log('encoding  raw ratio   95% interval    vocabulary cost beyond the script, with its own interval')
   for (const enc of ENCODINGS) {
     const e = encodings[enc.id] as {
       ratio: number
       ratioInterval95: [number, number]
-      lengthControlled: { tokensPerByteRatio: number; vocabularyPenaltyPercent: number }
+      lengthControlled: {
+        tokensPerByteRatio: number
+        vocabularyPenaltyPercent: number
+        vocabularyPenaltyInterval95: [number, number]
+        penaltyIndistinguishableFromZero: boolean
+      }
     }
-    const pct = e.lengthControlled.vocabularyPenaltyPercent
+    const L = e.lengthControlled
+    const pct = L.vocabularyPenaltyPercent
+    const [plo, phi] = L.vocabularyPenaltyInterval95
+    const flag = L.penaltyIndistinguishableFromZero ? '  <- includes zero' : ''
     console.log(
       `${enc.label.padEnd(9)} ${String(e.ratio).padEnd(11)}` +
         `${e.ratioInterval95[0]} to ${String(e.ratioInterval95[1]).padEnd(8)} ` +
-        `${e.lengthControlled.tokensPerByteRatio}x  (${pct > 0 ? '+' : ''}${pct}%)`,
+        `${(pct > 0 ? '+' : '') + pct}%  (${plo}% to ${phi}%)${flag}`,
     )
   }
   if (olderPairIdentical) {

@@ -25,7 +25,7 @@ export interface EncodingMeta {
   /**
    * Hue used for this encoding everywhere in the interface.
    *
-   * Every one of these is at least 100 degrees from the alarm hue of 32, which
+   * Every one of these is at least 110 degrees from the alarm hue of 45, which
    * is reserved for a character that cost more than one token. An encoding
    * tinted near the alarm hides the finding on the encoding where it is worst,
    * and `npm run check:measurement` enforces it rather than trusting this note:
@@ -45,28 +45,28 @@ export const ENCODINGS = [
     label: 'o200k',
     models: 'GPT-6, GPT-5.x, GPT-4.1, GPT-4o',
     since: '2024',
-    hue: 145,
+    hue: 155,
   },
   {
     id: 'cl100k_base',
     label: 'cl100k',
     models: 'GPT-4, GPT-3.5 Turbo, text-embedding-3',
     since: '2022',
-    hue: 195,
+    hue: 200,
   },
   {
     id: 'p50k_base',
     label: 'p50k',
     models: 'Codex, davinci-002',
     since: '2021',
-    hue: 245,
+    hue: 250,
   },
   {
     id: 'r50k_base',
     label: 'r50k',
     models: 'GPT-3, GPT-2',
     since: '2019',
-    hue: 290,
+    hue: 295,
   },
 ] as const satisfies readonly EncodingMeta[]
 

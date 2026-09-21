@@ -124,7 +124,7 @@ for (const file of ['src/main.ts', 'index.html']) {
  * is worst, which happened once: cl100k shipped at hue 28 against an alarm at
  * 32 and the red chips were invisible on it.
  */
-const ALARM_HUE = 32
+const ALARM_HUE = 45
 const MIN_SEPARATION = 100
 
 const hueDistance = (a: number, b: number) => {

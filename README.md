@@ -2,6 +2,8 @@
 
 ### Your Greek text costs more than your English text. This page shows you exactly how much.
 
+### [Open it and type something](https://broikos-nikos.github.io/tokenlab/)
+
 AI models charge by the token, a chunk of text a few letters long. The same
 sentence written in Greek is chopped into far more chunks than the English one,
 so it costs more to send, fills a context window faster, and gets cut into worse

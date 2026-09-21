@@ -136,9 +136,16 @@ nothing deploys unless they pass.
 
 No backend and no API key. The page fetches its own JavaScript, fonts and
 vocabularies from wherever it is hosted and then talks to nothing: no request
-leaves for a third party, and your text never goes anywhere. The vocabularies are
-loaded one per encoding on demand, so the page paints before the largest of them
-arrives.
+leaves for a third party, and your text never goes anywhere.
+
+The opening is precomputed. Every sentence the page can open with and every
+encoding it can open in are known at build time, so `npm run prerender` computes
+those segments ahead of the vocabulary: 11 kB gzipped against the 439 kB of
+`cl100k` that would otherwise sit between you and the first chip. Measured with
+the vocabulary artificially delayed by four seconds, first chip went from
+4,533 ms to 126 ms, with the same 76 chips and the same 6 red ones. The
+vocabulary downloads the whole time and is needed the moment you type something
+of your own.
 
 ## How it works
 
@@ -170,6 +177,7 @@ it exists for:
 | `npm run check:loading` | a page that looks broken while every number on it is correct, and a red chip that exists in the data but not on screen. Runs against the built output in a real browser. |
 | `npm run check:measurement` | a `findings.json` that is no longer what `tools/measure.ts` produces, and a number spelled into the page instead of read from the measurement. Found one on its first run that four other gates had missed. |
 | `npm run check:licences` | a font whose licence file, embedded records and prose do not all agree. The binary is the authority, not the README. |
+| `npm run check:prerender` | a precomputed opening that no longer matches what the tokenizer produces, so the page opens by drawing the previous version of the truth. |
 | `npm run check:workflow` | deployment permissions held by any job other than the one that deploys, an action pinned to a mutable tag, and a checkout that leaves its token behind. |
 | `npm run build` | all of the above except the browser one, before anything is written to `dist/`. |
 

@@ -1,9 +1,10 @@
 import './style.css'
 import { ENCODINGS, loadEncoder, metaFor, type EncodingId, type Encoder } from './lib/tokenizers'
-import { segment, statsFor, type Segment, type Stats } from './lib/segment'
+import { segment, statsFor, countWords, type Segment, type Stats } from './lib/segment'
 import findings from './generated/findings.json'
 import corpus from '../data/pairs.json'
 import pricing from '../data/pricing.json'
+import preview from './generated/preview.json'
 
 /** Above this many tokens the chips stop being a picture and start being a wall. */
 const MAX_CHIPS = 900
@@ -68,6 +69,32 @@ let healTimer: number | undefined
 
 /** Set by any deliberate act, and never unset. The opening move is once only. */
 let userActed = false
+
+/**
+ * The opening move, drawn before any vocabulary has arrived.
+ *
+ * Every sentence the page can open with is known at build time, and so is every
+ * encoding it can open in, so `npm run prerender` computes those segments ahead
+ * of time. 11 kB gzipped, against the 439 kB of cl100k that would otherwise sit
+ * between the visitor and the first chip. The vocabulary is still needed the
+ * moment they type something of their own, and it is downloading the whole time.
+ */
+type PreviewEntry = { s: { t: string; n: number }[]; tokens: number }
+const previews = preview as Record<string, PreviewEntry>
+
+function previewFor(pair: number, lang: Lang, encoding: EncodingId): PreviewEntry | null {
+  return previews[`${pair}:${lang}:${encoding}`] ?? null
+}
+
+/** The precomputed shape, widened to what the chip renderer needs. */
+function previewSegments(entry: PreviewEntry): Segment[] {
+  return entry.s.map((x, i) => ({
+    ids: new Array<number>(x.n),
+    text: x.t,
+    splitIntoBytes: x.n > 1,
+    start: i,
+  }))
+}
 
 /** Which vocabulary failed, so the retry knows what to come back to. */
 let failedEncoding: EncodingId | null = null
@@ -170,6 +197,18 @@ async function setEncoding(id: EncodingId): Promise<boolean> {
   // While it loads the button says so instead.
   setBusy(id, true)
   el.loadError.hidden = true
+
+  // Draw the precomputed version of this encoding straight away, so the switch
+  // reads as instant even on the first one, where nothing is cached yet.
+  if (!state.custom) {
+    const entry = previewFor(state.pairIndex, state.lang, id)
+    if (entry) {
+      state.encoding = id
+      document.documentElement.style.setProperty('--hue', String(metaFor(id).hue))
+      staggerNext = true
+      drawFromPreview(entry)
+    }
+  }
 
   let next: Encoder
   try {
@@ -354,7 +393,16 @@ function announce(stats: Stats, fractured: number, cost: string | null, model: s
 /* -------------------------------------------------------------- the render */
 
 function render() {
-  if (!encoder) return
+  // Before any vocabulary has landed, the opening sentence is still drawable,
+  // because it was computed at build time. Anything the visitor types is not,
+  // and waits.
+  if (!encoder) {
+    if (state.custom) return
+    const entry = previewFor(state.pairIndex, state.lang, state.encoding)
+    if (!entry) return
+    drawFromPreview(entry)
+    return
+  }
   const text = el.input.value
   const ids = encoder.encode(text)
   const segments = segment(encoder, ids)
@@ -404,6 +452,36 @@ function render() {
     el.compareRatio.textContent = `${(elTokens / enTokens).toFixed(2)}x`
   } else {
     el.compare.hidden = true
+  }
+}
+
+/** The same drawing, from precomputed segments instead of a live tokenizer. */
+function drawFromPreview(entry: PreviewEntry) {
+  const text = el.input.value
+  const segs = previewSegments(entry)
+  const stagger = staggerNext
+  staggerNext = false
+  drawTokens(segs, stagger)
+
+  const words = countWords(text)
+  tickTo(el.count, entry.tokens, (n) => n.toLocaleString('en-US'))
+  el.words.textContent = String(words)
+  el.tpw.textContent = (words === 0 ? 0 : entry.tokens / words).toFixed(2)
+
+  const fractured = segs.filter((s) => s.splitIntoBytes).length
+  el.fractureCount.textContent = String(fractured)
+  el.fractureBody.textContent =
+    fractured === 1
+      ? 'piece of this text cost more than one token. The tokenizer had no token for it, so it spelled it out in raw bytes and charged for every byte.'
+      : 'pieces of this text cost more than one token each. The tokenizer had no token for them, so it spelled them out in raw bytes and charged for every byte.'
+  el.fractureNote.hidden = fractured === 0
+
+  const other = previewFor(state.pairIndex, state.lang === 'el' ? 'en' : 'el', state.encoding)
+  if (other) {
+    const elTokens = state.lang === 'el' ? entry.tokens : other.tokens
+    const enTokens = state.lang === 'el' ? other.tokens : entry.tokens
+    el.compare.hidden = false
+    el.compareRatio.textContent = `${(elTokens / enTokens).toFixed(2)}x`
   }
 }
 

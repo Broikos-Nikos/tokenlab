@@ -21,7 +21,8 @@
     "check:workflow": "tsx tools/check-workflow.ts",
     "prerender": "tsx tools/prerender.ts",
     "check:prerender": "tsx tools/check-prerender.ts",
-    "check:capture": "node tools/check-capture.mjs"
+    "check:capture": "node tools/check-capture.mjs",
+    "check:licence": "node tools/check-licence.mjs"
   },
   "dependencies": {
     "gpt-tokenizer": "4.0.0"

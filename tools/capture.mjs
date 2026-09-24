@@ -1,8 +1,7 @@
 /**
  * Record the shatter, for the top of the README.
  *
- *   npm run dev            # in one terminal
- *   node tools/capture.mjs # in another
+ *   npm run capture
  *
  * A project whose whole argument is "watch this happen" cannot lead with a still
  * image. This records the real page in a real browser doing the real thing: the
@@ -22,9 +21,11 @@
  */
 
 import { execFileSync } from 'node:child_process'
-import { mkdirSync, readdirSync, rmSync, renameSync } from 'node:fs'
+import { mkdirSync, readdirSync, rmSync, renameSync, writeFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { serve, useShared } from './serve.mjs'
+import { lookAt, PAIR, FINAL_ENCODING } from './capture-state.mjs'
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 /**
@@ -33,8 +34,18 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
  * is what makes the recording reproducible: a capture of a random sentence has
  * numbers in it that nothing can check.
  */
-const PAIR = process.env.TOKENLAB_PAIR ?? '17'
-const BASE = process.env.TOKENLAB_URL ?? 'http://localhost:5173/'
+/*
+ * The server is this tool's own, and it is proved byte for byte against
+ * dist/index.html before a frame is recorded.
+ *
+ * It used to read TOKENLAB_URL or fall back to localhost:5173 and assume
+ * somebody had already run `npm run dev` in another terminal. Nobody had, on
+ * the afternoon this repository was published, and it died with
+ * ERR_CONNECTION_REFUSED. A tool that only works when you remember something is
+ * a tool that works on the day you write it.
+ */
+const server = process.env.TOKENLAB_URL ? await useShared(process.env.TOKENLAB_URL) : await serve()
+const BASE = server.url
 const URL_ = `${BASE}${BASE.includes('?') ? '&' : '?'}pair=${PAIR}`
 const OUT = resolve(root, 'docs/shatter.gif')
 const WORK = resolve(root, '.capture')
@@ -111,8 +122,27 @@ await page.waitForTimeout(2600)
 
 // Then back to the damage, so the loop reads as a comparison rather than as a
 // one way animation.
-await page.click("button[data-enc='cl100k_base']")
+await page.click(`button[data-enc='${FINAL_ENCODING}']`)
 await page.waitForTimeout(2300)
+
+/*
+ * What the page looked like while this was being filmed.
+ *
+ * A GIF cannot go stale loudly. This page's palette was replaced wholesale
+ * twenty minutes after the previous recording was made, and the only reason the
+ * README is not sitting over a picture of a blue site today is that the capture
+ * happened to be re-run three minutes later. `check:capture` is what makes that
+ * a process instead of a coincidence.
+ */
+const looked = await page.evaluate(lookAt)
+if (looked.state.encoding !== FINAL_ENCODING) {
+  console.error(`FAIL  the recording ends on ${looked.state.encoding}, not ${FINAL_ENCODING}`)
+  process.exit(1)
+}
+if (looked.state.fracturedChips === 0) {
+  console.error('FAIL  the recording ends with no fractured chips, which is the thing it is a recording of')
+  process.exit(1)
+}
 
 await context.close()
 await browser.close()
@@ -131,7 +161,8 @@ const palette = resolve(WORK, 'palette.png')
 // belongs in the README, not in a loop that plays forever.
 const CROP = 'crop=1340:502:0:0'
 const filters = `${CROP},fps=${FPS},scale=${WIDTH}:-1:flags=lanczos`
-const trim = ['-ss', String(Math.max(0, shatterAt - LEAD_IN))]
+const offset = Math.max(0, shatterAt - LEAD_IN)
+const trim = ['-ss', String(offset)]
 
 ff([...trim, '-i', webm, '-vf', `${filters},palettegen=stats_mode=diff`, palette])
 ff([
@@ -141,11 +172,22 @@ ff([
   '-loop', '0',
   OUT,
 ])
-console.log(`trimmed ${(shatterAt - LEAD_IN).toFixed(2)}s of vocabulary load off the front`)
+console.log(`trimmed ${offset.toFixed(2)}s of vocabulary load off the front`)
 
 renameSync(webm, resolve(root, 'docs/shatter.webm'))
 rmSync(WORK, { recursive: true, force: true })
 
+writeFileSync(
+  resolve(root, 'docs/capture.json'),
+  JSON.stringify({ recorded: new Date().toISOString().slice(0, 10), pair: PAIR, looked }, null, 2) + '\n',
+)
+
+server.stop()
+
 const { size } = await import('node:fs').then((m) => m.promises.stat(OUT))
 console.log(`docs/shatter.gif  ${(size / 1e6).toFixed(2)} MB at ${FPS} fps, ${WIDTH}px wide`)
 console.log('docs/shatter.webm kept alongside it, for anywhere that takes video')
+console.log(
+  `ends on ${looked.state.encoding}: ${looked.state.tokens} tokens, ` +
+    `${looked.state.fracturedChips} fractured chips, pair ${PAIR}`,
+)

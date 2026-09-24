@@ -1,0 +1,30 @@
+{
+  "recorded": "2026-09-24",
+  "pair": "17",
+  "looked": {
+    "paint": {
+      "--ink": "#080604",
+      "--ink-lift": "#141010",
+      "--edge": "#2e2621",
+      "--text": "#fff",
+      "--text-dim": "#9a8f88",
+      "--text-faint": "#8a7f76",
+      "--alarm": "#ff6a00",
+      "--hue": "200",
+      "bodyFont": "Manrope, system-ui, sans-serif",
+      "wash": "rgb(8, 6, 4)"
+    },
+    "words": {
+      "headline": "",
+      "wordmark": "tokenlab",
+      "split": "Most of that is the alphabet. Greek is 2.004x the bytes of English before any tokenizer runs, and cl100k adds +155.7% on top (+143.8 to +167.6)."
+    },
+    "state": {
+      "encoding": "cl100k_base",
+      "tokens": "82",
+      "fractured": "6",
+      "ratio": "4.82x",
+      "fracturedChips": 6
+    }
+  }
+}

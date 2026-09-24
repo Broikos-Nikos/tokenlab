@@ -75,13 +75,25 @@ try {
   if (!(await reachable(url, 30_000))) {
     console.error(`the preview server never answered on ${url}`)
   } else {
-    const r = spawnSync(npm, ['run', 'check:loading'], {
-      cwd: root,
-      stdio: 'inherit',
-      shell: useShell,
-      env: { ...process.env, TOKENLAB_URL: url },
-    })
-    code = r.status ?? 1
+    /*
+     * Every gate that needs a browser, against this one server.
+     *
+     * check:capture joined on 2026-09-24. It is here rather than in `npm run
+     * check` because it drives a browser, and browser gates are not a tax on
+     * somebody who cloned this to read it.
+     */
+    const GATES = ['check:loading', 'check:capture']
+    let bad = 0
+    for (const gate of GATES) {
+      const r = spawnSync(npm, ['run', gate], {
+        cwd: root,
+        stdio: 'inherit',
+        shell: useShell,
+        env: { ...process.env, TOKENLAB_URL: url },
+      })
+      if ((r.status ?? 1) !== 0) bad++
+    }
+    code = bad === 0 ? 0 : 1
   }
 } finally {
   // Through a shell, kill() reaches the shell rather than vite, so on Windows the

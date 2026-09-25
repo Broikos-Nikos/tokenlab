@@ -8,7 +8,12 @@ no write access to the project: it produced a findings file and a list, and the
 fixes were separate work afterwards. Nobody audited their own code twenty
 minutes after writing it, which is the only reason any of this was found.
 
-As of 2026-09-21: **102 findings, 49 closed, 53 open**, across 7 perspectives of nine defined.
+**130 findings, 100 closed, 30 open**, across the 9 perspectives, every one of them run.
+
+That line and the count under every table below are checked against the tables
+themselves on every build, by `npm run check:audits`, and against the queue this
+project is built from by the loop that closes the findings. They were typed by
+hand until tick 148, and by then a third of the table was wrong.
 
 The full audit files are not in this repository. They are working documents of
 the workspace this project was built in, and they quote intermediate states of
@@ -19,7 +24,7 @@ a commit message needs to resolve.
 
 The hostile stranger: empty input, a megabyte of it, emoji, RTL, a phone sized window, keyboard only.
 
-16 findings, 7 closed.
+16 findings, 12 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -27,13 +32,13 @@ The hostile stranger: empty input, a megabyte of it, emoji, RTL, a phone sized w
 | `HS-F2` | high | fixed, tick 4 | One pasted U+FFFD swallows the rest of the text into a single chip, because isReadable cannot tell a decoder failure from a real replacement character |
 | `HS-F3` | high | fixed, tick 4 | The encoding buttons lie while a vocabulary loads and can end up lying permanently |
 | `HS-F10` | medium | fixed, tick 4 | Nothing the page computes is ever announced |
-| `HS-F11` | medium | open | Right to left text is laid out in reverse reading order |
-| `HS-F4` | medium | open | Typing kills the language toggle and deletes the comparison |
-| `HS-F5` | medium | open | Every keystroke re-tokenizes everything, so a large paste drops the page to about 3 fps |
-| `HS-F6` | medium | open | The token counter stutters backwards on every keystroke |
+| `HS-F11` | medium | fixed, tick 127 | Right to left text is laid out in reverse reading order |
+| `HS-F4` | medium | fixed, tick 124 | Typing kills the language toggle and deletes the comparison |
+| `HS-F5` | medium | fixed, tick 125 | Every keystroke re-tokenizes everything, so a large paste drops the page to about 3 fps |
+| `HS-F6` | medium | fixed, tick 126 | The token counter stutters backwards on every keystroke |
 | `HS-F7` | medium | fixed, tick 4 | Anything typed before the vocabulary arrives is silently thrown away |
 | `HS-F8` | medium | fixed, tick 4 | With JavaScript off the built page is a styled skeleton with no explanation |
-| `HS-F9` | medium | open | The findings table is cut off on a phone and unreachable by keyboard |
+| `HS-F9` | medium | fixed, tick 28 | The findings table is cut off on a phone and unreachable by keyboard |
 | `HS-F12` | low | fixed, tick 4 | 1 pieces of this text cost more than one token each |
 | `HS-F13` | low | open | Number formatting is inconsistent inside one view |
 | `HS-F14` | low | open | The truncation message is dressed as a whitespace token |
@@ -44,7 +49,7 @@ The hostile stranger: empty input, a megabyte of it, emoji, RTL, a phone sized w
 
 The measurement auditor: is every number reproducible, is the sample size stated, is any comparison unfair.
 
-20 findings, 11 closed.
+20 findings, 16 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -52,11 +57,11 @@ The measurement auditor: is every number reproducible, is the sample size stated
 | `ME-F2` | high | fixed, tick 4 | The per register claim is mostly a sentence length artefact: tokens per Greek word is flat at 2.46 in four of five registers, and understate by a third is really 9 percent |
 | `ME-F3` | high | fixed, tick 4 | The page prints a dollar figure for a named model using an encoding that model does not use, up to 165 percent inflation. pricing.json already carries the encoding field and main.ts never reads it |
 | `ME-F4` | high | fixed, tick 4 | The headline ratio is never length controlled. Greek is 2.015x the UTF-8 bytes of English, so on o200k the tokenizer contributes only 3.6 percent. On cl100k it genuinely contributes 2.55x. The README presents both as the same kind of finding |
-| `ME-F10` | medium | open | The corpus has no digits and one Latin word, so the technical register does not describe technical Greek |
-| `ME-F11` | medium | open | The measurement silently assumes NFC input, and NFD Greek costs 39 percent more |
-| `ME-F12` | medium | open | davinci-002 attributed to the wrong encoding, and the GPT-5.x and GPT-6 attributions are unsourced |
-| `ME-F13` | medium | open | The tokens per word column invites a division that exceeds the headline, because word is not the same unit in the two languages |
-| `ME-F5` | medium | open | The measured ratio is restated on the page and in the README in two forms that do not mean what was measured |
+| `ME-F10` | medium | fixed, tick 128 | The corpus has no digits and one Latin word, so the technical register does not describe technical Greek |
+| `ME-F11` | medium | fixed, tick 129 | The measurement silently assumes NFC input, and NFD Greek costs 39 percent more |
+| `ME-F12` | medium | fixed, tick 130 | davinci-002 attributed to the wrong encoding, and the GPT-5.x and GPT-6 attributions are unsourced |
+| `ME-F13` | medium | fixed, tick 131 | The tokens per word column invites a division that exceeds the headline, because word is not the same unit in the two languages |
+| `ME-F5` | medium | fixed, tick 132 | The measured ratio is restated on the page and in the README in two forms that do not mean what was measured |
 | `ME-F6` | medium | fixed, tick 4 | p50k and r50k are one measurement presented as two, with no note saying so |
 | `ME-F7` | medium | fixed, tick 17 | Per register ratios quoted to two decimals with no interval and no n, against the README own rule |
 | `ME-F8` | medium | fixed, tick 17 | The last printed digit of every interval is Monte Carlo noise |
@@ -73,7 +78,7 @@ The measurement auditor: is every number reproducible, is the sample size stated
 
 Performance and access: bytes on first paint, main thread cost, contrast, focus, screen readers.
 
-18 findings, 7 closed.
+18 findings, 14 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -83,24 +88,24 @@ Performance and access: bytes on first paint, main thread cost, contrast, focus,
 | `PA-F4` | high | fixed, tick 4 | --text-faint is 3.47:1 on ink and 3.22:1 on ink-lift, failing AA in 10 places including the interval column |
 | `PA-F5` | high | fixed, tick 4 | textarea:focus outline:none beats the :where() focus-visible rule on specificity, so the main control has no visible focus |
 | `PA-F6` | high | fixed, tick 4 | No live region at all: nothing the page computes is ever announced, and live-summary is a plain p |
-| `PA-F10` | medium | open | Control boundaries effectively invisible, the select does not read as a control |
-| `PA-F11` | medium | open | tickTo starts an uncancelled animation loop on every render |
-| `PA-F12` | medium | open | Full viewport grain overlay forces a blend of the whole viewport on every repaint |
-| `PA-F13` | medium | open | The README contradicts itself about network at runtime |
-| `PA-F7` | medium | open | MAX_CHIPS caps the cheap half of the work and leaves tokenize and segment uncapped |
-| `PA-F8` | medium | open | The token list is a wall of noise for a screen reader with no way past it |
+| `PA-F10` | medium | fixed, tick 136 | Control boundaries effectively invisible, the select does not read as a control |
+| `PA-F11` | medium | fixed, tick 126 | tickTo starts an uncancelled animation loop on every render |
+| `PA-F12` | medium | not reproduced, tick 134 | Full viewport grain overlay forces a blend of the whole viewport on every repaint |
+| `PA-F13` | medium | not reproduced, tick 137 | The README contradicts itself about network at runtime |
+| `PA-F7` | medium | fixed, tick 133 | MAX_CHIPS caps the cheap half of the work and leaves tokenize and segment uncapped |
+| `PA-F8` | medium | fixed, tick 135 | The token list is a wall of noise for a screen reader with no way past it |
 | `PA-F9` | medium | fixed, tick 6 | The 2MB chunk is two round trips deep with no loading state |
 | `PA-F14` | low | open | Whitespace marker and table rules fall below every non text contrast threshold |
 | `PA-F15` | low | open | @font-face uses the removed woff2-variations format keyword with no fallback source |
 | `PA-F16` | low | open | Truncation chip styled as a whitespace token, and MAX_CHIPS caps segments not tokens |
 | `PA-F17` | low | open | prefers-reduced-motion read once and never re-read |
-| `PA-F18` | low | open | Small first paint wins left on the table |
+| `PA-F18` | low | fixed, tick 27 | Small first paint wins left on the table |
 
 ## `DE`, design eye
 
 The design eye: type, spacing, rhythm, colour, motion, and whether it reads as designed or as a template.
 
-13 findings, 4 closed.
+13 findings, 12 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -108,21 +113,21 @@ The design eye: type, spacing, rhythm, colour, motion, and whether it reads as d
 | `DE-F2` | high | fixed, tick 4 | Four different kinds of number share one typographic costume, so no number reads as the claim |
 | `DE-F3` | high | fixed, tick 4 | Page opens on o200k, the one encoding that does not shatter, so the finding is absent at second zero |
 | `DE-F4` | high | fixed, tick 4 | Entrance stagger restarts on every keystroke and the chip you just typed is the slowest to appear |
-| `DE-F10` | medium | open | Seven durations, two near identical easings, one rolling figure among four static ones |
-| `DE-F11` | medium | open | Compare card is permanently alarm red whatever its value, so the red means nothing |
-| `DE-F5` | medium | open | Type scale: a 34px hole in the middle, ten steps piled into a 6px band at the bottom |
-| `DE-F6` | medium | open | Spacing and radii are nineteen ad hoc values, not a scale |
-| `DE-F7` | medium | open | Four encoding hues are a rainbow over an ordinal series, and the oldest sits nearest the alarm |
-| `DE-F8` | medium | open | Token box pinned at its 7rem minimum and the hero column ends 127px short of the rail |
-| `DE-F9` | medium | open | Right rail is three identical cards, the dashboard template shape |
+| `DE-F10` | medium | fixed, tick 28 | Seven durations, two near identical easings, one rolling figure among four static ones |
+| `DE-F11` | medium | fixed, tick 123 | Compare card is permanently alarm red whatever its value, so the red means nothing |
+| `DE-F5` | medium | fixed, tick 28 | Type scale: a 34px hole in the middle, ten steps piled into a 6px band at the bottom |
+| `DE-F6` | medium | fixed, tick 28 | Spacing and radii are nineteen ad hoc values, not a scale |
+| `DE-F7` | medium | fixed, tick 22 | Four encoding hues are a rainbow over an ordinal series, and the oldest sits nearest the alarm |
+| `DE-F8` | medium | fixed, tick 28 | Token box pinned at its 7rem minimum and the hero column ends 127px short of the rail |
+| `DE-F9` | medium | fixed, tick 28 | Right rail is three identical cards, the dashboard template shape |
 | `DE-F12` | low | open | Headline ratio takes the encoding hue, so the worst number can turn calm teal |
-| `DE-F13` | low | open | The two best small decisions are under committed to the point of invisibility |
+| `DE-F13` | low | fixed, tick 28 | The two best small decisions are under committed to the point of invisibility |
 
 ## `DR`, deep reviewer
 
 The deep reviewer: correctness, read as code rather than as comments.
 
-13 findings, 9 closed.
+13 findings, 12 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -131,11 +136,11 @@ The deep reviewer: correctness, read as code rather than as comments.
 | `DR-F3` | high | fixed, tick 11 | Clicking an encoding while the first vocabulary is loading is silently undone 1.8 seconds later by the heal timer |
 | `DR-F4` | high | fixed, tick 10 | check-claims matches a flattened whole document, so a claim can pass off a different row. The entire r50k table line can be deleted and all 30 claims still pass |
 | `DR-F5` | high | fixed, tick 10 | The corpus size is hand typed at both ends of the check: Forty sentence pairs is a literal in the checker and f.corpus.pairs is never read |
-| `DR-F10` | medium | open | ?pair=N accepts nonsense and clamps in silence, so a pinned link goes stale without looking stale |
+| `DR-F10` | medium | fixed, tick 140 | ?pair=N accepts nonsense and clamps in silence, so a pinned link goes stale without looking stale |
 | `DR-F6` | medium | fixed, tick 14 | The page still tells the story the README says is wrong, the raw ratio with no length control |
 | `DR-F7` | medium | fixed, tick 10 | identically, to the token is asserted by comparing two rounded aggregates |
-| `DR-F8` | medium | open | Nothing ties the recording pinned pair to the sentence whose counts the README quotes |
-| `DR-F9` | medium | open | capture.mjs leaves Chromium running, loses the recording, and can truncate the committed GIF |
+| `DR-F8` | medium | fixed, tick 138 | Nothing ties the recording pinned pair to the sentence whose counts the README quotes |
+| `DR-F9` | medium | fixed, tick 139 | capture.mjs leaves Chromium running, loses the recording, and can truncate the committed GIF |
 | `DR-F11` | low | open | worstPair compares an unrounded candidate against a rounded incumbent |
 | `DR-F12` | low | fixed, tick 9 | Segment.start is computed, documented and never read |
 | `DR-F13` | low | fixed, tick 15 | The page reports a measurement date that predates the corpus it measured |
@@ -144,17 +149,17 @@ The deep reviewer: correctness, read as code rather than as comments.
 
 The recruiter, ten seconds, not technical: does anything here stop the scroll.
 
-13 findings, 7 closed.
+13 findings, 9 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
-| `RC-F1` | high | open | There is nowhere to click to see it working: one URL in the README and it is localhost, two thirds of the way down |
+| `RC-F1` | high | fixed, tick 41 | There is nowhere to click to see it working: one URL in the README and it is localhost, two thirds of the way down |
 | `RC-F2` | high | fixed, tick 12b | A permanent empty red error bar on every load: display:flex on .load-error beats the hidden attribute. Regression introduced in tick 11 |
 | `RC-F3` | high | fixed, tick 13 | The first two sentences assume the reader knows what a tokenizer is and why Greek matters |
 | `RC-F4` | high | fixed, tick 13 | No repository description and no topics, so on a profile listing it is one word |
 | `RC-F10` | medium | fixed, tick 13 | The two pictures meant to be compared are captioned in two different units |
 | `RC-F11` | medium | open | Forwarding the link produces a blank card, and the tab has no icon |
-| `RC-F5` | medium | open | The moving picture is a scroll and 2.5 MB away, and the lighter webm is gitignored |
+| `RC-F5` | medium | fixed, tick 27 | The moving picture is a scroll and 2.5 MB away, and the lighter webm is gitignored |
 | `RC-F6` | medium | open | The loop spends two thirds of a second on the answer and a second and a half frozen on the problem |
 | `RC-F7` | medium | fixed, tick 14 | Five different ratios in twenty seconds and no way to tell which one is the claim |
 | `RC-F8` | medium | open | The one box a non technical reader can read instantly says n/a on arrival |
@@ -166,19 +171,74 @@ The recruiter, ten seconds, not technical: does anything here stop the scroll.
 
 The hiring engineer, three minutes: does this person ship and measure, and would you open a second repository.
 
-9 findings, 4 closed.
+9 findings, 8 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
 | `HE-F1` | high | fixed, tick 17 | The vocabulary penalty, the figure the project calls the one worth publishing, is the only number with no interval, and bootstrapped with the repo own sampler o200k is -2.0% to +7.6%, straddling zero. The README own rule says a ratio is never quoted without its interval |
 | `HE-F2` | high | fixed, tick 18 | check:loading is the one gate that would have caught the one defect that reached a reader, and it is the one gate nothing runs automatically |
 | `HE-F3` | medium | fixed, tick 18 | npm run capture, the stated provenance for the picture at the top, does not run from a clean clone |
-| `HE-F4` | medium | open | Removed describes a swap, and the paragraph does not say who wrote the replacements |
-| `HE-F5` | medium | open | The sample size is not next to the number in either place the number leads |
-| `HE-F6` | medium | open | The one limitation the repository could measure in ten lines, NFD Greek, is answered with an adjective |
-| `HE-F7` | medium | open | The commit log cites DECISIONS.md, DEVLOG.md and a finding ID scheme that are not in this repository |
+| `HE-F4` | medium | fixed, tick 141 | Removed describes a swap, and the paragraph does not say who wrote the replacements |
+| `HE-F5` | medium | fixed, tick 142 | The sample size is not next to the number in either place the number leads |
+| `HE-F6` | medium | fixed, tick 143 | The one limitation the repository could measure in ten lines, NFD Greek, is answered with an adjective |
+| `HE-F7` | medium | fixed, tick 19 | The commit log cites DECISIONS.md, DEVLOG.md and a finding ID scheme that are not in this repository |
 | `HE-F8` | low | open | npm run measure prints an interval in a form the README does not use |
 | `HE-F9` | low | fixed, tick 18 | CI never runs on a pull request, so the gates only fire after main has moved |
+
+## `MA`, maintainer
+
+The maintainer six months from now: what rots first, what a stranger cannot reconstruct, and what the repository says about itself that has stopped being true.
+
+17 findings, 13 closed.
+
+| id | severity | status | finding |
+|---|---|---|---|
+| `MA-F1` | high | fixed, tick 22 | The four encoding registries are consistent by luck, and the inputs hash does not cover the thing it names. A fifth encoding added to two of four keeps the build green |
+| `MA-F2` | high | fixed, tick 21 | No gate re-runs the measurement, so the README is checked against a committed findings.json rather than against the code that claims to produce it |
+| `MA-F3` | high | fixed, tick 23 | Nothing anywhere asserts that a single fractured chip is ever drawn, so the entire visual payload could vanish silently |
+| `MA-F4` | high | fixed, tick 21 | Three reader visible numbers on the shipped page are typed by hand, under a footer saying none are. No gate reads src/main.ts or index.html |
+| `MA-F5` | medium | fixed, tick 138 | The two still images have no producer in the repository while their captions are gated |
+| `MA-F6` | medium | fixed, tick 144 | A typo in data/pricing.json takes the page down, and neither the type system nor any gate catches it |
+| `MA-F7` | medium | fixed, tick 145 | Two tool headers tell the next maintainer Playwright is not a dependency. It is, and pinning it was a fix |
+| `MA-F8` | medium | fixed, tick 146 | Two array indices into data files are load bearing and undocumented as choices |
+| `MA-F8b` | medium | not reproduced, tick 146 | Inserting a pair before index 17 silently re-points the recording, the stills and the caption |
+| `MA-F9` | medium | not reproduced, tick 147 | package.json carries configuration for a tool that is not installed, and it is already wrong |
+| `MA-F9b` | medium | fixed, tick 147 | The install script allowlist has drifted from the tree it describes, in both directions |
+| `MA-F10` | medium | fixed, tick 148 | docs/AUDITS.md holds nine hand maintained counts over a table that changes on every fix |
+| `MA-F11` | medium | fixed, tick 22 | README states a derived number with no claim behind it |
+| `MA-F12` | low | open | No Node version is declared anywhere |
+| `MA-F13` | low | open | The repository topics exist in two hand maintained copies and have already diverged |
+| `MA-F14` | low | open | One dependency range floats, and the README tells contributors to use the command that can move it |
+| `MA-F15` | low | open | The 1800 ms heal delay is a cross file timing contract that nothing states |
+
+## `SC`, supply chain
+
+The supply chain: what this project installs, what it ships inside the bundle, and whether either is what the README says it is.
+
+10 findings, 4 closed.
+
+| id | severity | status | finding |
+|---|---|---|---|
+| `SC-F1` | high | fixed, tick 25 | The Roboto Mono licence shipped is bare Apache 2.0 with the copyright template unfilled, naming no font and no holder, while the README says both fonts are SIL OFL. Both cannot be true and neither licence is satisfied |
+| `SC-F2` | high | fixed, tick 26 | The workflow grants pages:write and id-token:write at workflow level, so the build and loading jobs, which run dependency and pull request code, inherit deployment credentials |
+| `SC-F3` | medium | fixed, tick 26 | Every action in the workflow is pinned to a mutable major tag |
+| `SC-F4` | medium | open | dist ships 3.94 MB of MIT licensed third party code with every copyright notice stripped |
+| `SC-F5` | medium | open | wait-on costs 39 transitive packages and 18.7 MB for one line of CI, and the repository already contains the twelve line replacement |
+| `SC-F6` | medium | fixed, tick 25 | Both fonts are subsets whose embedded licence records were stripped, and nothing records how they were made |
+| `SC-F7` | medium | open | The one security claim in the repository, that no request leaves for a third party, is the only claim with no gate |
+| `SC-F8` | low | open | The visitor text is written verbatim into sessionStorage on an origin shared with every other page the author publishes |
+| `SC-F9` | low | open | Three innerHTML sinks, all safe today, none of them guarded |
+| `SC-F10` | low | open | Nothing in the repository or in CI watches the dependency tree |
+
+## `TCAP`, this project against itself
+
+Not a perspective and not an audit. One finding this project raised against itself while sweeping the class of another, kept here because a commit message cites it.
+
+1 finding, 0 closed.
+
+| id | severity | status | finding |
+|---|---|---|---|
+| `TCAP-F1` | low | open | check:capture caps the gif at 4 MB and the gif is 2.77 MB, so the ceiling permits silent growth |
 
 ## One note on the log itself
 

@@ -12,7 +12,7 @@
     "preview": "vite preview",
     "measure": "tsx tools/measure.ts",
     "typecheck": "tsc --noEmit",
-    "check": "npm run check:segments && npm run check:decode && npm run check:claims && npm run check:measurement && npm run check:models && npm run check:prerender && npm run check:licences && npm run check:workflow && npm run check:capture-safety && npm run check:history",
+    "check": "npm run check:segments && npm run check:decode && npm run check:claims && npm run check:measurement && npm run check:models && npm run check:audits && npm run check:prerender && npm run check:licences && npm run check:workflow && npm run check:capture-safety && npm run check:history",
     "capture": "node tools/capture.mjs",
     "stills": "node tools/stills.mjs",
     "check:claims": "tsx tools/check-claims.ts",
@@ -41,7 +41,8 @@
     "check:network": "node tools/check-network.mjs",
     "check:pin": "node tools/check-pin.mjs",
     "check:sample": "node tools/check-sample.mjs",
-    "check:models": "tsx tools/check-models.ts"
+    "check:models": "tsx tools/check-models.ts",
+    "check:audits": "tsx tools/check-audits.ts"
   },
   "dependencies": {
     "gpt-tokenizer": "4.0.0"

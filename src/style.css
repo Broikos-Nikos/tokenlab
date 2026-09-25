@@ -589,6 +589,45 @@ textarea:focus-visible {
 }
 
 /*
+ * What stands where the comparison stands when there is nothing to compare, and
+ * the way back from a language press that replaced the visitor's own text.
+ *
+ * Both are quiet on purpose. Neither is a number, and this page spends its one
+ * loud colour on cost. The note is dashed rather than solid so it does not read
+ * as a card holding a value.
+ */
+.compare-note {
+  margin: 0;
+  padding: var(--s4);
+  border: 1px dashed var(--edge);
+  border-radius: var(--r-card);
+  color: var(--text-dim);
+  font-size: var(--f1);
+  line-height: 1.4;
+}
+
+.compare-note strong {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.restore {
+  padding: var(--s2) var(--s3);
+  border: 1px solid var(--edge);
+  border-radius: var(--r-pill);
+  background: var(--ink-lift);
+  color: var(--text-dim);
+  font: inherit;
+  font-size: var(--f1);
+  cursor: pointer;
+}
+
+.restore:hover {
+  color: var(--text);
+  border-color: var(--text-faint);
+}
+
+/*
  * The comparison card, whose loudness is its value.
  *
  * It shipped at a fixed oklch hue 32 for the border, the background, the figure

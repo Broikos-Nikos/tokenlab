@@ -23,7 +23,8 @@
     "check:prerender": "tsx tools/check-prerender.ts",
     "check:capture": "node tools/check-capture.mjs",
     "check:licence": "node tools/check-licence.mjs",
-    "check:compare": "node tools/check-compare.mjs"
+    "check:compare": "node tools/check-compare.mjs",
+    "check:controls": "node tools/check-controls.mjs"
   },
   "dependencies": {
     "gpt-tokenizer": "4.0.0"

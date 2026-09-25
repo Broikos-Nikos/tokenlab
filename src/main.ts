@@ -38,6 +38,8 @@ const el = {
   announce: document.querySelector<HTMLElement>('[data-announce]')!,
   method: document.querySelector<HTMLElement>('[data-method]')!,
   shuffle: document.querySelector<HTMLButtonElement>('[data-shuffle]')!,
+  restore: document.querySelector<HTMLButtonElement>('[data-restore]')!,
+  compareNote: document.querySelector<HTMLElement>('[data-compare-note]')!,
   langButtons: [...document.querySelectorAll<HTMLButtonElement>('[data-lang]')],
 }
 
@@ -274,6 +276,41 @@ async function setEncoding(id: EncodingId): Promise<boolean> {
   return true
 }
 
+/**
+ * The visitor's own text, kept so a language button can never delete it.
+ *
+ * Empty until a language press replaces something they wrote, and cleared the
+ * moment they take it back or type again.
+ */
+let heldText = ''
+
+function setHeld(text: string) {
+  heldText = text
+  el.restore.hidden = text === ''
+}
+
+/**
+ * Switch language, and mean it.
+ *
+ * HS-F4: once anything was typed, this set `state.lang`, flipped which button
+ * looked pressed, and stopped. Measured on the built page, pressing English
+ * after typing four characters changed **1 of 6 observable things**, and the
+ * one was which button looked pressed:
+ *
+ *   after typing    text "Θα είμαι εκεί...", lang el, el:true en:false, compare hidden
+ *   after English   text "Θα είμαι εκεί...", lang el, el:false en:true, compare hidden
+ *
+ * The text did not change, the textarea's `lang` did not change, the token
+ * count did not change, and the comparison stayed hidden with a stale 1.50x
+ * still sitting in the DOM. A control that reports a state change it did not
+ * make is worse than a disabled one, because a disabled control tells the truth.
+ *
+ * So a language press now always does what its label says: it shows the corpus
+ * sentence in that language. When that would replace the visitor's own text,
+ * the text is held rather than dropped and `put my text back` appears, because
+ * this project has already shipped one silent discard of typed text and does
+ * not get to ship a second.
+ */
 function setLang(lang: Lang) {
   state.lang = lang
   for (const b of el.langButtons) {
@@ -281,12 +318,8 @@ function setLang(lang: Lang) {
     b.classList.toggle('is-on', on)
     b.setAttribute('aria-pressed', String(on))
   }
-  if (!state.custom) {
-    loadPair(state.pairIndex)
-  } else {
-    staggerNext = true
-    render()
-  }
+  if (state.custom) setHeld(el.input.value)
+  loadPair(state.pairIndex)
 }
 
 function loadPair(i: number) {
@@ -452,6 +485,7 @@ function render() {
     showCompare(elTokens, enTokens)
   } else {
     el.compare.hidden = true
+    el.compareNote.hidden = false
   }
 }
 
@@ -582,6 +616,7 @@ const WORST_RATIO = Math.max(
 function showCompare(elTokens: number, enTokens: number) {
   const ratio = elTokens / enTokens
   el.compare.hidden = false
+  el.compareNote.hidden = true
   el.compareRatio.textContent = `${ratio.toFixed(2)}x`
   el.compare.style.setProperty('--heat', String(compareHeat(ratio, WORST_RATIO)))
 }
@@ -619,6 +654,9 @@ function wire() {
   el.input.addEventListener('input', () => {
     cancelHeal()
     state.custom = true
+    // The held text exists to undo one language press. Once they are typing
+    // again it is a stale offer to overwrite what is in front of them.
+    setHeld('')
     cancelAnimationFrame(queued)
     queued = requestAnimationFrame(render)
   })
@@ -632,6 +670,17 @@ function wire() {
 
   el.retry.addEventListener('click', () => {
     resumeAndReload(failedEncoding ?? state.encoding)
+  })
+
+  el.restore.addEventListener('click', () => {
+    cancelHeal()
+    if (heldText === '') return
+    el.input.value = heldText
+    state.custom = true
+    setHeld('')
+    staggerNext = true
+    render()
+    el.input.focus()
   })
 
   el.shuffle.addEventListener('click', () => {

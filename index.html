@@ -55,6 +55,17 @@
           <button type="button" class="shuffle" data-shuffle>
             another sentence
           </button>
+          <!--
+            Appears only after a language button has replaced text the visitor
+            wrote. Pressing Greek or English while their own text is in the box
+            means "show me the corpus sentence", which is what the labels
+            promise, and this is what stops that from being a deletion. This
+            project has already shipped one silent discard of typed text, PA-F2,
+            and does not get to ship a second.
+          -->
+          <button type="button" class="restore" data-restore hidden>
+            put my text back
+          </button>
         </div>
 
         <label class="sr-only" for="input">Text to tokenize</label>
@@ -98,6 +109,18 @@
             <span data-tpw>0</span> per word
           </p>
         </div>
+
+        <!--
+          What stands where the comparison stands when there is nothing to
+          compare. It used to simply vanish the moment anybody typed, which
+          reads as a page that broke rather than as a measurement that does not
+          apply, and it took the only explanation with it.
+        -->
+        <p class="compare-note" data-compare-note hidden>
+          The comparison needs the same sentence in both languages, and this is
+          your own text. Press <strong>Ελληνικά</strong> or
+          <strong>English</strong> to go back to a sentence that has both.
+        </p>
 
         <div class="compare" data-compare hidden>
           <span class="compare-figure" data-compare-ratio>1.0x</span>

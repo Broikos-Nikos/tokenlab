@@ -379,12 +379,32 @@ function drawTokens(segments: Segment[], stagger: boolean) {
 
 /* ------------------------------------------------------------ the counting */
 
-let countFrom = 0
+/**
+ * The number actually on screen, and the one animation allowed to write it.
+ *
+ * HS-F6 and PA-F11 were one defect with two symptoms. `tickTo` started a
+ * `requestAnimationFrame` loop on every call and cancelled nothing, so after
+ * twelve words there were a dozen loops writing the same node, each easing
+ * towards its own target. Measured on the built page while the true count only
+ * rose from 21 to 77: **the counter was written 312 times and went backwards 79
+ * of them**, with runs like `31, 33, 31, 34` where two loops alternated.
+ *
+ * It also took `from` to be the previous *target* rather than the value on
+ * screen, so interrupting an animation at 30% started the next one from a
+ * number nobody had ever seen.
+ *
+ * One handle, cancelled before the next begins, and `from` is what is displayed.
+ */
+let countAnim: number | undefined
+let countShown = 0
 
 function tickTo(node: HTMLElement, to: number, format: (n: number) => string) {
-  const from = countFrom
-  countFrom = to
+  if (countAnim !== undefined) cancelAnimationFrame(countAnim)
+  countAnim = undefined
+
+  const from = countShown
   if (reduceMotion || from === to) {
+    countShown = to
     node.textContent = format(to)
     return
   }
@@ -393,10 +413,11 @@ function tickTo(node: HTMLElement, to: number, format: (n: number) => string) {
   const step = (now: number) => {
     const t = Math.min(1, (now - started) / dur)
     const eased = 1 - Math.pow(1 - t, 3)
-    node.textContent = format(Math.round(from + (to - from) * eased))
-    if (t < 1) requestAnimationFrame(step)
+    countShown = Math.round(from + (to - from) * eased)
+    node.textContent = format(countShown)
+    countAnim = t < 1 ? requestAnimationFrame(step) : undefined
   }
-  requestAnimationFrame(step)
+  countAnim = requestAnimationFrame(step)
 }
 
 /* ------------------------------------------------------------ the speaking */

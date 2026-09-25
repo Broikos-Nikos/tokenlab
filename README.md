@@ -11,7 +11,7 @@ pieces by every retrieval pipeline built on an English tutorial.
 
 Nobody shows you that happening. This does, live, on text you type.
 
-![The page opens on an old vocabulary, where every Greek letter is its own token, then switches to the newest one, where they collapse back into word pieces](docs/shatter.gif)
+![The same Greek sentence three times: on the newest vocabulary it is word pieces and the bill shows a price, on an older one every letter becomes its own token and the box fills with red, then it collapses back](docs/shatter.gif)
 
 That is the real page in a real browser, recorded by `npm run capture`. One
 sentence, pinned so the recording can be checked: 71 tokens on `cl100k` and 35

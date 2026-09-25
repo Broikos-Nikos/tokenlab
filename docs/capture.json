@@ -1,6 +1,16 @@
 {
   "recorded": "2026-09-25",
   "pair": "17",
+  "opensOn": "o200k_base",
+  "redrawsAt": [
+    1.3,
+    2.98
+  ],
+  "beats": {
+    "calm": 1300,
+    "alarm": 1400,
+    "back": 1100
+  },
   "looked": {
     "paint": {
       "--ink": "#080604",
@@ -10,21 +20,21 @@
       "--text-dim": "#9a8f88",
       "--text-faint": "#8a7f76",
       "--alarm": "#ff6a00",
-      "--hue": "200",
+      "--hue": "155",
       "bodyFont": "Manrope, system-ui, sans-serif",
       "wash": "rgb(8, 6, 4)"
     },
     "words": {
       "headline": "",
       "wordmark": "tokenlab",
-      "split": "Over forty sentence pairs, most of that is the alphabet: Greek is 1.904x the bytes of English before any tokenizer runs, and cl100k adds +145.6% on top (+133.0 to +158.4)."
+      "split": "Over forty sentence pairs, most of that is the alphabet: Greek is 1.904x the bytes of English before any tokenizer runs, and o200k adds +1.1% on top, which those pairs cannot tell apart from nothing (-3.5 to +5.7, includes zero)."
     },
     "state": {
-      "encoding": "cl100k_base",
-      "tokens": "71",
-      "fractured": "5",
-      "ratio": "3.94x",
-      "fracturedChips": 5
+      "encoding": "o200k_base",
+      "tokens": "35",
+      "fractured": "0",
+      "ratio": "1.94x",
+      "fracturedChips": 0
     }
   }
 }

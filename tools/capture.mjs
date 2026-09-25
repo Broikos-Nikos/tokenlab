@@ -4,10 +4,14 @@
  *   npm run capture
  *
  * A project whose whole argument is "watch this happen" cannot lead with a still
- * image. This records the real page in a real browser doing the real thing: the
- * page opens on cl100k, where every Greek letter is its own token, heals to
- * o200k, where they collapse back into word pieces, and then goes back so the
- * loop reads as a comparison rather than as a one way animation.
+ * image. This records the real page in a real browser doing the real thing.
+ *
+ * The loop is three beats: o200k, where Greek is word pieces and the bill has a
+ * price in it, then cl100k, where every letter is its own token and the box goes
+ * red, then back. It starts and ends on the same state, so the cycle has no seam
+ * and a reader who lands on it mid scroll lands on the comparison rather than on
+ * the alarm. Until tick 151 it ran the other way round and spent its last 1.49
+ * seconds frozen on the red wall, which is RC-F6 and the measurement is below.
  *
  * Playwright **is** a dependency, pinned exactly in devDependencies, and this
  * header said the opposite until tick 145. Eighteen tools in this repository
@@ -35,7 +39,7 @@ import { mkdirSync, readdirSync, rmSync, renameSync, writeFileSync } from 'node:
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { serve, useShared } from './serve.mjs'
-import { lookAt, PAIR, FINAL_ENCODING } from './capture-state.mjs'
+import { lookAt, PAIR, FINAL_ENCODING, SHATTER_ENCODING } from './capture-state.mjs'
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 /**
@@ -63,8 +67,17 @@ const WORK = resolve(root, '.capture')
 const SIZE = { width: 1340, height: 760 }
 const FPS = 12
 const WIDTH = 880
-/** A little air before the first chip lands, so the loop does not start mid motion. */
-const LEAD_IN = 0.45
+/*
+ * The viewport is taller than the part worth watching, so the frame is cut down
+ * to the stage and the readout beside it. Everything else is prose that belongs
+ * in the README rather than in a loop that plays forever.
+ *
+ * The measurement below uses the same crop, and that is not tidiness. Measuring
+ * the whole viewport found a redraw the finished GIF does not contain, because
+ * it happened in the part that gets cropped away, and the cut was computed from
+ * an event no reader would ever see.
+ */
+const CROP = 'crop=1340:502:0:0'
 
 async function loadPlaywright() {
   // Playwright ships both an ESM and a CJS entry point, and a path handed in
@@ -122,7 +135,18 @@ const context = await browser.newContext({
   recordVideo: { dir: WORK, size: SIZE },
 })
 
+/**
+ * The three beats of the loop, in milliseconds.
+ *
+ * Measured out of the old recording rather than chosen: the o200k state held
+ * 0.67 s of a 4.91 s loop and the last 1.49 s did not move at all. These give
+ * the calm state a beat at each end and put the alarm between them, and
+ * `check:loop` holds the finished GIF to them.
+ */
+const BEATS = { calm: 1300, alarm: 1400, back: 1100 }
+
 let shatterAt = 0
+let calmAt = 0
 let looked = null
 let failure = null
 
@@ -136,21 +160,74 @@ await page.goto(URL_, { waitUntil: 'domcontentloaded' })
 // evidence has to be in frame. Scroll before anything animates.
 await page.evaluate(() => window.scrollTo(0, 384))
 
-// The cl100k vocabulary is roughly a megabyte and how long it takes is not
-// something to guess at. Wait for the first fractured chip, which is the moment
-// the red wall is actually on screen, and remember when that was so the dead
-// air before it can be trimmed off the front.
+/*
+ * RC-F6. The recruiter measured the old loop frame by frame and the numbers are
+ * why this section was rewritten:
+ *
+ *   4.91 s long, and the o200k state, the good news, held 0.67 s of it
+ *   the last 1.49 s, 30 percent, had no motion in it at all
+ *   the first frame was a half empty box with a red warning and "n/a" for the
+ *     price, which is where a reader landing mid scroll lands
+ *
+ * So the loop now opens where the eye is comfortable and moves to the alarm.
+ * The page still opens on cl100k and heals to o200k on its own 1.8 seconds
+ * later, which is what the first two waits below are for: the recording starts
+ * from the state the page rests in rather than from the state it passes
+ * through.
+ */
 await page.waitForSelector('.tok--fractured', { timeout: 30_000 })
 shatterAt = (Date.now() - started) / 1000
 
-// The page heals to o200k 1.8s after it opens, on its own. This waits that out
-// and lets the collapse settle.
-await page.waitForTimeout(2600)
+/**
+ * Wait for the page to stop moving, never for a value.
+ *
+ * Each beat of the loop is a still state, and the cut points are found by
+ * looking for the two moments the whole box redraws. Both of those depend on
+ * the page being genuinely finished before the next thing happens: the first
+ * version held for 450 ms after the heal, the chips were still landing, and the
+ * recording opened on an animation instead of on the state it was supposed to
+ * open on.
+ */
+const settle = async () => {
+  let last = ''
+  for (let i = 0; i < 60; i++) {
+    const now = await page.evaluate(() => {
+      const chips = document.querySelectorAll('.tok').length
+      const red = document.querySelectorAll('.tok--fractured').length
+      const count = document.querySelector('#tokens')?.textContent ?? ''
+      return `${chips}|${red}|${count}`
+    })
+    if (now === last) return
+    last = now
+    await page.waitForTimeout(250)
+  }
+}
 
-// Then back to the damage, so the loop reads as a comparison rather than as a
-// one way animation.
+// The heal, on its own, and then stillness. This is the state the recording
+// opens on: real numbers on screen and a price in the bill rather than "n/a".
+await page.waitForFunction(() => document.querySelectorAll('.tok--fractured').length === 0, { timeout: 30_000 })
+await settle()
+calmAt = (Date.now() - started) / 1000
+
+await page.waitForTimeout(BEATS.calm)
+
+// Into the damage.
+await page.click(`button[data-enc='${SHATTER_ENCODING}']`)
+await settle()
+await page.waitForTimeout(BEATS.alarm)
+/*
+ * The middle of the loop, asserted below. The old version asserted that the
+ * recording ended with fractured chips on screen, which was the same thing
+ * while the loop ended on cl100k. It ends on the repair now, so the thing this
+ * is a recording of has to be checked where it happens.
+ */
+const midway = await page.evaluate(lookAt)
+
+// And back, which is also where the loop restarts: the last frame and the first
+// are the same state, so the cycle has no seam and no freeze in it.
 await page.click(`button[data-enc='${FINAL_ENCODING}']`)
-await page.waitForTimeout(2300)
+await settle()
+await page.waitForTimeout(BEATS.back)
 
 /*
  * What the page looked like while this was being filmed.
@@ -170,8 +247,15 @@ looked = await page.evaluate(lookAt)
 if (looked.state.encoding !== FINAL_ENCODING) {
   throw new Error(`the recording ends on ${looked.state.encoding}, not ${FINAL_ENCODING}`)
 }
-if (looked.state.fracturedChips === 0) {
-  throw new Error('the recording ends with no fractured chips, which is the thing it is a recording of')
+if (looked.state.fracturedChips !== 0) {
+  throw new Error(
+    `the recording ends on ${FINAL_ENCODING} with ${looked.state.fracturedChips} fractured chips, and the point of ending there is that there are none`,
+  )
+}
+if (midway.state.encoding !== SHATTER_ENCODING || midway.state.fracturedChips === 0) {
+  throw new Error(
+    `the middle of the recording is ${midway.state.fracturedChips} fractured chips on ${midway.state.encoding}, and it is supposed to be the wall of them on ${SHATTER_ENCODING}`,
+  )
 }
 } catch (err) {
   failure = err
@@ -222,10 +306,79 @@ const palette = resolve(WORK, 'palette.png')
 // The viewport is taller than the part worth watching, so the frame is cut
 // down to the stage and the readout beside it. Everything else is prose that
 // belongs in the README, not in a loop that plays forever.
-const CROP = 'crop=1340:502:0:0'
 const filters = `${CROP},fps=${FPS},scale=${WIDTH}:-1:flags=lanczos`
-const offset = Math.max(0, shatterAt - LEAD_IN)
-const trim = ['-ss', String(offset)]
+
+/**
+ * Where the beats actually are, read out of the recording rather than off the
+ * clock that drove it.
+ *
+ * The first version of this cut at a wall clock time taken while driving the
+ * page, and it does not map onto the video: Playwright's screencast timestamps
+ * its frames as it captures them, so a heavy repaint stretches the recording's
+ * timeline against real time. Measured on this project's own footage, the click
+ * that shatters the text happened at 3.80 s by the clock and at 5.48 s in the
+ * file.
+ *
+ * The second version looked for the two redraws instead, as the two largest
+ * changes in the footage. That failed differently and twice: a redraw lasts
+ * several frames, so "the last two large changes" picked two frames of the same
+ * heal and cut a 2.48 second loop with one transition in it.
+ *
+ * So this keys on the **still** periods, which are the thing being driven.
+ * `settle()` above holds the page until it stops moving and then waits a beat,
+ * three times, so the footage ends with three long stretches of no motion with
+ * the two animations between them. Those are unambiguous, and the cut is
+ * `BEATS.calm` before the first one ends and `BEATS.back` after the last one
+ * starts.
+ *
+ * `tblend=difference` makes each frame the change since the one before it and
+ * `signalstats` reports the mean brightness of that difference, which is motion
+ * per frame in one number.
+ */
+function motionIn(file) {
+  const out = execFileSync(
+    'ffmpeg',
+    ['-v', 'error', '-i', file, '-vf', `${CROP},tblend=all_mode=difference,signalstats,metadata=print:key=lavfi.signalstats.YAVG:file=-`, '-f', 'null', '-'],
+    { encoding: 'utf8' },
+  )
+  const rows = []
+  let at = 0
+  for (const line of out.split(/\r?\n/)) {
+    const t = /pts_time:([\d.]+)/.exec(line)
+    if (t) at = Number(t[1])
+    const y = /lavfi\.signalstats\.YAVG=([\d.]+)/.exec(line)
+    if (y) rows.push({ at, motion: Number(y[1]) })
+  }
+  return rows
+}
+
+/**
+ * The three moments the whole box is redrawn, clustered, because each one takes
+ * more than a frame: the page's own heal at 1.8 seconds, then the two clicks.
+ *
+ * The heal is dropped. It happens before the recording is supposed to start and
+ * it is the loudest thing in the footage, so the two beats that matter are the
+ * two clusters after it.
+ */
+function redraws(rows) {
+  const out = []
+  for (const r of rows) {
+    if (r.at < 0.5 || r.motion < 6) continue
+    if (out.length && r.at - out.at(-1) <= 1.0) continue
+    out.push(r.at)
+  }
+  return out
+}
+
+const marks = redraws(motionIn(webm))
+if (marks.length < 3) {
+  console.error(`FAIL  ${marks.length} whole box redraws in the footage, and the loop needs the heal plus two clicks`)
+  console.error(`      found at ${marks.map((m) => m.toFixed(2)).join(', ')}s`)
+  process.exit(1)
+}
+const [, shatterT, backT] = marks
+const offset = Math.max(0, shatterT - BEATS.calm / 1000)
+const trim = ['-ss', String(offset.toFixed(3))]
 
 /*
  * Encoded beside the video and moved over the committed file only once both
@@ -239,23 +392,55 @@ const trim = ['-ss', String(offset)]
  * place.
  */
 const draft = resolve(WORK, 'shatter.gif')
-ff([...trim, '-i', webm, '-vf', `${filters},palettegen=stats_mode=diff`, palette])
+/*
+ * `-ss` after `-i`, not before it.
+ *
+ * Before the input it is a seek: ffmpeg jumps to the nearest keyframe at or
+ * before the time asked for, and in a screencast webm those are seconds apart.
+ * Measured while this was being written: a cut computed at 2.26s put the first
+ * redraw 2.83s into the finished GIF instead of 1.30s, and three rewrites of
+ * the cut logic chased a number that was right all along. After the input it
+ * decodes and discards, which is slower and exact.
+ */
+/*
+ * The palette is taken over the whole recording, uncut. `palettegen` emits one
+ * frame stamped at the start of the stream, and an exact output seek throws it
+ * away: "Output file is empty, nothing was encoded". The extra footage is the
+ * same page in the same two states, so the colours are the same either way.
+ */
+ff(['-i', webm, '-vf', `${filters},palettegen=stats_mode=diff`, palette])
+/*
+ * The seek sits after both inputs, which is what makes it an output option and
+ * therefore exact. Between them it is an input option for the palette PNG, and
+ * ffmpeg answers that with "Internal bug, should not have happened".
+ */
 ff([
-  ...trim, '-i', webm,
+  '-i', webm,
   '-i', palette,
+  ...trim,
   '-lavfi', `${filters}[x];[x][1:v]paletteuse=dither=bayer:bayer_scale=3`,
   '-loop', '0',
   draft,
 ])
 renameSync(draft, OUT)
-console.log(`trimmed ${offset.toFixed(2)}s of vocabulary load off the front`)
+console.log(`redraws at ${marks.map((m) => m.toFixed(2)).join(', ')}s in the footage; cut from ${offset.toFixed(2)}s`)
 
 renameSync(webm, resolve(root, 'docs/shatter.webm'))
 rmSync(WORK, { recursive: true, force: true })
 
 writeFileSync(
   resolve(root, 'docs/capture.json'),
-  JSON.stringify({ recorded: new Date().toISOString().slice(0, 10), pair: PAIR, looked }, null, 2) + '\n',
+  JSON.stringify({
+    recorded: new Date().toISOString().slice(0, 10),
+    pair: PAIR,
+    opensOn: FINAL_ENCODING,
+    // Where the two redraws land inside the finished GIF, in seconds. This is
+    // what check:loop holds the file to, and it is derived from the footage
+    // rather than from the clock that drove it.
+    redrawsAt: [Number((shatterT - offset).toFixed(2)), Number((backT - offset).toFixed(2))],
+    beats: BEATS,
+    looked,
+  }, null, 2) + '\n',
 )
 
 server.stop()

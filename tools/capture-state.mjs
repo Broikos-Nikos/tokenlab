@@ -42,15 +42,28 @@ export const PINNED_PAIR = '17'
 export const PAIR = process.env.TOKENLAB_PAIR ?? PINNED_PAIR
 
 /**
- * The state the recording ends on.
+ * The state the recording opens and closes on, and the one it passes through.
  *
- * The loop closes by clicking back to cl100k, so the last thing on screen is
- * the damage rather than the repair. That is deliberate: the page heals to
- * o200k on its own 1.8 seconds after it opens, and a loop that ended there
- * would read as a one way animation with a happy ending rather than as a
- * comparison a reader is invited to make.
+ * It used to be the other way round: the loop ended on `cl100k`, the damage,
+ * on the reasoning that ending on the repair would read as a one way animation
+ * with a happy ending rather than as a comparison. The recruiter pass measured
+ * what that produced, frame by frame, and the reasoning did not survive it:
+ *
+ *   4.91 s long, of which the o200k state held 0.67 s
+ *   the last 1.49 s, 30 percent of the loop, had no motion in it at all
+ *   the first frame was a half empty box with a red warning under it and
+ *     "n/a" where the price goes
+ *
+ * A loop that begins and ends on the same state has no seam, so it can be the
+ * comparison without ending anywhere: o200k, cl100k, o200k, for ever. The
+ * alarm is in the middle, where a reader arrives having already seen what the
+ * calm state looks like, and the frame they land on mid scroll is the one with
+ * real numbers and a real price on it.
  */
-export const FINAL_ENCODING = 'cl100k_base'
+export const FINAL_ENCODING = 'o200k_base'
+
+/** The middle beat, the one the picture exists for. */
+export const SHATTER_ENCODING = 'cl100k_base'
 
 /**
  * Read the page. Runs inside the browser, in both tools.

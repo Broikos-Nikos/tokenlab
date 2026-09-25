@@ -88,8 +88,8 @@ totals, not a mean of per sentence ratios. Intervals are a paired bootstrap,
 |---|---|---|---|---|---|---|
 | `o200k_base` | GPT-6, GPT-5.x, GPT-4.1, GPT-4o | 1.92x | 1.80 to 2.05 | 5.06 | **+1.1%** | -3.5 to +5.7, includes zero |
 | `cl100k_base` | GPT-4, GPT-3.5 Turbo, text-embedding-3 | 4.68x | 4.33 to 5.04 | 2.08 | **+145.6%** | +133.0 to +158.4 |
-| `p50k_base` | Codex, davinci-002 | 5.84x | 5.43 to 6.28 | 1.65 | **+206.9%** | +191.8 to +222.8 |
-| `r50k_base` | GPT-3, GPT-2 | 5.84x | 5.43 to 6.28 | 1.65 | **+206.9%** | +191.8 to +222.8 |
+| `p50k_base` | Codex, text-davinci-003 | 5.84x | 5.43 to 6.28 | 1.65 | **+206.9%** | +191.8 to +222.8 |
+| `r50k_base` | GPT-3 base: davinci, curie, ada | 5.84x | 5.43 to 6.28 | 1.65 | **+206.9%** | +191.8 to +222.8 |
 
 A raw token ratio measures the writing system and the vocabulary at once and
 hands the credit to the vocabulary, which is why the split above matters more
@@ -224,6 +224,15 @@ open. Commit messages cite the identifiers in it.
   it now: paste NFD and it says so, and says what the same text would cost in
   NFC. That is a caveat on the numbers rather than a measurement of its own, so
   it is not in the table above.
+- Every model on the encoding buttons and in the price list is checked against
+  `gpt-tokenizer`'s own `modelToEncodingMap`, which is pinned at 4.0.0 and is
+  the table the encoder consults, so it cannot be edited after this is
+  published. Two attributions were wrong until 2026-09-25: `p50k` claimed
+  `davinci-002`, which is `cl100k_base`, and `r50k` claimed GPT-2, which is the
+  separate `gpt2` encoding. The o200k models are not in that table at all, 61
+  entries and none of them o200k, so they rest on `data/pricing.json` and its
+  date and link instead, and `npm run check:models` refuses that arrangement to
+  go unmarked.
 - A larger corpus could resolve that 1.1 percent into something real or into
   nothing. This one cannot, and saying so is cheaper than pretending otherwise.
 

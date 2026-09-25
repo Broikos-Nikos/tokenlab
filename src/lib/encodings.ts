@@ -18,8 +18,25 @@ export interface EncodingMeta {
   id: string
   /** What a human calls it. */
   label: string
-  /** The models that use this encoding, shortest useful list. */
+  /** The models that use this encoding, shortest useful list, for the button. */
   models: string
+  /**
+   * The model identifiers that claim stands on, and where the claim comes from.
+   *
+   * ME-F12: the button said "Codex, davinci-002" for p50k and "GPT-3, GPT-2"
+   * for r50k, and the pinned tokenizer's own table disagrees with both.
+   * `davinci-002` is cl100k_base, and `gpt-2` is the `gpt2` encoding. Prose on a
+   * button is a claim like any other and nothing was holding these two.
+   *
+   * `sourcedBy` is `tokenizer` when `gpt-tokenizer`'s `modelToEncodingMap` knows
+   * these ids, which is the strongest source available here because it is
+   * pinned, in the repository and the thing actually doing the encoding. It is
+   * `pricing` for o200k, whose models that table does not contain at all: 61
+   * entries and not one of them o200k. Those rest on `data/pricing.json`, which
+   * carries a date and a link, the same standing the prices themselves have.
+   */
+  modelIds: readonly string[]
+  sourcedBy: 'tokenizer' | 'pricing'
   /** Year the encoding first shipped, for the timeline reading. */
   since: string
   /**
@@ -44,6 +61,10 @@ export const ENCODINGS = [
     id: 'o200k_base',
     label: 'o200k',
     models: 'GPT-6, GPT-5.x, GPT-4.1, GPT-4o',
+    // Not one of these is in the tokenizer's table, so they stand on the dated
+    // price list instead, and `check:models` holds them to it.
+    modelIds: ['gpt-6-astra', 'gpt-5.6-sol', 'gpt-4.1', 'gpt-4o'],
+    sourcedBy: 'pricing',
     since: '2024',
     hue: 155,
   },
@@ -51,20 +72,30 @@ export const ENCODINGS = [
     id: 'cl100k_base',
     label: 'cl100k',
     models: 'GPT-4, GPT-3.5 Turbo, text-embedding-3',
+    modelIds: ['gpt-4', 'gpt-3.5-turbo', 'text-embedding-3-small'],
+    sourcedBy: 'tokenizer',
     since: '2022',
     hue: 200,
   },
   {
     id: 'p50k_base',
     label: 'p50k',
-    models: 'Codex, davinci-002',
+    // "davinci-002" was here and belongs to cl100k_base. Codex is the honest
+    // short name for what is left: code-davinci and the cushman models.
+    models: 'Codex, text-davinci-003',
+    modelIds: ['code-davinci-002', 'text-davinci-003', 'cushman-codex'],
+    sourcedBy: 'tokenizer',
     since: '2021',
     hue: 250,
   },
   {
     id: 'r50k_base',
     label: 'r50k',
-    models: 'GPT-3, GPT-2',
+    // "GPT-2" was here and is the `gpt2` encoding, not this one. What this one
+    // actually holds is the GPT-3 base family.
+    models: 'GPT-3 base: davinci, curie, ada',
+    modelIds: ['davinci', 'curie', 'ada', 'text-davinci-001'],
+    sourcedBy: 'tokenizer',
     since: '2019',
     hue: 295,
   },

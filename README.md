@@ -202,12 +202,16 @@ open. Commit messages cite the identifiers in it.
   much less sensitive to that, which is another reason to prefer it.
 - Every pair carries a `provenance` field and `written` is the only value the
   corpus accepts, which `npm run check` enforces. Three formal pairs adapted
-  from the Universal Declaration of Human Rights were removed on 2026-09-21:
-  public domain and properly aligned, but the Greek side of it is an official
-  translation of the English, which is the one thing this method exists to keep
-  out. Removing them moved the headline from 2.09x to 2.06x and the o200k
-  vocabulary penalty from 3.6 percent to 2.9 percent, so the finding did not
-  depend on them.
+  from the Universal Declaration of Human Rights were replaced on 2026-09-21
+  with three written natively in both languages by the same author: the
+  Declaration is public domain and properly aligned, but the Greek side of it is
+  an official translation of the English, which is the one thing this method
+  exists to keep out. The corpus held forty pairs before the swap and forty
+  after. It moved the headline from 2.09x to 2.06x and the o200k vocabulary
+  penalty from 3.6 percent to 2.9 percent, so the finding did not depend on the
+  three that left. Part of that move is three sentences their author wrote after
+  seeing what the old number was, which is worth saying plainly: a replacement
+  is a weaker claim than a removal, and this was a replacement.
 - The eight technical pairs were rewritten on 2026-09-25, for the same reason in
   the other direction. They spelled their numbers out and carried one Latin word
   between them, so the register named "technical" contained no identifier, no

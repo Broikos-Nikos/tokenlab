@@ -130,10 +130,14 @@ if (!header) {
     )
   }
   /*
-   * `TCAP` is this project's own class sweep rather than an audit pass, so it
-   * has a table and is not one of the perspectives the header counts.
+   * `self` is this project's own class sweeps rather than an audit pass, so it
+   * has a table and is not one of the perspectives the header counts. It was
+   * keyed `TCAP` until tick 165, after the capture sweep that filled it, which
+   * meant the next sweep to land here had nowhere to go that was not either a
+   * lie about the prefix or a tenth perspective. The other three lists in this
+   * workspace key it `self`, and now so does this one.
    */
-  const passes = sections.filter((s) => s.key !== 'TCAP').length
+  const passes = sections.filter((s) => s.key !== 'self').length
   if (Number(perspectives) !== passes) {
     fail(`the header claims ${perspectives} perspectives and the file carries ${passes} of them`)
   }

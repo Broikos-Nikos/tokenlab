@@ -8,7 +8,7 @@ no write access to the project: it produced a findings file and a list, and the
 fixes were separate work afterwards. Nobody audited their own code twenty
 minutes after writing it, which is the only reason any of this was found.
 
-**130 findings, 106 closed, 24 open**, across the 9 perspectives, every one of them run.
+**131 findings, 107 closed, 24 open**, across the 9 perspectives, every one of them run.
 
 That line and the count under every table below are checked against the tables
 themselves on every build, by `npm run check:audits`, and against the queue this
@@ -230,15 +230,16 @@ The supply chain: what this project installs, what it ships inside the bundle, a
 | `SC-F9` | low | open | Three innerHTML sinks, all safe today, none of them guarded |
 | `SC-F10` | low | open | Nothing in the repository or in CI watches the dependency tree |
 
-## `TCAP`, this project against itself
+## `self`, this project against itself (not an audit pass)
 
-Not a perspective and not an audit. One finding this project raised against itself while sweeping the class of another, kept here because a commit message cites it.
+Not a perspective and not an agent. Findings this project raised against its own code while a class found somewhere else in the workspace was being swept, kept here because commit messages cite them like any other.
 
-1 finding, 0 closed.
+2 findings, 1 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
 | `TCAP-F1` | low | open | check:capture caps the gif at 4 MB and the gif is 2.77 MB, so the ceiling permits silent growth |
+| `TPRE-F1` | low | fixed, tick 165 | npm run verify started a server and handed the same missing browser to every gate in turn |
 
 ## One note on the log itself
 

@@ -16,6 +16,7 @@ import { writeFileSync } from 'node:fs'
 import { createServer } from 'node:net'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { browserReady } from './preflight.mjs'
 import { reachable } from './wait-for.mjs'
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
@@ -45,6 +46,12 @@ function run(cmd, args) {
   const r = spawnSync(cmd, args, { cwd: root, stdio: 'inherit', shell: useShell })
   if (r.status !== 0) process.exit(r.status ?? 1)
 }
+
+/*
+ * Before the build, because this suite builds first and a browser nobody has is
+ * a twenty second wait for a stack trace.
+ */
+await browserReady()
 
 run(npm, ['run', 'build'])
 

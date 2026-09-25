@@ -8,7 +8,7 @@ no write access to the project: it produced a findings file and a list, and the
 fixes were separate work afterwards. Nobody audited their own code twenty
 minutes after writing it, which is the only reason any of this was found.
 
-**130 findings, 105 closed, 25 open**, across the 9 perspectives, every one of them run.
+**130 findings, 106 closed, 24 open**, across the 9 perspectives, every one of them run.
 
 That line and the count under every table below are checked against the tables
 themselves on every build, by `npm run check:audits`, and against the queue this
@@ -215,7 +215,7 @@ The maintainer six months from now: what rots first, what a stranger cannot reco
 
 The supply chain: what this project installs, what it ships inside the bundle, and whether either is what the README says it is.
 
-10 findings, 6 closed.
+10 findings, 7 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -225,7 +225,7 @@ The supply chain: what this project installs, what it ships inside the bundle, a
 | `SC-F4` | medium | fixed, tick 154 | dist ships 3.94 MB of MIT licensed third party code with every copyright notice stripped |
 | `SC-F5` | medium | fixed, tick 155 | wait-on costs 39 transitive packages and 18.7 MB for one line of CI, and the repository already contains the twelve line replacement |
 | `SC-F6` | medium | fixed, tick 25 | Both fonts are subsets whose embedded licence records were stripped, and nothing records how they were made |
-| `SC-F7` | medium | open | The one security claim in the repository, that no request leaves for a third party, is the only claim with no gate |
+| `SC-F7` | medium | fixed, tick 156 | The one security claim in the repository, that no request leaves for a third party, is the only claim with no gate |
 | `SC-F8` | low | open | The visitor text is written verbatim into sessionStorage on an origin shared with every other page the author publishes |
 | `SC-F9` | low | open | Three innerHTML sinks, all safe today, none of them guarded |
 | `SC-F10` | low | open | Nothing in the repository or in CI watches the dependency tree |

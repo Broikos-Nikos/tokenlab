@@ -71,7 +71,7 @@ try {
      * check` because it drives a browser, and browser gates are not a tax on
      * somebody who cloned this to read it.
      */
-    const GATES = ['check:loading', 'check:capture', 'check:compare', 'check:controls', 'check:counter', 'check:direction', 'check:nfd', 'check:perword', 'check:typing', 'check:reader', 'check:contrast', 'check:network', 'check:pin', 'check:sample', 'check:bill', 'check:notices:built']
+    const GATES = ['check:loading', 'check:capture', 'check:compare', 'check:controls', 'check:counter', 'check:direction', 'check:nfd', 'check:perword', 'check:typing', 'check:reader', 'check:contrast', 'check:network', 'check:pin', 'check:sample', 'check:bill', 'check:notices:built', 'check:sealed:built']
     let bad = 0
     const results = []
     for (const gate of GATES) {

@@ -48,6 +48,29 @@
       href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><rect width='16' height='16' rx='3' fill='%23080604'/><rect x='2.5' y='4' width='4.5' height='8' rx='1' fill='%23e8a33d'/><rect x='8.5' y='4' width='1.6' height='8' rx='.5' fill='%23d4553a'/><rect x='11' y='4' width='1.6' height='8' rx='.5' fill='%23d4553a'/></svg>"
     />
     <meta name="theme-color" content="#080604" />
+    <!--
+      SC-F7. README.md:70 says "no request leaves for a third party, and your
+      text never goes anywhere", and until tick 156 nothing kept that true.
+      Measured on the built site: no absolute URL in any src, href or CSS url(),
+      and no network or eval API anywhere in the four vocabulary chunks once
+      string data is excluded, against a naive grep that finds five `fetch`,
+      two `WebSocket` and five `eval` in cl100k alone, all of them BPE tokens.
+      The app chunk's single fetch is Vite's modulepreload polyfill reading this
+      page's own relative links.
+
+      So the claim was true and one dependency bump, one analytics snippet or
+      one font moved back to Google Fonts would have made it false with every
+      gate still green. This is the browser enforcing it, and
+      tools/check-sealed.mjs keeps this line here and the built output clean.
+
+      `style-src` allows inline because the page sets CSS custom properties on
+      elements; `img-src data:` is the tab icon above. There is no `unsafe-eval`
+      and no `unsafe-inline` for scripts.
+    -->
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; connect-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; font-src 'self'; base-uri 'none'; form-action 'none'; object-src 'none'"
+    />
     <link rel="preload" href="./fonts/manrope-var.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="./fonts/robotomono-var.woff2" as="font" type="font/woff2" crossorigin />
   </head>

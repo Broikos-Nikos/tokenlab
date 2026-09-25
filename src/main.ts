@@ -550,9 +550,22 @@ function checkNormalisation(text: string, tokens: number) {
   const asNfc = encoder.encode(text.normalize('NFC')).length
   const extra = asNfc === 0 ? 0 : Math.round(100 * (tokens / asNfc - 1))
   el.nfdNote.hidden = false
+  /*
+   * And what it does to the claim above, not only to the count. HE-F6: the note
+   * said how many more tokens and stopped there, while the line under the
+   * headline went on saying this vocabulary adds +1.1% beyond the alphabet. On
+   * the corpus in NFD that figure is +25.8%, which this many pairs can tell from
+   * zero, so for NFD text the sentence at the top of the page is the wrong way
+   * round. The count is left to the measurement here on purpose: a comment that
+   * spells the corpus size goes stale exactly like a sentence that does, which
+   * is what `check:measurement` bans and what it just caught this comment doing.
+   */
+  const n = (findings.encodings as unknown as Record<string, EncodingFinding>)[state.encoding]!.nfd
   el.nfdBody.textContent =
     `It uses combining accents, so this is ${tokens.toLocaleString('en-US')} tokens where the same text in NFC is ` +
     `${asNfc.toLocaleString('en-US')}, ${extra >= 0 ? extra + '% more' : -extra + '% less'}. ` +
+    `On the corpus, that moves what ${metaFor(state.encoding).label} costs beyond the alphabet from ` +
+    `${signed(n.penaltyPercentNfc)}% to ${signed(n.penaltyPercentNfd)}%. ` +
     `Every number on this page measures what you pasted, and the corpus behind the findings is NFC.`
 }
 
@@ -671,6 +684,7 @@ interface EncodingFinding {
   ratioInterval95: [number, number]
   /** The dearest pair in the corpus for this encoding. The comparison card's ramp ends at the worst of these. */
   worstPair: { ratio: number; el: string; en: string }
+  nfd: { penaltyPercentNfc: number; penaltyPercentNfd: number }
   tokensPerWord: { el: number; en: number }
   /** Word counts, which are what make the two figures above incomparable. */
   totals: { elWords: number; enWords: number }

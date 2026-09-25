@@ -21,8 +21,16 @@
  * that exact text, not a sentence about normalisation in general.
  */
 
+import { readFileSync } from 'node:fs'
+import { dirname, resolve } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { chromium } from 'playwright'
 import { serve, useShared } from './serve.mjs'
+
+const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
+const findings = JSON.parse(readFileSync(resolve(root, 'src/generated/findings.json'), 'utf8'))
+/* Pinned, because the page heals to this one on its own and a gate should not race it. */
+const ENCODING = 'o200k_base'
 
 let failed = 0
 const fail = (what, detail) => {
@@ -41,6 +49,8 @@ try {
   await page.goto(server.url, { waitUntil: 'networkidle' })
   await page.waitForFunction(() => document.querySelectorAll('#tokens .tok').length > 0, null, { timeout: 60_000 })
   await page.waitForTimeout(2500)
+  await page.click(`.enc[data-enc="${ENCODING}"]`)
+  await page.waitForTimeout(1200)
 
   const look = async (text) => {
     await page.evaluate((t) => {
@@ -93,6 +103,29 @@ try {
       } else {
         console.log(`  ok      the note carries this text's own counts: ${nfd.tokens} against ${nfc.tokens}, ${extra}% more`)
       }
+    }
+  }
+
+  /*
+   * 4. And what it does to the claim at the top of the page, not only to the
+   * count. HE-F6: the note said how many more tokens and stopped, while the line
+   * under the headline went on saying this vocabulary adds almost nothing beyond
+   * the alphabet. On the corpus in NFD that figure is more than twenty times
+   * larger, so for NFD text the headline is the wrong way round and the note is
+   * the only place a visitor could learn it.
+   */
+  if (nfd.shown) {
+    const n = findings.encodings[ENCODING].nfd
+    const signed = (x) => `${x >= 0 ? '+' : ''}${x}%`
+    const want = `from ${signed(n.penaltyPercentNfc)} to ${signed(n.penaltyPercentNfd)}`
+    if (!nfd.body.includes(want)) {
+      fail(
+        'the note says what NFD costs in tokens and not what it does to the vocabulary penalty',
+        `wanted ${JSON.stringify(want)}
+      note said ${JSON.stringify(nfd.body.slice(0, 200))}`,
+      )
+    } else {
+      console.log(`  ok      the note says the penalty moves ${want}, which is the headline turning over`)
     }
   }
 

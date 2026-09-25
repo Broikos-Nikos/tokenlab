@@ -200,7 +200,12 @@ open. Commit messages cite the identifiers in it.
   ratio is never quoted without it.
 - The pairs are written by one bilingual author. A different author would write
   different Greek and the raw ratio would move. The byte controlled figure is
-  much less sensitive to that, which is another reason to prefer it.
+  steadier, and "steadier" is worth a number rather than an adjective: across
+  the five registers the raw ratio moves by a factor of **1.42**, 1.58x to
+  2.24x, and the byte controlled penalty by **1.29**, -9.3 percent to +17.2
+  percent on tokens per byte. Register is not authorship, but it is the nearest
+  thing this corpus has to another hand, and on that test the byte controlled
+  figure is steadier rather than much steadier.
 - Every pair carries a `provenance` field and `written` is the only value the
   corpus accepts, which `npm run check` enforces. Three formal pairs adapted
   from the Universal Declaration of Human Rights were replaced on 2026-09-21
@@ -229,19 +234,29 @@ open. Commit messages cite the identifiers in it.
   this corpus, `npm run measure` reads NFC and this is what the other form
   costs:
 
-  | encoding | NFC | NFD | NFD costs | ratio, NFC | ratio, NFD |
-  |---|---|---|---|---|---|
-  | `o200k_base` | 1093 | 1508 | +38% | 1.92x | 2.65x |
-  | `cl100k_base` | 2656 | 2896 | +9% | 4.68x | 5.10x |
-  | `p50k_base` | 3343 | 3730 | +11.6% | 5.84x | 6.52x |
-  | `r50k_base` | 3343 | 3730 | +11.6% | 5.84x | 6.52x |
+  | encoding | NFC | NFD | NFD costs | ratio, NFC | ratio, NFD | penalty, NFC | penalty, NFD |
+  |---|---|---|---|---|---|---|---|
+  | `o200k_base` | 1093 | 1508 | +38% | 1.92x | 2.65x | +1.1% | +25.8% |
+  | `cl100k_base` | 2656 | 2896 | +9% | 4.68x | 5.10x | +145.6% | +141.5% |
+  | `p50k_base` | 3343 | 3730 | +11.6% | 5.84x | 6.52x | +206.9% | +208.9% |
+  | `r50k_base` | 3343 | 3730 | +11.6% | 5.84x | 6.52x | +206.9% | +208.9% |
 
-  `o200k` is hit hardest because it has tokens for precomposed Greek letters and
-  none for base plus combining mark, so the vocabulary that is best at Greek is
-  the one that loses most when the accents arrive separately. The page detects
-  it now: paste NFD and it says so, and says what the same text would cost in
-  NFC. That is a caveat on the numbers rather than a measurement of its own, so
-  it is not in the table above.
+  **The last two columns are the ones that matter, and they say the headline of
+  this README does not hold for NFD text.** "Almost none of that is the
+  tokenizer" is a statement about `o200k`, where the vocabulary costs +1.1
+  percent beyond the alphabet and forty pairs cannot tell that from zero. Give
+  the same sentences to it in NFD and that becomes **+25.8 percent**, which forty
+  pairs can tell from zero, because Greek in NFD is 11 percent more bytes and 38
+  percent more tokens and those do not move together. The other three barely
+  notice: `cl100k` goes from +145.6 to +141.5 and the two older ones from +206.9
+  to +208.9, because they were already spelling Greek out a byte at a time and
+  the combining marks are just more of the same.
+
+  So `o200k` is hit hardest, and it is hit hardest because it is the best of them
+  at Greek: it has tokens for precomposed Greek letters and none for base plus
+  combining mark, so it has the most to lose when the accents arrive separately.
+  The page detects it: paste NFD and it says so, says what the same text would
+  cost in NFC, and says what it does to the penalty.
 - Every model on the encoding buttons and in the price list is checked against
   `gpt-tokenizer`'s own `modelToEncodingMap`, which is pinned at 4.0.0 and is
   the table the encoder consults, so it cannot be edited after this is

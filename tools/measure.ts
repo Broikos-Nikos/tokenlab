@@ -179,6 +179,15 @@ async function main() {
       const en = idx.reduce((a, i) => a + enCounts[i], 0)
       const elW = idx.reduce((a, i) => a + countWords(corpus.pairs[i].el), 0)
       const enW = idx.reduce((a, i) => a + countWords(corpus.pairs[i].en), 0)
+      /*
+       * And the length controlled figure for this register, which is what makes
+       * "the byte controlled figure is less sensitive to who wrote it" a number
+       * rather than an adjective. Register is not authorship, but it is the
+       * nearest thing this corpus has to a different hand: five subjects, five
+       * vocabularies, one author.
+       */
+      const elB = idx.reduce((a, i) => a + elByteCounts[i], 0)
+      const enB = idx.reduce((a, i) => a + enByteCounts[i], 0)
       return {
         register: r,
         n: idx.length,
@@ -195,6 +204,7 @@ async function main() {
         elTokensPerWord: round(el / elW),
         enTokensPerWord: round(en / enW),
         wordRatio: round(elW / enW, 3),
+        vocabularyPenaltyPercent: round(((el / elB) / (en / enB) - 1) * 100, 1),
       }
     })
 
@@ -295,12 +305,24 @@ async function main() {
       nfd: (() => {
         const nfc = corpus.pairs.reduce((t, p) => t + encode(p.el.normalize("NFC")).length, 0)
         const nfd = corpus.pairs.reduce((t, p) => t + encode(p.el.normalize("NFD")).length, 0)
+        /*
+         * And what it does to the figure this project leads with. HE-F6: the
+         * token count was measured and the vocabulary penalty was not, and the
+         * penalty is the half that decides whether "almost none of that is the
+         * tokenizer" survives the input. Greek in NFD is more bytes as well as
+         * more tokens, so it has to be recomputed rather than scaled.
+         */
+        const nfdBytes = corpus.pairs.reduce((t, p) => t + utf8Bytes(p.el.normalize("NFD")), 0)
+        const penaltyNfd = ((nfd / nfdBytes) / (totalEn / enBytes) - 1) * 100
         return {
           nfcTokens: nfc,
           nfdTokens: nfd,
           costPercent: round((nfd / nfc - 1) * 100, 1),
           ratioNfc: round(nfc / totalEn, 2),
           ratioNfd: round(nfd / totalEn, 2),
+          bytesNfd: nfdBytes,
+          penaltyPercentNfc: round((elPerByte / enPerByte - 1) * 100, 1),
+          penaltyPercentNfd: round(penaltyNfd, 1),
         }
       })(),
       worstPair: worst,

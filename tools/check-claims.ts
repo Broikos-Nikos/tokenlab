@@ -163,9 +163,60 @@ for (const id of Object.keys(USED_BY)) {
    * up, one on the percentage, matching what the measurement rounds to.
    */
   const n = e.nfd
+  /*
+   * The whole row, penalty columns included. HE-F6: the token counts were
+   * measured and the vocabulary penalty was not, and the penalty is the column
+   * that says whether "almost none of that is the tokenizer" survives the input.
+   */
   add(
     `the NFD row for ${id}`,
-    `| \`${id}\` | ${n.nfcTokens} | ${n.nfdTokens} | +${n.costPercent}% | ${n.ratioNfc.toFixed(2)}x | ${n.ratioNfd.toFixed(2)}x |`,
+    `| \`${id}\` | ${n.nfcTokens} | ${n.nfdTokens} | +${n.costPercent}% | ${n.ratioNfc.toFixed(2)}x | ` +
+      `${n.ratioNfd.toFixed(2)}x | +${pct(n.penaltyPercentNfc)}% | +${pct(n.penaltyPercentNfd)}% |`,
+  )
+}
+
+/*
+ * And the sentence that says what those two columns mean, because a table nobody
+ * reads a conclusion out of is a table.
+ */
+{
+  const n = enc('o200k_base').nfd
+  add(
+    'what NFD does to the o200k penalty, in the prose',
+    `becomes **+${pct(n.penaltyPercentNfd)} percent**`,
+  )
+  add(
+    'the penalty NFD replaces',
+    `the vocabulary costs +${pct(n.penaltyPercentNfc)}
+percent beyond the alphabet`,
+  )
+  const c = enc('cl100k_base').nfd
+  const p50 = enc('p50k_base').nfd
+  add(
+    'the three that barely move',
+    `\`cl100k\` goes from +${pct(c.penaltyPercentNfc)} to +${pct(c.penaltyPercentNfd)} and the two older ones from +${pct(p50.penaltyPercentNfc)}
+  to +${pct(p50.penaltyPercentNfd)}`,
+  )
+}
+
+/*
+ * And the sensitivity claim, which was "much less sensitive" until tick 143.
+ * Register is not authorship and the README says so; it is the only variation
+ * this corpus can measure, and it turns out to support "steadier" rather than
+ * "much steadier", which is the kind of correction this section exists for.
+ */
+{
+  const rows = enc('o200k_base').byRegister as { ratio: number; vocabularyPenaltyPercent: number }[]
+  const raws = rows.map((r) => r.ratio)
+  const pens = rows.map((r) => r.vocabularyPenaltyPercent)
+  const rawSpan = Math.max(...raws) / Math.min(...raws)
+  const penSpan = (1 + Math.max(...pens) / 100) / (1 + Math.min(...pens) / 100)
+  add('how much the raw ratio moves across registers', `factor of **${rawSpan.toFixed(2)}**`)
+  add('how much the byte controlled figure moves', `by **${penSpan.toFixed(2)}**`)
+  add(
+    'the two ends of the penalty band',
+    `${pens.reduce((a, b) => Math.min(a, b)).toFixed(1)} percent to +${Math.max(...pens).toFixed(1)}
+  percent on tokens per byte`,
   )
 }
 

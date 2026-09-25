@@ -103,7 +103,8 @@
           "ratio": 1.58,
           "elTokensPerWord": 2.23,
           "enTokensPerWord": 1.13,
-          "wordRatio": 0.804
+          "wordRatio": 0.804,
+          "vocabularyPenaltyPercent": -9.3
         },
         {
           "register": "news",
@@ -113,7 +114,8 @@
           "ratio": 2.19,
           "elTokensPerWord": 2.46,
           "enTokensPerWord": 1.14,
-          "wordRatio": 1.01
+          "wordRatio": 1.01,
+          "vocabularyPenaltyPercent": 17.2
         },
         {
           "register": "technical",
@@ -123,7 +125,8 @@
           "ratio": 1.67,
           "elTokensPerWord": 1.97,
           "enTokensPerWord": 1.18,
-          "wordRatio": 1
+          "wordRatio": 1,
+          "vocabularyPenaltyPercent": -1.5
         },
         {
           "register": "commerce",
@@ -133,7 +136,8 @@
           "ratio": 2.24,
           "elTokensPerWord": 2.46,
           "enTokensPerWord": 1.12,
-          "wordRatio": 1.02
+          "wordRatio": 1.02,
+          "vocabularyPenaltyPercent": -1.3
         },
         {
           "register": "formal",
@@ -143,7 +147,8 @@
           "ratio": 1.96,
           "elTokensPerWord": 2.41,
           "enTokensPerWord": 1.1,
-          "wordRatio": 0.897
+          "wordRatio": 0.897,
+          "vocabularyPenaltyPercent": 1
         }
       ],
       "nfd": {
@@ -151,7 +156,10 @@
         "nfdTokens": 1508,
         "costPercent": 38,
         "ratioNfc": 1.92,
-        "ratioNfd": 2.65
+        "ratioNfd": 2.65,
+        "bytesNfd": 6126,
+        "penaltyPercentNfc": 1.1,
+        "penaltyPercentNfd": 25.8
       },
       "worstPair": {
         "ratio": 2.79,
@@ -233,7 +241,8 @@
           "ratio": 3.55,
           "elTokensPerWord": 5,
           "enTokensPerWord": 1.13,
-          "wordRatio": 0.804
+          "wordRatio": 0.804,
+          "vocabularyPenaltyPercent": 103.2
         },
         {
           "register": "news",
@@ -243,7 +252,8 @@
           "ratio": 5.19,
           "elTokensPerWord": 5.89,
           "enTokensPerWord": 1.15,
-          "wordRatio": 1.01
+          "wordRatio": 1.01,
+          "vocabularyPenaltyPercent": 178.2
         },
         {
           "register": "technical",
@@ -253,7 +263,8 @@
           "ratio": 3.66,
           "elTokensPerWord": 4.32,
           "enTokensPerWord": 1.18,
-          "wordRatio": 1
+          "wordRatio": 1,
+          "vocabularyPenaltyPercent": 116.1
         },
         {
           "register": "commerce",
@@ -263,7 +274,8 @@
           "ratio": 5.69,
           "elTokensPerWord": 6.26,
           "enTokensPerWord": 1.12,
-          "wordRatio": 1.02
+          "wordRatio": 1.02,
+          "vocabularyPenaltyPercent": 151.2
         },
         {
           "register": "formal",
@@ -273,7 +285,8 @@
           "ratio": 5.41,
           "elTokensPerWord": 6.59,
           "enTokensPerWord": 1.09,
-          "wordRatio": 0.897
+          "wordRatio": 0.897,
+          "vocabularyPenaltyPercent": 178.3
         }
       ],
       "nfd": {
@@ -281,7 +294,10 @@
         "nfdTokens": 2896,
         "costPercent": 9,
         "ratioNfc": 4.68,
-        "ratioNfd": 5.1
+        "ratioNfd": 5.1,
+        "bytesNfd": 6126,
+        "penaltyPercentNfc": 145.6,
+        "penaltyPercentNfd": 141.5
       },
       "worstPair": {
         "ratio": 7.36,
@@ -363,7 +379,8 @@
           "ratio": 4.6,
           "elTokensPerWord": 6.49,
           "enTokensPerWord": 1.13,
-          "wordRatio": 0.804
+          "wordRatio": 0.804,
+          "vocabularyPenaltyPercent": 163.7
         },
         {
           "register": "news",
@@ -373,7 +390,8 @@
           "ratio": 6.4,
           "elTokensPerWord": 7.33,
           "enTokensPerWord": 1.16,
-          "wordRatio": 1.01
+          "wordRatio": 1.01,
+          "vocabularyPenaltyPercent": 242.9
         },
         {
           "register": "technical",
@@ -383,7 +401,8 @@
           "ratio": 4.58,
           "elTokensPerWord": 5.32,
           "enTokensPerWord": 1.16,
-          "wordRatio": 1
+          "wordRatio": 1,
+          "vocabularyPenaltyPercent": 170.4
         },
         {
           "register": "commerce",
@@ -393,7 +412,8 @@
           "ratio": 7.03,
           "elTokensPerWord": 7.87,
           "enTokensPerWord": 1.14,
-          "wordRatio": 1.02
+          "wordRatio": 1.02,
+          "vocabularyPenaltyPercent": 210.2
         },
         {
           "register": "formal",
@@ -403,7 +423,8 @@
           "ratio": 6.69,
           "elTokensPerWord": 8.38,
           "enTokensPerWord": 1.12,
-          "wordRatio": 0.897
+          "wordRatio": 0.897,
+          "vocabularyPenaltyPercent": 244.3
         }
       ],
       "nfd": {
@@ -411,7 +432,10 @@
         "nfdTokens": 3730,
         "costPercent": 11.6,
         "ratioNfc": 5.84,
-        "ratioNfd": 6.52
+        "ratioNfd": 6.52,
+        "bytesNfd": 6126,
+        "penaltyPercentNfc": 206.9,
+        "penaltyPercentNfd": 208.9
       },
       "worstPair": {
         "ratio": 8.77,
@@ -493,7 +517,8 @@
           "ratio": 4.6,
           "elTokensPerWord": 6.49,
           "enTokensPerWord": 1.13,
-          "wordRatio": 0.804
+          "wordRatio": 0.804,
+          "vocabularyPenaltyPercent": 163.7
         },
         {
           "register": "news",
@@ -503,7 +528,8 @@
           "ratio": 6.4,
           "elTokensPerWord": 7.33,
           "enTokensPerWord": 1.16,
-          "wordRatio": 1.01
+          "wordRatio": 1.01,
+          "vocabularyPenaltyPercent": 242.9
         },
         {
           "register": "technical",
@@ -513,7 +539,8 @@
           "ratio": 4.58,
           "elTokensPerWord": 5.32,
           "enTokensPerWord": 1.16,
-          "wordRatio": 1
+          "wordRatio": 1,
+          "vocabularyPenaltyPercent": 170.4
         },
         {
           "register": "commerce",
@@ -523,7 +550,8 @@
           "ratio": 7.03,
           "elTokensPerWord": 7.87,
           "enTokensPerWord": 1.14,
-          "wordRatio": 1.02
+          "wordRatio": 1.02,
+          "vocabularyPenaltyPercent": 210.2
         },
         {
           "register": "formal",
@@ -533,7 +561,8 @@
           "ratio": 6.69,
           "elTokensPerWord": 8.38,
           "enTokensPerWord": 1.12,
-          "wordRatio": 0.897
+          "wordRatio": 0.897,
+          "vocabularyPenaltyPercent": 244.3
         }
       ],
       "nfd": {
@@ -541,7 +570,10 @@
         "nfdTokens": 3730,
         "costPercent": 11.6,
         "ratioNfc": 5.84,
-        "ratioNfd": 6.52
+        "ratioNfd": 6.52,
+        "bytesNfd": 6126,
+        "penaltyPercentNfc": 206.9,
+        "penaltyPercentNfd": 208.9
       },
       "worstPair": {
         "ratio": 8.77,

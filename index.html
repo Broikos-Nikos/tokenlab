@@ -99,7 +99,28 @@
           <button type="button" class="retry" data-retry>Try again</button>
         </p>
 
-        <output class="tokens" id="tokens" dir="auto" aria-live="off"></output>
+        <!--
+          PA-F8. One node, with a sentence, instead of a chip per token.
+          Measured before this, on 901 chips of Greek at the cap on p50k: the
+          row put 2,779 nodes into the accessibility tree, 2,452 of them
+          carrying a name, out of 3,144 on the whole page, and it read back as
+          "Ο Ο 2 2 ι ι ε ε 2 2 ρ ρ" because every chip announces itself twice
+          and every cost badge announces a bare number between them.
+
+          `role="img"` rather than `aria-hidden`, because this row is the
+          argument the page exists to make and a visitor who cannot see it
+          should be told it is there and what it shows, not have it disappear.
+          The label is written by the same code that writes the live summary,
+          so the two cannot drift apart.
+        -->
+        <output
+          class="tokens"
+          id="tokens"
+          dir="auto"
+          aria-live="off"
+          role="img"
+          aria-label="A picture of the tokens, waiting for the vocabulary."
+        ></output>
 
         <!--
           ME-F11. Greek written with combining accents, which is what comes off

@@ -349,6 +349,13 @@ function loadPair(i: number) {
 function chipFor(seg: Segment, index: number, total: number, stagger: boolean): HTMLElement {
   const span = document.createElement('span')
   span.className = 'tok'
+  /*
+   * PA-F8. `role="img"` on the row drops the chip elements from the
+   * accessibility tree and leaves their text in it, which is the wall itself:
+   * "Ο Ο 2 2 ι ι", a letter and a cost badge at a time. The row's own label
+   * says what the picture shows; the pieces of the picture say nothing.
+   */
+  span.setAttribute('aria-hidden', 'true')
   span.style.setProperty('--shade', String(index % 4))
   if (stagger && !reduceMotion) {
     // A compressing curve, so a long sentence still lands on one clock instead
@@ -382,6 +389,7 @@ function drawTokens(shown: Segment[], total: number, stagger: boolean) {
   if (total > shown.length) {
     const more = document.createElement('span')
     more.className = 'tok tok--space'
+    more.setAttribute('aria-hidden', 'true')
     more.textContent = `and ${total - shown.length} more`
     frag.append(more)
   }
@@ -432,6 +440,29 @@ function tickTo(node: HTMLElement, to: number, format: (n: number) => string) {
 }
 
 /* ------------------------------------------------------------ the speaking */
+
+/**
+ * What the chip row is, for somebody who cannot see it.
+ *
+ * PA-F8: it was 901 unlabelled spans and 324 cost badges, 2,779 accessibility
+ * nodes out of the 3,144 on the page, read back as single letters with bare
+ * numbers between them. It is one node with this sentence now.
+ *
+ * The same shape as the fracture note under it, deliberately: a visitor who
+ * hears this and a visitor who reads that are being told the same thing, and
+ * one function writing both is what keeps them saying it.
+ */
+function chipPicture(shown: number, total: number, fractured: number): string {
+  const what =
+    total > shown
+      ? `the first ${shown.toLocaleString('en-US')} pieces of ${total.toLocaleString('en-US')}`
+      : `${total.toLocaleString('en-US')} ${total === 1 ? 'piece' : 'pieces'}`
+  const cost =
+    fractured === 0
+      ? 'none of them spelled out in bytes'
+      : `${fractured.toLocaleString('en-US')} of them spelled out in bytes, a token for each byte`
+  return `A picture of the tokens: ${what}, ${cost}.`
+}
 
 /**
  * The chip list is deliberately not a live region: read aloud it is a wall of
@@ -537,6 +568,7 @@ function render() {
   el.wordUnit.textContent = unitLabel()
 
   const fractured = segments.fractured
+  el.tokens.setAttribute('aria-label', chipPicture(segments.drawn.length, segments.total, fractured))
   el.fractureCount.textContent = String(fractured)
   el.fractureBody.textContent =
     fractured === 1
@@ -596,6 +628,7 @@ function drawFromPreview(entry: PreviewEntry) {
   el.wordUnit.textContent = unitLabel()
 
   const fractured = segs.filter((s) => s.splitIntoBytes).length
+  el.tokens.setAttribute('aria-label', chipPicture(segs.length, segs.length, fractured))
   el.fractureCount.textContent = String(fractured)
   el.fractureBody.textContent =
     fractured === 1

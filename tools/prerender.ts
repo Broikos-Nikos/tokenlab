@@ -61,7 +61,7 @@ export async function buildPreview(): Promise<Preview> {
     for (const [i, pair] of corpus.pairs.entries()) {
       for (const lang of ['el', 'en'] as const) {
         const ids = encoder.encode(pair[lang])
-        const segs = segment(encoder, ids)
+        const segs = segment(encoder, ids).drawn
         out[previewKey(i, lang, id)] = {
           s: segs.map((x) => ({ t: textOf(x), n: x.ids.length })),
           tokens: ids.length,

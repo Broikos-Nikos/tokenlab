@@ -81,7 +81,8 @@ const failures: Failure[] = []
 
 function check(encoder: Encoder, label: string, text: string) {
   const ids = encoder.encode(text)
-  const segs = segment(encoder, ids)
+  // Uncapped, so every segment is drawn and `drawn` is the whole input.
+  const segs = segment(encoder, ids).drawn
   const drawn = segs.map((s) => s.text).join('')
 
   if (drawn !== text) {
@@ -158,7 +159,7 @@ for (const encoder of encoders) {
     const prefix = chars.slice(0, n).join('')
     const ids = encoder.encode(prefix)
     const drawn = segment(encoder, ids)
-      .map((s) => s.text)
+      .drawn.map((s) => s.text)
       .join('')
     if (drawn !== prefix) {
       failures.push({

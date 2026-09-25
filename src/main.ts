@@ -376,14 +376,13 @@ function chipFor(seg: Segment, index: number, total: number, stagger: boolean): 
   return span
 }
 
-function drawTokens(segments: Segment[], stagger: boolean) {
+function drawTokens(shown: Segment[], total: number, stagger: boolean) {
   const frag = document.createDocumentFragment()
-  const shown = segments.slice(0, MAX_CHIPS)
   shown.forEach((seg, i) => frag.append(chipFor(seg, i, shown.length, stagger)))
-  if (segments.length > MAX_CHIPS) {
+  if (total > shown.length) {
     const more = document.createElement('span')
     more.className = 'tok tok--space'
-    more.textContent = `and ${segments.length - MAX_CHIPS} more`
+    more.textContent = `and ${total - shown.length} more`
     frag.append(more)
   }
   el.tokens.replaceChildren(frag)
@@ -527,17 +526,17 @@ function render() {
    * are still computed for every token.
    */
   const segments = segment(encoder, ids, MAX_CHIPS)
-  const stats = statsFor(text, ids, segments)
+  const stats = statsFor(text, ids)
 
   const stagger = staggerNext
   staggerNext = false
-  drawTokens(segments, stagger)
+  drawTokens(segments.drawn, segments.total, stagger)
   tickTo(el.count, stats.tokens, (n) => n.toLocaleString('en-US'))
   el.words.textContent = String(stats.words)
   el.tpw.textContent = stats.tokensPerWord.toFixed(2)
   el.wordUnit.textContent = unitLabel()
 
-  const fractured = segments.filter((s) => s.splitIntoBytes).length
+  const fractured = segments.fractured
   el.fractureCount.textContent = String(fractured)
   el.fractureBody.textContent =
     fractured === 1
@@ -587,7 +586,8 @@ function drawFromPreview(entry: PreviewEntry) {
   const segs = previewSegments(entry)
   const stagger = staggerNext
   staggerNext = false
-  drawTokens(segs, stagger)
+  // The preview is already only what is drawn, so its own length is the total.
+  drawTokens(segs, segs.length, stagger)
 
   const words = countWords(text)
   tickTo(el.count, entry.tokens, (n) => n.toLocaleString('en-US'))
@@ -791,8 +791,28 @@ function cancelHeal() {
   }
 }
 
+/**
+ * Above this many characters, typing waits for a pause before re-measuring.
+ *
+ * PA-F7. A render is one pass of the tokenizer over everything in the box, and
+ * `requestAnimationFrame` coalescing does nothing once that pass is longer than
+ * a frame: each keystroke simply queues another one. Measured on the built page
+ * with a megabyte of Greek in the box, cl100k, before any of this: **ten
+ * keystrokes 40 ms apart took 37.6 seconds**, in ten long tasks, the worst of
+ * them 4,089 ms. The page was not slow, it was gone.
+ *
+ * The threshold is measured rather than picked. After the work in this tick a
+ * render costs 18 ms at 100,000 characters and 110 ms at a million, so below
+ * 50,000 it is within a frame or two and waiting would be the slower page: the
+ * count would stop following the keys for no reason. Above it, the visitor has
+ * pasted something and is not watching a counter tick.
+ */
+const DEBOUNCE_ABOVE = 50_000
+const DEBOUNCE_MS = 120
+
 function wire() {
   let queued = 0
+  let settle: number | undefined
   el.input.addEventListener('input', () => {
     cancelHeal()
     state.custom = true
@@ -800,7 +820,14 @@ function wire() {
     // again it is a stale offer to overwrite what is in front of them.
     setHeld('')
     cancelAnimationFrame(queued)
-    queued = requestAnimationFrame(render)
+    clearTimeout(settle)
+    if (el.input.value.length <= DEBOUNCE_ABOVE) {
+      queued = requestAnimationFrame(render)
+      return
+    }
+    settle = window.setTimeout(() => {
+      queued = requestAnimationFrame(render)
+    }, DEBOUNCE_MS)
   })
 
   for (const b of el.langButtons) {

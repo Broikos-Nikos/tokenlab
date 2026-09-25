@@ -30,6 +30,7 @@
     "check:direction": "node tools/check-direction.mjs",
     "check:nfd": "node tools/check-nfd.mjs",
     "check:perword": "node tools/check-perword.mjs",
+    "check:typing": "node tools/check-typing.mjs",
     "check:models": "tsx tools/check-models.ts"
   },
   "dependencies": {

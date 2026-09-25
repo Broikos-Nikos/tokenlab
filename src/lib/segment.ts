@@ -81,11 +81,53 @@ function owedAfter(owed: number, b: number): number {
 }
 
 /**
+ * What one token's bytes do to the continuation counter, and how many there are.
+ *
+ * Past the decode cap this is all the walk needs, and it depends only on the
+ * token id, so it is worked out once per distinct id instead of once per token.
+ * A token whose bytes are all continuation bytes only pays off a debt, and the
+ * counter after any other token does not depend on what came before it.
+ */
+interface ByteShape {
+  len: number
+  allContinuation: boolean
+  after: number
+}
+
+function shapeOf(bytes: Uint8Array): ByteShape {
+  let allContinuation = bytes.length > 0
+  let after = 0
+  for (const b of bytes) {
+    if (b < 0x80 || b >= 0xc0) allContinuation = false
+    after = owedAfter(after, b)
+  }
+  return { len: bytes.length, allContinuation, after }
+}
+
+/**
+ * The drawn segments, and the counts over the whole input.
+ *
+ * Two different things, and they used to be one array. `drawn` is what the page
+ * puts on screen and is capped; `total` and `fractured` are claims about every
+ * token the visitor pasted and are not. Returning one array of segments meant
+ * the second had to be paid for in objects nobody looked at: 798,281 of them on
+ * a megabyte of Greek, 233 MB of heap, per keystroke.
+ */
+export interface Segmentation {
+  drawn: Segment[]
+  /** Every segment in the input, drawn or not. */
+  total: number
+  /** How many of them took more than one token to write, over the whole input. */
+  fractured: number
+}
+
+/**
  * The smallest runs of tokens whose bytes form whole characters.
  *
- * `decodeFirst` caps how many of them are actually decoded. Past it a segment
- * still carries its ids, its start and whether it was spelled out in bytes,
- * which is everything the counts are made of, and its `text` is `null`.
+ * `decodeFirst` caps how many of them are built at all. Past it a segment is
+ * counted and not made: `total` and `fractured` are the whole of what the page
+ * needs from that part of the input, and they are two integers rather than
+ * 798,281 objects. PA-F7 is the tick that noticed the difference.
  *
  * **Both halves of that were measured rather than guessed**, because HS-F5
  * blamed the tokenizer and the tokenizer is not where the time goes. On 400,000
@@ -106,29 +148,56 @@ function owedAfter(owed: number, b: number): number {
  * of allocating a view per token. It took **five times as long**, 825 ms against
  * 168 ms, and it disagreed with this function's own output. The allocation was
  * never the cost. The decoder calls were.
+ *
+ * Measured again at tick 133, on a megabyte of Greek, because the cap had only
+ * ever been asked about the decoder:
+ *
+ *   cl100k   segment 557 ms -> 13 ms   whole render 708 ms -> 110 ms   heap 233 MB -> 57 MB
+ *   o200k    segment 232 ms ->  9 ms   whole render 363 ms -> 100 ms   heap 127 MB -> 55 MB
  */
-export function segment(encoder: Encoder, ids: number[], decodeFirst = Number.POSITIVE_INFINITY): Segment[] {
-  const out: Segment[] = []
+
+export function segment(encoder: Encoder, ids: number[], decodeFirst = Number.POSITIVE_INFINITY): Segmentation {
+  const drawn: Segment[] = []
+  const shapes = new Map<number, ByteShape>()
+  let total = 0
+  let fractured = 0
   let pending: number[] = []
+  let run = 0
   let bytes: number[] = []
   let owed = 0
   let start = 0
 
   for (let i = 0; i < ids.length; i++) {
-    if (pending.length === 0) start = i
-    pending.push(ids[i])
-    const decoding = out.length < decodeFirst
-    for (const b of encoder.tokenBytes(ids[i])) {
-      if (decoding) bytes.push(b)
-      owed = owedAfter(owed, b)
+    if (run === 0) start = i
+    run++
+    const decoding = total < decodeFirst
+    if (decoding) {
+      pending.push(ids[i])
+      for (const b of encoder.tokenBytes(ids[i])) {
+        bytes.push(b)
+        owed = owedAfter(owed, b)
+      }
+    } else {
+      /*
+       * Past the cap nothing is drawn, so the bytes themselves are not needed:
+       * only where the character boundaries fall. That is the memo, and it is
+       * the difference between one `tokenBytes` call per token and one per
+       * distinct id. Measured on a megabyte of Greek, cl100k: 279 ms in 851,174
+       * calls against 10 ms in 114, with identical boundaries.
+       */
+      let shape = shapes.get(ids[i])
+      if (shape === undefined) {
+        shape = shapeOf(encoder.tokenBytes(ids[i]))
+        shapes.set(ids[i], shape)
+      }
+      owed = shape.allContinuation ? Math.max(0, owed - shape.len) : shape.after
     }
     // Still part way through a character. No decoder can say anything useful
     // about these bytes yet, and the old version asked it anyway, once a token.
     if (owed !== 0) continue
 
-    let text: string | null = null
     if (decoding) {
-      text = decodeComplete(new Uint8Array(bytes))
+      const text = decodeComplete(new Uint8Array(bytes))
       /*
        * Nothing is owed and it still will not decode, so the bytes are invalid
        * rather than incomplete: an unexpected continuation byte, an overlong
@@ -136,41 +205,46 @@ export function segment(encoder: Encoder, ids: number[], decodeFirst = Number.PO
        * the old behaviour stands and the run keeps growing.
        */
       if (text === null) continue
+      drawn.push({ ids: pending, text, splitIntoBytes: pending.length > 1, start })
+      pending = []
+      bytes = []
     }
 
-    out.push({
-      ids: pending,
-      text,
-      splitIntoBytes: pending.length > 1,
-      start,
-    })
-    pending = []
-    bytes = []
+    total++
+    if (run > 1) fractured++
+    run = 0
   }
 
   // Only reachable when the id list itself ends part way through a character.
-  if (pending.length > 0) {
-    out.push({
-      ids: pending,
-      text: out.length < decodeFirst ? lossy.decode(new Uint8Array(bytes)) : null,
-      splitIntoBytes: false,
-      start,
-      incomplete: true,
-    })
+  if (run > 0) {
+    if (total < decodeFirst) {
+      drawn.push({
+        ids: pending,
+        text: lossy.decode(new Uint8Array(bytes)),
+        splitIntoBytes: false,
+        start,
+        incomplete: true,
+      })
+    }
+    total++
   }
 
-  return out
+  return { drawn, total, fractured }
 }
 
+/**
+ * What the readout says, and nothing else.
+ *
+ * It used to carry `chars`, `codepoints` and `byteSplitShare` as well. Nothing
+ * read any of the three, and `codepoints` was `[...text].length`, a spread of
+ * the whole input into an array of single character strings on every render: 10
+ * ms and a million allocations per keystroke on a megabyte, to produce a number
+ * that was never shown to anybody.
+ */
 export interface Stats {
-  chars: number
-  /** Unicode code points, not UTF-16 units. Greek is BMP but emoji are not. */
-  codepoints: number
   words: number
   tokens: number
   tokensPerWord: number
-  /** Share of segments that needed more than one token to spell one thing. */
-  byteSplitShare: number
 }
 
 const WORD = /[\p{L}\p{N}][\p{L}\p{N}\p{M}'’-]*/gu
@@ -194,15 +268,11 @@ export function textOf(seg: Segment): string {
   return seg.text
 }
 
-export function statsFor(text: string, ids: number[], segments: Segment[]): Stats {
+export function statsFor(text: string, ids: number[]): Stats {
   const words = countWords(text)
-  const split = segments.filter((s) => s.splitIntoBytes).length
   return {
-    chars: text.length,
-    codepoints: [...text].length,
     words,
     tokens: ids.length,
     tokensPerWord: words === 0 ? 0 : ids.length / words,
-    byteSplitShare: segments.length === 0 ? 0 : split / segments.length,
   }
 }

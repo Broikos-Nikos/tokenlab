@@ -43,7 +43,8 @@
     "check:sample": "node tools/check-sample.mjs",
     "check:models": "tsx tools/check-models.ts",
     "check:audits": "tsx tools/check-audits.ts",
-    "check:loop": "node tools/check-loop.mjs"
+    "check:loop": "node tools/check-loop.mjs",
+    "check:bill": "node tools/check-bill.mjs"
   },
   "dependencies": {
     "gpt-tokenizer": "4.0.0"

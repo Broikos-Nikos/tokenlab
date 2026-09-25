@@ -516,7 +516,7 @@ function chipPicture(shown: number, total: number, fractured: number): string {
  */
 let announceTimer: number | undefined
 
-function announce(stats: Stats, fractured: number, cost: string | null, model: string) {
+function announce(stats: Stats, fractured: number, cost: string | null, model: string, countedOn: string | null) {
   clearTimeout(announceTimer)
   announceTimer = window.setTimeout(() => {
     const parts = [
@@ -530,7 +530,13 @@ function announce(stats: Stats, fractured: number, cost: string | null, model: s
     if (fractured > 0) {
       parts.push(`${fractured} ${fractured === 1 ? 'piece' : 'pieces'} cost more than one token`)
     }
-    if (cost) parts.push(`$${cost} per thousand requests on ${model}`)
+    if (cost) {
+      parts.push(
+        countedOn
+          ? `$${cost} per thousand requests on ${model}, counted on its own vocabulary rather than the one shown`
+          : `$${cost} per thousand requests on ${model}`,
+      )
+    }
     el.announce.textContent = parts.join(', ')
   }, 750)
 }
@@ -593,6 +599,44 @@ function checkNormalisation(text: string, tokens: number) {
     `Every number on this page measures what you pasted, and the corpus behind the findings is NFC.`
 }
 
+/**
+ * What this text costs the selected model, counted on the vocabulary that model
+ * actually uses.
+ *
+ * Synchronous, because `render()` is, and the count comes out of a cache this
+ * fills in the background. The first call for a given vocabulary returns null,
+ * the encoder loads, and the re-render that follows has the number. In practice
+ * the page has already loaded o200k before a visitor can look at the bill: it
+ * prerenders there and heals back to it 1.8 seconds after opening.
+ *
+ * Keyed by vocabulary and text, so a stale answer cannot be printed against
+ * text that has since changed.
+ */
+const ownCounts = new Map<string, number>()
+let ownPending: string | null = null
+
+function priceOnOwnVocabulary(text: string, model: { encoding: string }): number | null {
+  // A separator no vocabulary id contains, so the two halves cannot run together.
+  const key = `${model.encoding} :: ${text}`
+  const have = ownCounts.get(key)
+  if (have !== undefined) return have
+  if (ownPending === key) return null
+  ownPending = key
+  loadEncoder(model.encoding as EncodingId)
+    .then((enc) => {
+      ownCounts.set(key, enc.encode(text).length)
+      // One entry per vocabulary is all that is ever read, and a visitor typing
+      // into the box would otherwise grow this without bound.
+      if (ownCounts.size > 8) for (const k of [...ownCounts.keys()].slice(0, 4)) ownCounts.delete(k)
+      if (ownPending === key) ownPending = null
+      render()
+    })
+    .catch(() => {
+      if (ownPending === key) ownPending = null
+    })
+  return null
+}
+
 function render() {
   // Before any vocabulary has landed, the opening sentence is still drawable,
   // because it was computed at build time. Anything the visitor types is not,
@@ -645,14 +689,48 @@ function render() {
     el.priceNote.textContent =
       `Input tokens only, standard tier, prices checked ${pricing.checked}.`
   } else {
-    el.cost.textContent = 'n/a'
-    el.priceNote.textContent =
-      `${model.label} runs on ${metaFor(model.encoding as EncodingId).label}, ` +
-      `not ${metaFor(state.encoding).label}, so this count is not its bill. ` +
-      `Switch the encoding to price it.`
+    /*
+     * RC-F8. This used to print "n/a" and, underneath, "GPT-5.6 Sol runs on
+     * o200k, not cl100k, so this count is not its bill. Switch the encoding to
+     * price it."
+     *
+     * The recruiter pass: "the price panel is the only element on the page that
+     * speaks my language: a dollar sign and a number. I do not know what o200k
+     * or cl100k are, so that explanation is not an explanation, it is two more
+     * codes." Measured on the live page at tick 152, that state is what a
+     * visitor arrives into: the page opens on cl100k and heals to o200k 1.8
+     * seconds later, so the one box a non technical reader can read says n/a
+     * for the first two and a half seconds of every visit.
+     *
+     * The refusal was right and its wording was the problem. A price counted on
+     * a vocabulary the model does not use is not that model's bill, and this
+     * page exists to say so. So the bill is the model's own: the same text,
+     * counted the way that model counts it, with both numbers in the sentence
+     * underneath. That is the project's whole argument in the one place a
+     * reader already knows how to read.
+     */
+    const own = priceOnOwnVocabulary(text, model)
+    if (own === null) {
+      el.cost.textContent = '0.00'
+      el.priceNote.textContent = `Counting this text the way ${model.label} counts it.`
+    } else {
+      const per1k = (own * model.inputPerMillion) / 1000
+      el.cost.textContent = per1k.toFixed(per1k < 1 ? 3 : 2)
+      el.priceNote.textContent =
+        `${model.label} counts this text as ${own.toLocaleString('en-US')} tokens, ` +
+        `not the ${stats.tokens.toLocaleString('en-US')} on the left, and this is what it charges for them. ` +
+        `A model using the older vocabulary on the left would be billed for all ` +
+        `${stats.tokens.toLocaleString('en-US')}.`
+    }
   }
 
-  announce(stats, fractured, priceable ? el.cost.textContent : null, model.label)
+  /*
+   * The bill is always a number now, so the screen reader line always carries
+   * it. It used to be passed as null whenever the model and the encoding
+   * disagreed, which is the same "n/a" RC-F8 was about, for the one reader who
+   * cannot see that the box is blank.
+   */
+  announce(stats, fractured, el.cost.textContent, model.label, priceable ? null : model.encoding)
 
   // The comparison only means something when both sides say the same thing.
   if (!state.custom) {

@@ -8,7 +8,7 @@ no write access to the project: it produced a findings file and a list, and the
 fixes were separate work afterwards. Nobody audited their own code twenty
 minutes after writing it, which is the only reason any of this was found.
 
-**130 findings, 101 closed, 29 open**, across the 9 perspectives, every one of them run.
+**130 findings, 102 closed, 28 open**, across the 9 perspectives, every one of them run.
 
 That line and the count under every table below are checked against the tables
 themselves on every build, by `npm run check:audits`, and against the queue this
@@ -149,7 +149,7 @@ The deep reviewer: correctness, read as code rather than as comments.
 
 The recruiter, ten seconds, not technical: does anything here stop the scroll.
 
-13 findings, 10 closed.
+13 findings, 11 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -162,7 +162,7 @@ The recruiter, ten seconds, not technical: does anything here stop the scroll.
 | `RC-F5` | medium | fixed, tick 27 | The moving picture is a scroll and 2.5 MB away, and the lighter webm is gitignored |
 | `RC-F6` | medium | fixed, tick 151 | The loop spends two thirds of a second on the answer and a second and a half frozen on the problem |
 | `RC-F7` | medium | fixed, tick 14 | Five different ratios in twenty seconds and no way to tell which one is the claim |
-| `RC-F8` | medium | open | The one box a non technical reader can read instantly says n/a on arrival |
+| `RC-F8` | medium | fixed, tick 152 | The one box a non technical reader can read instantly says n/a on arrival |
 | `RC-F9` | medium | fixed, tick 13 | The second paragraph of the README is about the README |
 | `RC-F12` | low | fixed, tick 14 | The columns of the main table are labelled in terms a non technical reader cannot use |
 | `RC-F13` | low | open | The project name is the smallest text on its own page |

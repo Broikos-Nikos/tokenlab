@@ -94,12 +94,29 @@ const { chromium } = await loadPlaywright()
 rmSync(WORK, { recursive: true, force: true })
 mkdirSync(WORK, { recursive: true })
 
+/*
+ * DR-F9. None of what follows used to be wrapped, and Playwright only finalises
+ * a video when its context closes. Measured by making the wait time out, which
+ * is what a slow vocabulary or a machine that prefers reduced motion produces on
+ * its own: the run died with an unhandled TimeoutError, `.capture/` survived
+ * with a **zero byte** webm in it, and the recording was gone.
+ *
+ * The browser itself did not leak, which the finding also claimed. Playwright
+ * takes its own process down when node exits, and there were 0 chromium
+ * processes afterwards. The video is the half that needed the `finally`.
+ */
 const browser = await chromium.launch()
 const context = await browser.newContext({
   viewport: SIZE,
   deviceScaleFactor: 2,
   recordVideo: { dir: WORK, size: SIZE },
 })
+
+let shatterAt = 0
+let looked = null
+let failure = null
+
+try {
 const page = await context.newPage()
 
 const started = Date.now()
@@ -114,7 +131,7 @@ await page.evaluate(() => window.scrollTo(0, 384))
 // the red wall is actually on screen, and remember when that was so the dead
 // air before it can be trimmed off the front.
 await page.waitForSelector('.tok--fractured', { timeout: 30_000 })
-const shatterAt = (Date.now() - started) / 1000
+shatterAt = (Date.now() - started) / 1000
 
 // The page heals to o200k 1.8s after it opens, on its own. This waits that out
 // and lets the collapse settle.
@@ -134,18 +151,35 @@ await page.waitForTimeout(2300)
  * happened to be re-run three minutes later. `check:capture` is what makes that
  * a process instead of a coincidence.
  */
-const looked = await page.evaluate(lookAt)
+looked = await page.evaluate(lookAt)
+/*
+ * Thrown rather than exited. `process.exit` inside this block would skip the
+ * `finally` below, which is the thing that writes the video, so the two checks
+ * that exist to catch a bad recording used to throw the recording away as well.
+ */
 if (looked.state.encoding !== FINAL_ENCODING) {
-  console.error(`FAIL  the recording ends on ${looked.state.encoding}, not ${FINAL_ENCODING}`)
-  process.exit(1)
+  throw new Error(`the recording ends on ${looked.state.encoding}, not ${FINAL_ENCODING}`)
 }
 if (looked.state.fracturedChips === 0) {
-  console.error('FAIL  the recording ends with no fractured chips, which is the thing it is a recording of')
-  process.exit(1)
+  throw new Error('the recording ends with no fractured chips, which is the thing it is a recording of')
+}
+} catch (err) {
+  failure = err
+} finally {
+  /*
+   * Closed even when something above threw, because this is what writes the
+   * video file. A failed run that keeps its recording can be looked at; one
+   * that loses it leaves a stack trace and an empty directory.
+   */
+  await context.close().catch(() => {})
+  await browser.close().catch(() => {})
 }
 
-await context.close()
-await browser.close()
+if (failure) {
+  console.error(`FAIL  ${failure.message}`)
+  console.error(`      the recording is in ${WORK}, finished and kept, for looking at`)
+  process.exit(1)
+}
 
 const video = readdirSync(WORK).find((f) => f.endsWith('.webm'))
 if (!video) {
@@ -153,6 +187,25 @@ if (!video) {
   process.exit(1)
 }
 const webm = resolve(WORK, video)
+
+/*
+ * ffmpeg, asked for by name before anything depends on it.
+ *
+ * The file header calls it a hard requirement and the failure without it was
+ * `Error: spawnSync ffmpeg ENOENT` and a node stack, six lines of internals,
+ * while `loadPlaywright` above ends with two lines telling you exactly what to
+ * install. Two requirements, two voices, and the one that reads as a crash is
+ * the one that is not this project's fault.
+ */
+try {
+  execFileSync('ffmpeg', ['-version'], { stdio: 'ignore' })
+} catch {
+  console.error(
+    'ffmpeg not found, and this script encodes the GIF with it. Install it from\n' +
+      'https://ffmpeg.org/download.html, or on Windows `winget install ffmpeg`.',
+  )
+  process.exit(1)
+}
 
 const ff = (args) => execFileSync('ffmpeg', ['-y', '-loglevel', 'error', ...args], { stdio: 'inherit' })
 const palette = resolve(WORK, 'palette.png')
@@ -164,14 +217,27 @@ const filters = `${CROP},fps=${FPS},scale=${WIDTH}:-1:flags=lanczos`
 const offset = Math.max(0, shatterAt - LEAD_IN)
 const trim = ['-ss', String(offset)]
 
+/*
+ * Encoded beside the video and moved over the committed file only once both
+ * passes have succeeded.
+ *
+ * `ff` runs ffmpeg with `-y`, and ffmpeg truncates its output the moment it
+ * opens it, before it knows whether the filtergraph is valid. Measured on the
+ * real asset: one bad `paletteuse` took `docs/shatter.gif` from **2,832,450
+ * bytes to 0**, in the working tree, with git reporting it modified. That is
+ * the one script here that writes a committed binary, and it was writing it in
+ * place.
+ */
+const draft = resolve(WORK, 'shatter.gif')
 ff([...trim, '-i', webm, '-vf', `${filters},palettegen=stats_mode=diff`, palette])
 ff([
   ...trim, '-i', webm,
   '-i', palette,
   '-lavfi', `${filters}[x];[x][1:v]paletteuse=dither=bayer:bayer_scale=3`,
   '-loop', '0',
-  OUT,
+  draft,
 ])
+renameSync(draft, OUT)
 console.log(`trimmed ${offset.toFixed(2)}s of vocabulary load off the front`)
 
 renameSync(webm, resolve(root, 'docs/shatter.webm'))

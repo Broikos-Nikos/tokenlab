@@ -35,6 +35,7 @@
     "check:typing": "node tools/check-typing.mjs",
     "check:reader": "node tools/check-reader.mjs",
     "check:contrast": "node tools/check-contrast.mjs",
+    "check:network": "node tools/check-network.mjs",
     "check:models": "tsx tools/check-models.ts"
   },
   "dependencies": {

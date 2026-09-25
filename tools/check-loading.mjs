@@ -12,8 +12,10 @@
  * seconds later by the opening animation.
  *
  * Neither is reachable without controlling the network, so this drives a real
- * browser with the requests intercepted. Playwright is resolved the same way
- * tools/capture.mjs resolves it, and is not a dependency of the project.
+ * browser with the requests intercepted. Playwright is a pinned devDependency
+ * and is resolved the same way tools/capture.mjs resolves it, which leaves
+ * PLAYWRIGHT_PATH working for a machine that has one elsewhere. The browser
+ * binary is the part that is not in the lockfile.
  */
 
 import { resolve, dirname } from 'node:path'

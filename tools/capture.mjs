@@ -9,10 +9,20 @@
  * o200k, where they collapse back into word pieces, and then goes back so the
  * loop reads as a comparison rather than as a one way animation.
  *
- * Playwright is not a dependency of this project. Installing a browser engine to
- * run a page that needs no backend would be a strange tax on anyone who just
- * wants to clone it, so this script resolves Playwright from wherever it already
- * exists and tells you how to get one if it does not.
+ * Playwright **is** a dependency, pinned exactly in devDependencies, and this
+ * header said the opposite until tick 145. Eighteen tools in this repository
+ * import it. The pin is not an accident either: a floating `^1.61.1` resolved to
+ * 1.63.0, whose chromium nobody had installed, and the workspace gate
+ * `check-pins.mjs` exists to keep every instrument on an exact version.
+ *
+ * What is **not** a dependency is the browser binary. It is not in the lockfile
+ * and not in the repository: `npx playwright install chromium` puts it in a
+ * cache in your home directory, which is why nothing a visitor downloads is
+ * affected by any of this, and why a clone that never runs a gate never needs
+ * it.
+ *
+ * The resolution below stays, as an escape hatch for a machine that already has
+ * Playwright somewhere else:
  *
  *   PLAYWRIGHT_PATH=/path/to/node_modules/playwright node tools/capture.mjs
  *

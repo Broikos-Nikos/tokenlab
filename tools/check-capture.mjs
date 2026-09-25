@@ -50,10 +50,10 @@ const fail = (what, detail) => {
 }
 
 /**
- * Playwright is not a dependency of this project on purpose: installing a
- * browser engine to run a page that needs no backend is a strange tax on
- * somebody who just wants to clone it. Same resolution as the other browser
- * tools here.
+ * Playwright is a pinned devDependency and the browser binary is not: that lives
+ * in a cache outside the repository, put there by `npx playwright install
+ * chromium`. The resolution below is the escape hatch for a machine that already
+ * has one somewhere else, the same as the other browser tools here.
  */
 async function loadPlaywright() {
   const { createRequire } = await import('node:module')

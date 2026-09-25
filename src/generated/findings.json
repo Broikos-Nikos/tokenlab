@@ -161,10 +161,11 @@
         "elTokens": 39
       },
       "figureSentence": {
-        "el": 37,
-        "en": 17,
+        "pair": 17,
+        "el": 35,
+        "en": 18,
         "elWords": 14,
-        "elChars": 94
+        "elChars": 89
       }
     },
     "cl100k_base": {
@@ -290,10 +291,11 @@
         "elTokens": 103
       },
       "figureSentence": {
-        "el": 82,
-        "en": 17,
+        "pair": 17,
+        "el": 71,
+        "en": 18,
         "elWords": 14,
-        "elChars": 94
+        "elChars": 89
       }
     },
     "p50k_base": {
@@ -419,10 +421,11 @@
         "elTokens": 114
       },
       "figureSentence": {
-        "el": 98,
-        "en": 17,
+        "pair": 17,
+        "el": 83,
+        "en": 16,
         "elWords": 14,
-        "elChars": 94
+        "elChars": 89
       }
     },
     "r50k_base": {
@@ -548,10 +551,11 @@
         "elTokens": 114
       },
       "figureSentence": {
-        "el": 98,
-        "en": 17,
+        "pair": 17,
+        "el": 83,
+        "en": 16,
         "elWords": 14,
-        "elChars": 94
+        "elChars": 89
       }
     }
   },

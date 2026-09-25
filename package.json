@@ -14,6 +14,7 @@
     "typecheck": "tsc --noEmit",
     "check": "npm run check:segments && npm run check:decode && npm run check:claims && npm run check:measurement && npm run check:models && npm run check:prerender && npm run check:licences && npm run check:workflow",
     "capture": "node tools/capture.mjs",
+    "stills": "node tools/stills.mjs",
     "check:claims": "tsx tools/check-claims.ts",
     "check:segments": "tsx tools/check-segments.ts",
     "check:loading": "node tools/check-loading.mjs",

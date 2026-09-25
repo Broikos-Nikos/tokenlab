@@ -23,8 +23,23 @@
  * against the sentence under the image.
  */
 
-/** The pinned sentence, the one the README quotes counts for. */
-export const PAIR = process.env.TOKENLAB_PAIR ?? '17'
+/**
+ * The pinned sentence, the one the README quotes counts for.
+ *
+ * Two names for one number, and the difference matters. `PINNED_PAIR` is what
+ * the repository claims: `measure.ts` computes the caption's counts from it and
+ * `check:claims` holds the recording to it. `PAIR` is the same thing with an
+ * escape hatch for filming something else while you are looking at it, and a
+ * recording made that way fails the gate until it is filmed again from the pin.
+ *
+ * DR-F8 is why they are separate. The counts under the picture used to come
+ * from a hand typed copy of a sentence in `measure.ts`, and the recording came
+ * from this index, and nothing tied them together. The corpus was rewritten at
+ * tick 128 and the copy was not: for ten ticks the README said 37 tokens on
+ * o200k and 82 on cl100k under a picture of a sentence that costs 35 and 71.
+ */
+export const PINNED_PAIR = '17'
+export const PAIR = process.env.TOKENLAB_PAIR ?? PINNED_PAIR
 
 /**
  * The state the recording ends on.

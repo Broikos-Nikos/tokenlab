@@ -5,3 +5,6 @@ dist
 
 .capture
 docs/shatter.webm
+
+# Which gate failed, on this machine, last run. See tools/verify.mjs.
+.verify.log

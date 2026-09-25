@@ -14,7 +14,7 @@ Nobody shows you that happening. This does, live, on text you type.
 ![The page opens on an old vocabulary, where every Greek letter is its own token, then switches to the newest one, where they collapse back into word pieces](docs/shatter.gif)
 
 That is the real page in a real browser, recorded by `npm run capture`. One
-sentence, pinned so the recording can be checked: 82 tokens on `cl100k` and 37
+sentence, pinned so the recording can be checked: 71 tokens on `cl100k` and 35
 on `o200k`.
 
 ---
@@ -47,13 +47,13 @@ worse, and the team blames the embedding model.
 
 The same sentence, the same moment, two vocabularies:
 
-| the newest vocabulary, `o200k`, 37 tokens for 14 Greek words | the one before it, `cl100k`, 82 tokens for the same 14 words |
+| the newest vocabulary, `o200k`, 35 tokens for 14 Greek words | the one before it, `cl100k`, 71 tokens for the same 14 words |
 |---|---|
-| ![37 tokens, two and a half per word](docs/shatter-o200k.png) | ![82 tokens, nearly one per letter](docs/shatter-cl100k.png) |
+| ![35 tokens, two and a half per word](docs/shatter-o200k.png) | ![71 tokens, nearly one per letter](docs/shatter-cl100k.png) |
 
-The English word `build` sitting in the middle of that Greek sentence is one
-token in both pictures. On the right, every Greek letter around it is its own:
-94 characters of Greek, 82 tokens.
+The command `npm run build` sitting in the middle of that Greek sentence costs
+the same in both pictures. On the right, every Greek letter around it is its
+own: 89 characters of Greek, 71 tokens.
 
 ---
 

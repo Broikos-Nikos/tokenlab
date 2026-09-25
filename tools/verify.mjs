@@ -12,6 +12,7 @@
  */
 
 import { spawn, spawnSync } from 'node:child_process'
+import { writeFileSync } from 'node:fs'
 import { createServer } from 'node:net'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -84,16 +85,32 @@ try {
      */
     const GATES = ['check:loading', 'check:capture', 'check:compare', 'check:controls', 'check:counter', 'check:direction', 'check:nfd', 'check:perword', 'check:typing', 'check:reader', 'check:contrast', 'check:network']
     let bad = 0
+    const results = []
     for (const gate of GATES) {
+      const started = Date.now()
       const r = spawnSync(npm, ['run', gate], {
         cwd: root,
         stdio: 'inherit',
         shell: useShell,
         env: { ...process.env, TOKENLAB_URL: url },
       })
-      if ((r.status ?? 1) !== 0) bad++
+      const status = r.status ?? 1
+      results.push(`${status === 0 ? 'ok  ' : 'FAIL'} ${gate.padEnd(16)} ${String(Date.now() - started).padStart(6)} ms`)
+      if (status !== 0) bad++
     }
     code = bad === 0 ? 0 : 1
+
+    /*
+     * Which gate, written down, because at tick 138 one of them failed once in
+     * four runs and the run's output had been discarded. A failure nobody can
+     * name is a failure nobody can chase, and the three runs afterwards all
+     * passed, which is the worst possible evidence.
+     *
+     * Not committed: it is a record of this machine's last run.
+     */
+    const log = [new Date().toISOString(), ...results, bad === 0 ? 'all green' : `${bad} failed`]
+    writeFileSync(resolve(root, '.verify.log'), log.join('\n') + '\n')
+    if (bad > 0) console.error(`which one: ${results.filter((l) => l.startsWith('FAIL')).join(', ')}`)
   }
 } finally {
   // Through a shell, kill() reaches the shell rather than vite, so on Windows the

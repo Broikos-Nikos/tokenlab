@@ -22,6 +22,8 @@ import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { hashInputs } from './inputs-hash'
 import { ENCODINGS } from '../src/lib/encodings'
+// @ts-expect-error the capture state is plain JavaScript, shared with the recorder
+import { PINNED_PAIR } from './capture-state.mjs'
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const readme = readFileSync(resolve(root, 'README.md'), 'utf8')
@@ -418,6 +420,64 @@ if (!flatten(corpus.method).includes(methodSize)) {
       `but the file holds ${corpus.pairs.length} pairs.`,
   )
   process.exit(1)
+}
+
+/*
+ * And the pictures are pictures of the sentence those counts are about.
+ *
+ * DR-F8. The caption's counts came from a hand typed copy of a corpus sentence
+ * in `measure.ts`, the recording came from `PINNED_PAIR`, the two stills came
+ * from nowhere anybody could name, and nothing tied any of them together. Tick
+ * 128 rewrote the technical register and the copy stayed as it was, so for ten
+ * ticks the README said **82 tokens on cl100k and 37 on o200k** under a picture
+ * of a sentence that costs **71 and 35**, and the four claims above passed the
+ * whole time because both sides of the check came from the same wrong copy.
+ *
+ * So the check runs the other way now: every artefact has to name the pin, and
+ * the numbers recorded in each one have to be the numbers the measurement
+ * produces for that pair.
+ */
+{
+  const capture = JSON.parse(readFileSync(resolve(root, 'docs/capture.json'), 'utf8'))
+  const stills = JSON.parse(readFileSync(resolve(root, 'docs/stills.json'), 'utf8'))
+  const pin = Number(PINNED_PAIR)
+  let wrong = 0
+  const bad = (what: string, detail: string) => {
+    wrong++
+    console.error(`FAIL  ${what}`)
+    console.error(`      ${detail}`)
+  }
+
+  if (enc('o200k_base').figureSentence.pair !== pin) {
+    bad(
+      'the measurement is not of the pinned sentence',
+      `findings.json counts pair ${enc('o200k_base').figureSentence.pair} and the pin is ${pin}`,
+    )
+  }
+  if (String(capture.pair) !== String(PINNED_PAIR)) {
+    bad('the recording is not of the pinned sentence', `docs/capture.json says pair ${capture.pair}, the pin is ${PINNED_PAIR}`)
+  }
+  if (String(stills.pair) !== String(PINNED_PAIR)) {
+    bad('the stills are not of the pinned sentence', `docs/stills.json says pair ${stills.pair}, the pin is ${PINNED_PAIR}`)
+  }
+  for (const shot of stills.shots ?? []) {
+    const expected = enc(shot.encoding).figureSentence.el
+    const seen = Number(String(shot.tokens).replace(/,/g, ''))
+    if (seen !== expected) {
+      bad(
+        `${shot.file} shows ${seen} tokens and the measurement says ${expected}`,
+        'The picture and its caption are about the same sentence, so they cannot disagree about what it costs. Re-run "npm run stills".',
+      )
+    }
+  }
+  if (wrong > 0) {
+    console.error('\nThe caption, the recording and the two stills are one sentence or they are four claims.')
+    process.exit(1)
+  }
+  console.log(
+    `  ok      the caption, the recording and ${stills.shots.length} stills are all pair ${PINNED_PAIR}, ` +
+      `at ${stills.shots.map((s: { tokens: string }) => s.tokens).join(' and ')} tokens`,
+  )
 }
 
 console.log(`${claims.length} claims in README.md check out against findings.json`)

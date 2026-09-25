@@ -21,6 +21,8 @@ import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { hashInputs, BOOTSTRAP_SAMPLES, SEED } from './inputs-hash'
 import { ENCODINGS } from '../src/lib/encodings'
+// @ts-expect-error the capture state is plain JavaScript, shared with the recorder
+import { PINNED_PAIR } from './capture-state.mjs'
 
 const here = dirname(fileURLToPath(import.meta.url))
 const root = resolve(here, '..')
@@ -58,11 +60,20 @@ const countWords = (s: string) => (s.match(WORD) ?? []).length
  */
 const utf8Bytes = (s: string) => Buffer.byteLength(s, 'utf8')
 
-/** The sentence in the README's two screenshots, so its counts stop being typed by hand. */
-const FIGURE_SENTENCE = {
-  el: 'Εγκαταστήστε τις εξαρτήσεις, εκτελέστε το build και ανοίξτε τη σελίδα στη θύρα τρεις χιλιάδες.',
-  en: 'Install the dependencies, run the build, and open the page on port three thousand.',
-}
+/**
+ * The sentence in the README's picture, read from the pin rather than copied.
+ *
+ * DR-F8. It was a hand typed copy of a corpus sentence, and `capture.mjs` films
+ * whatever sits at `PINNED_PAIR`, and the two were independent constants that
+ * happened to agree. Then tick 128 rewrote the technical register, "το build"
+ * became "npm run build" and "τρεις χιλιάδες" became "3000", and the copy stayed
+ * as it was: **the README has been quoting 37 tokens on o200k and 82 on cl100k
+ * under a picture of a sentence that costs 35 and 71.**
+ *
+ * There is one constant now. A caption cannot describe a sentence the recording
+ * is not of, because it is the same sentence by construction.
+ */
+const FIGURE_PAIR = Number(PINNED_PAIR)
 
 
 /** Deterministic PRNG so the interval is the same on every machine. */
@@ -294,10 +305,12 @@ async function main() {
       })(),
       worstPair: worst,
       figureSentence: {
-        el: encode(FIGURE_SENTENCE.el).length,
-        en: encode(FIGURE_SENTENCE.en).length,
-        elWords: countWords(FIGURE_SENTENCE.el),
-        elChars: [...FIGURE_SENTENCE.el].length,
+        /* Which pair this is, so `check:claims` can hold the recording to it. */
+        pair: FIGURE_PAIR,
+        el: encode(corpus.pairs[FIGURE_PAIR].el).length,
+        en: encode(corpus.pairs[FIGURE_PAIR].en).length,
+        elWords: countWords(corpus.pairs[FIGURE_PAIR].el),
+        elChars: [...corpus.pairs[FIGURE_PAIR].el].length,
       },
     }
   }

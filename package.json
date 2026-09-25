@@ -26,7 +26,8 @@
     "check:compare": "node tools/check-compare.mjs",
     "check:controls": "node tools/check-controls.mjs",
     "check:decode": "tsx tools/check-decode.ts",
-    "check:counter": "node tools/check-counter.mjs"
+    "check:counter": "node tools/check-counter.mjs",
+    "check:direction": "node tools/check-direction.mjs"
   },
   "dependencies": {
     "gpt-tokenizer": "4.0.0"

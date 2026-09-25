@@ -452,11 +452,30 @@ textarea:focus-visible {
 
 /* ------------------------------------------------------------------ tokens */
 
+/*
+ * Inline boxes with `unicode-bidi: plaintext`, not a flex row.
+ *
+ * HS-F11 was that the row was laid out left to right whatever the script, so a
+ * reader of Hebrew or Arabic started at the wrong end of their own sentence.
+ * The obvious fix, `dir="auto"` on a flex row, gets the sentence the right way
+ * round and then reverses anything the tokenizer split inside it, because flex
+ * reverses items mechanically rather than running the bidi algorithm. Measured
+ * on "الثمن 1290 ريال.", where the number arrives as two tokens:
+ *
+ *   flex plus dir=auto                ". ريال0129 منالث"
+ *   inline boxes plus plaintext       "الثمن 1290 ريال."
+ *   what the box beside it shows      "الثمن 1290 ريال."
+ *
+ * 1290 became 0129. `plaintext` hands the ordering of the inline boxes to the
+ * real bidi algorithm, which takes each line's direction from its own first
+ * strong character and keeps a run of digits left to right inside a right to
+ * left sentence, which is what every other program does with that string.
+ *
+ * The 4px gap is margins now, because inline boxes have no gap.
+ */
 .tokens {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
-  align-content: flex-start;
+  display: block;
+  unicode-bidi: plaintext;
   min-height: clamp(8.5rem, 17vh, 13rem);
   padding: var(--s4);
   border: 1px solid var(--edge);
@@ -468,11 +487,28 @@ textarea:focus-visible {
   line-height: 1.3;
 }
 
+/*
+ * `display: inline`, not `inline-flex`, and that is the fix rather than a
+ * detail. An atomic inline carries no direction into the bidi algorithm: it is
+ * a neutral object, so a row of them has no strong character and falls back to
+ * left to right whatever is inside them. A plain inline's text takes part, so
+ * the algorithm orders the chips the way it orders the sentence. Measured on
+ * "الثمن 1290 ريال.", where the tokenizer splits the number in two:
+ *
+ *   inline-flex chips, flex row, dir=auto   first token right   ". ريال0129 منالث"
+ *   inline-flex chips, plaintext row        first token LEFT    "الثمن 1290 ريال."
+ *   inline chips, plaintext row             first token right   ". ريال1290 منالث"
+ *
+ * The last is what the box beside it draws. The first reverses the number, and
+ * the second is the original defect: logical order, running the wrong way.
+ */
 .tok {
   --shade: 0;
   position: relative;
-  display: inline-flex;
-  align-items: center;
+  display: inline;
+  /* The row is an inline formatting context now, so the old 4px flex gap is a
+     margin. Half of it each side, which is the same 4px between chips. */
+  margin: 2px;
   padding: 0.22em 0.42em;
   border-radius: 6px;
   white-space: pre;

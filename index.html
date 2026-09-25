@@ -69,8 +69,21 @@
         </div>
 
         <label class="sr-only" for="input">Text to tokenize</label>
+        <!--
+          dir="auto" on both the box and the chip row, because the page set a
+          direction nowhere and laid every script out left to right. HS-F11.
+          Measured before this: "الثمن 1290 ريال." rendered with the full stop
+          on the left, and dir="auto" puts it on the right where it belongs. The
+          chips had the same problem one level up, with the first token drawn
+          leftmost for Hebrew and Arabic too, so a reader of either script
+          started at the wrong end of the row.
+
+          Static rather than set from script, so it is right on the first paint
+          and for a reader whose vocabulary never arrives.
+        -->
         <textarea
           id="input"
+          dir="auto"
           spellcheck="false"
           autocomplete="off"
           rows="2"
@@ -86,7 +99,7 @@
           <button type="button" class="retry" data-retry>Try again</button>
         </p>
 
-        <output class="tokens" id="tokens" aria-live="off"></output>
+        <output class="tokens" id="tokens" dir="auto" aria-live="off"></output>
 
         <p class="fracture-note" data-fracture-note hidden>
           <span data-fracture-count>0</span>

@@ -292,6 +292,16 @@
         <code>npm run measure</code> in this repository. Prices are the one
         exception and they carry a date.
       </p>
+      <!--
+        SC-F4. 97 percent of the JavaScript this page serves is gpt-tokenizer,
+        MIT, and the minifier strips its notice on the way into the bundle. The
+        file this links to is written from node_modules at build time.
+      -->
+      <p>
+        The tokenizers are
+        <a href="./THIRD-PARTY-NOTICES.txt">somebody else's code under their own licences</a>,
+        and that file is written from what is installed rather than by hand.
+      </p>
     </footer>
 
     <script type="module" src="/src/main.ts"></script>

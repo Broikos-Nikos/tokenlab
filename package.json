@@ -8,11 +8,11 @@
     "dev": "vite",
     "measure:paint": "node tools/measure-paint.mjs",
     "measure:controls": "node tools/measure-controls.mjs",
-    "build": "tsc --noEmit && npm run check && vite build",
+    "build": "npm run notices && tsc --noEmit && npm run check && vite build",
     "preview": "vite preview",
     "measure": "tsx tools/measure.ts",
     "typecheck": "tsc --noEmit",
-    "check": "npm run check:segments && npm run check:decode && npm run check:claims && npm run check:measurement && npm run check:models && npm run check:audits && npm run check:loop && npm run check:head && npm run check:prerender && npm run check:licences && npm run check:workflow && npm run check:capture-safety && npm run check:history",
+    "check": "npm run check:segments && npm run check:decode && npm run check:claims && npm run check:measurement && npm run check:models && npm run check:audits && npm run check:loop && npm run check:head && npm run check:notices && npm run check:prerender && npm run check:licences && npm run check:workflow && npm run check:capture-safety && npm run check:history",
     "capture": "node tools/capture.mjs",
     "stills": "node tools/stills.mjs",
     "check:claims": "tsx tools/check-claims.ts",
@@ -45,7 +45,10 @@
     "check:audits": "tsx tools/check-audits.ts",
     "check:loop": "node tools/check-loop.mjs",
     "check:bill": "node tools/check-bill.mjs",
-    "check:head": "node tools/check-head.mjs"
+    "check:head": "node tools/check-head.mjs",
+    "check:notices": "node tools/check-notices.mjs",
+    "check:notices:built": "node tools/check-notices.mjs --built",
+    "notices": "node tools/third-party.mjs"
   },
   "dependencies": {
     "gpt-tokenizer": "4.0.0"

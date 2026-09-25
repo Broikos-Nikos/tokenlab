@@ -8,7 +8,7 @@ no write access to the project: it produced a findings file and a list, and the
 fixes were separate work afterwards. Nobody audited their own code twenty
 minutes after writing it, which is the only reason any of this was found.
 
-**130 findings, 103 closed, 27 open**, across the 9 perspectives, every one of them run.
+**130 findings, 104 closed, 26 open**, across the 9 perspectives, every one of them run.
 
 That line and the count under every table below are checked against the tables
 themselves on every build, by `npm run check:audits`, and against the queue this
@@ -215,14 +215,14 @@ The maintainer six months from now: what rots first, what a stranger cannot reco
 
 The supply chain: what this project installs, what it ships inside the bundle, and whether either is what the README says it is.
 
-10 findings, 4 closed.
+10 findings, 5 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
 | `SC-F1` | high | fixed, tick 25 | The Roboto Mono licence shipped is bare Apache 2.0 with the copyright template unfilled, naming no font and no holder, while the README says both fonts are SIL OFL. Both cannot be true and neither licence is satisfied |
 | `SC-F2` | high | fixed, tick 26 | The workflow grants pages:write and id-token:write at workflow level, so the build and loading jobs, which run dependency and pull request code, inherit deployment credentials |
 | `SC-F3` | medium | fixed, tick 26 | Every action in the workflow is pinned to a mutable major tag |
-| `SC-F4` | medium | open | dist ships 3.94 MB of MIT licensed third party code with every copyright notice stripped |
+| `SC-F4` | medium | fixed, tick 154 | dist ships 3.94 MB of MIT licensed third party code with every copyright notice stripped |
 | `SC-F5` | medium | open | wait-on costs 39 transitive packages and 18.7 MB for one line of CI, and the repository already contains the twelve line replacement |
 | `SC-F6` | medium | fixed, tick 25 | Both fonts are subsets whose embedded licence records were stripped, and nothing records how they were made |
 | `SC-F7` | medium | open | The one security claim in the repository, that no request leaves for a third party, is the only claim with no gate |

@@ -298,7 +298,11 @@ npm run verify                    # build, then drive the built page in a real b
 
 Built by **Nikos Broikos**. [broikos.gr](https://broikos.gr)
 
-Code MIT. Corpus CC0.
+Code in `src/` and `tools/` MIT. Corpus CC0. The built site is 97 percent
+somebody else's code: `gpt-tokenizer` 4.0.0, MIT, Copyright (c) 2023-2024
+Bazyli Brzoska, whose licence ships with it as
+[`THIRD-PARTY-NOTICES.txt`](https://broikos-nikos.github.io/tokenlab/THIRD-PARTY-NOTICES.txt),
+written from `node_modules` at build time by `tools/third-party.mjs`.
 
 The two fonts are under different licences and the difference is not cosmetic:
 Manrope is **SIL Open Font License 1.1**, Roboto Mono as distributed by Google

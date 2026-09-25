@@ -82,7 +82,7 @@ try {
      * check` because it drives a browser, and browser gates are not a tax on
      * somebody who cloned this to read it.
      */
-    const GATES = ['check:loading', 'check:capture']
+    const GATES = ['check:loading', 'check:capture', 'check:compare']
     let bad = 0
     for (const gate of GATES) {
       const r = spawnSync(npm, ['run', gate], {

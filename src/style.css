@@ -588,11 +588,31 @@ textarea:focus-visible {
   font-variant-numeric: tabular-nums;
 }
 
+/*
+ * The comparison card, whose loudness is its value.
+ *
+ * It shipped at a fixed oklch hue 32 for the border, the background, the figure
+ * and the label, so the card looked identical at 1.31x and at 7.36x and the red
+ * said nothing. DE-F11. `--heat` is 0 at parity and 1 at the worst ratio the
+ * corpus produces on any encoding, set by `showCompare()` from `compareHeat()`.
+ *
+ * The hue does not move, and that is deliberate. This page reserves 45 as the
+ * cost alarm and `check:measurement` refuses any encoding within 100 degrees of
+ * it; rotating this card's hue would either collide with the encoding hues at
+ * 155, 200, 250 and 295 or invent a fifth meaning for colour on a page that
+ * already has four. So the card is always the cost colour and only its
+ * intensity carries the number.
+ *
+ * The default is the calm end rather than nothing, because an unset property
+ * would render the card colourless on the first frame, which is the one state
+ * a card about cost must not have.
+ */
 .compare {
+  --heat: 0;
   padding: var(--s4) var(--s4);
-  border: 1px solid oklch(0.42 0.1 32 / 0.6);
+  border: 1px solid oklch(0.42 calc(0.02 + 0.1 * var(--heat)) 45 / 0.6);
   border-radius: var(--r-card);
-  background: oklch(0.24 0.045 32 / 0.55);
+  background: oklch(calc(0.21 + 0.04 * var(--heat)) calc(0.008 + 0.055 * var(--heat)) 45 / 0.55);
 }
 
 .compare-figure {
@@ -602,14 +622,16 @@ textarea:focus-visible {
   letter-spacing: -0.01em;
   line-height: 1;
   font-variant-numeric: tabular-nums;
-  color: oklch(0.85 0.14 32);
+  /* Lightness falls as chroma rises so the figure stays readable on the card at
+     both ends: the loud end has to be legible, not only loud. */
+  color: oklch(calc(0.87 - 0.05 * var(--heat)) calc(0.02 + 0.155 * var(--heat)) 45);
 }
 
 .compare-label {
   display: block;
   margin-top: var(--s2);
   font-size: var(--f1);
-  color: oklch(0.76 0.04 32);
+  color: oklch(0.76 calc(0.012 + 0.035 * var(--heat)) 45);
   line-height: 1.4;
 }
 

@@ -1,6 +1,7 @@
 import './style.css'
 import { ENCODINGS, loadEncoder, metaFor, type EncodingId, type Encoder } from './lib/tokenizers'
 import { segment, statsFor, countWords, type Segment, type Stats } from './lib/segment'
+import { compareHeat } from './lib/compare'
 import findings from './generated/findings.json'
 import corpus from '../data/pairs.json'
 import pricing from '../data/pricing.json'
@@ -448,8 +449,7 @@ function render() {
     const pair = corpus.pairs[state.pairIndex]!
     const elTokens = encoder.encode(pair.el).length
     const enTokens = encoder.encode(pair.en).length
-    el.compare.hidden = false
-    el.compareRatio.textContent = `${(elTokens / enTokens).toFixed(2)}x`
+    showCompare(elTokens, enTokens)
   } else {
     el.compare.hidden = true
   }
@@ -480,8 +480,7 @@ function drawFromPreview(entry: PreviewEntry) {
   if (other) {
     const elTokens = state.lang === 'el' ? entry.tokens : other.tokens
     const enTokens = state.lang === 'el' ? other.tokens : entry.tokens
-    el.compare.hidden = false
-    el.compareRatio.textContent = `${(elTokens / enTokens).toFixed(2)}x`
+    showCompare(elTokens, enTokens)
   }
 }
 
@@ -490,6 +489,8 @@ function drawFromPreview(entry: PreviewEntry) {
 interface EncodingFinding {
   ratio: number
   ratioInterval95: [number, number]
+  /** The dearest pair in the corpus for this encoding. The comparison card's ramp ends at the worst of these. */
+  worstPair: { ratio: number; el: string; en: string }
   tokensPerWord: { el: number; en: number }
   lengthControlled: {
     bytesPerToken: { el: number; en: number }
@@ -561,6 +562,29 @@ function renderFindings() {
 }
 
 /* ----------------------------------------------------------------- wire up */
+
+/**
+ * The loudest ratio the corpus can produce on any encoding, read from the
+ * committed measurement rather than typed. It is the far end of the comparison
+ * card's ramp, and `check:claims` already holds every worstPair figure.
+ */
+const WORST_RATIO = Math.max(
+  ...Object.values(findings.encodings as unknown as Record<string, EncodingFinding>).map((e) => e.worstPair.ratio),
+)
+
+/**
+ * Show the comparison, with the card's loudness set by the ratio.
+ *
+ * One place, called from both draw paths. They already set the same figure
+ * twice, and a second copy of the colour rule is how `evalkit` ended up with a
+ * headline one off its own library.
+ */
+function showCompare(elTokens: number, enTokens: number) {
+  const ratio = elTokens / enTokens
+  el.compare.hidden = false
+  el.compareRatio.textContent = `${ratio.toFixed(2)}x`
+  el.compare.style.setProperty('--heat', String(compareHeat(ratio, WORST_RATIO)))
+}
 
 /** `?pair=N`, clamped, or null when it is absent or not a number. */
 function pinnedPair(): number | null {

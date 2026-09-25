@@ -117,13 +117,58 @@ if (!pricing.source || !pricing.source.startsWith('http')) {
  * the registry actually claims, so a model cannot be priced against a
  * vocabulary the page never draws.
  */
-for (const m of pricing.models as { id: string; encoding: string }[]) {
+/*
+ * And the rest of the row, because MA-F6 is about this file rather than about
+ * this field.
+ *
+ * `data/pricing.json` is the one file a maintainer is guaranteed to edit, the
+ * note at the top of it invites the edit, and it is the least type checked thing
+ * in the repository: `resolveJsonModule` widens its values and the page casts
+ * them. Measured at tick 144, one mutation at a time, each through the whole
+ * build and then onto the page:
+ *
+ *   an encoding that does not exist   stopped here, which is why the finding
+ *                                     did not reproduce
+ *   a price as a string               stopped by tsc
+ *   a model with no label             stopped by tsc
+ *   no checked date                   stopped here
+ *   a price of -2                     reached the page, which showed $-0.064
+ *   two models with the same id       reached the page, which showed eight
+ *                                     options, two of them identical, and
+ *                                     priced both as the first
+ *
+ * The last two are what this block is for. Neither throws, which is worse than
+ * throwing: a negative price is a bill nobody questions until they do the
+ * arithmetic, and a duplicated id is a picker where one of the choices silently
+ * is not the thing it names.
+ */
+const seenIds = new Set<string>()
+for (const m of pricing.models as { id: string; label: string; encoding: string; inputPerMillion: number; outputPerMillion: number }[]) {
   const inMap = map[m.id]
   if (inMap && inMap !== m.encoding) {
     fail(`data/pricing.json prices ${m.id} as ${m.encoding}, and gpt-tokenizer says ${inMap}`)
   }
   if (!ENCODINGS.some((e) => e.id === m.encoding)) {
     fail(`data/pricing.json prices ${m.id} against ${m.encoding}, which is not an encoding this page has`)
+  }
+  if (seenIds.has(m.id)) {
+    fail(
+      `data/pricing.json lists ${m.id} twice`,
+      'The page finds a model by id, so the second one is a row nobody can reach and a choice that prices as something else.',
+    )
+  }
+  seenIds.add(m.id)
+  for (const field of ['inputPerMillion', 'outputPerMillion'] as const) {
+    const value = m[field]
+    if (typeof value !== 'number' || !Number.isFinite(value) || value <= 0) {
+      fail(
+        `data/pricing.json gives ${m.id} ${field} of ${JSON.stringify(value)}`,
+        'A price is a positive number of dollars. Anything else reaches the page as a bill that looks like one.',
+      )
+    }
+  }
+  if (typeof m.label !== 'string' || m.label.trim() === '') {
+    fail(`data/pricing.json gives ${m.id} no label, and the label is what the picker shows`)
   }
 }
 
@@ -136,5 +181,8 @@ console.log(
   `  ok      ${checkedByTokenizer} attributions checked against gpt-tokenizer's own map, ` +
     `${checkedByPricing} against data/pricing.json, checked ${pricing.checked}`,
 )
-console.log(`  ok      ${pricing.models.length} priced models are each priced against a vocabulary this page draws`)
+console.log(
+  `  ok      ${pricing.models.length} priced models: distinct ids, positive prices, a label each, ` +
+    `and a vocabulary this page draws`,
+)
 console.log('models: every model this page attributes to an encoding is attributed correctly')

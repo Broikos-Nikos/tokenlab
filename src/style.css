@@ -700,6 +700,17 @@ textarea:focus-visible {
  * loud colour on cost. The note is dashed rather than solid so it does not read
  * as a card holding a value.
  */
+/* Said once, under the controls, when a link asked for a sentence that is not here. */
+.pin-note {
+  margin: 0;
+  padding: var(--s3) var(--s4);
+  border: 1px dashed var(--edge);
+  border-radius: var(--r-card);
+  color: var(--text-dim);
+  font-size: var(--f1);
+  line-height: 1.45;
+}
+
 .compare-note {
   margin: 0;
   padding: var(--s4);

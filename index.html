@@ -100,6 +100,14 @@
         </p>
 
         <!--
+          DR-F10. A link with ?pair=N used to be repaired in silence: 42 became
+          39, 3abc became 3, and the page looked exactly as pinned as one that
+          worked. It falls back to its own opening sentence now, and says so,
+          because a silent fallback is the same defect with better manners.
+        -->
+        <p class="pin-note" data-pin-note hidden></p>
+
+        <!--
           PA-F8. One node, with a sentence, instead of a chip per token.
           Measured before this, on 901 chips of Greek at the cap on p50k: the
           row put 2,779 nodes into the accessibility tree, 2,452 of them

@@ -45,6 +45,7 @@ const el = {
   shuffle: document.querySelector<HTMLButtonElement>('[data-shuffle]')!,
   restore: document.querySelector<HTMLButtonElement>('[data-restore]')!,
   compareNote: document.querySelector<HTMLElement>('[data-compare-note]')!,
+  pinNote: document.querySelector<HTMLElement>('[data-pin-note]')!,
   langButtons: [...document.querySelectorAll<HTMLButtonElement>('[data-lang]')],
 }
 
@@ -140,6 +141,16 @@ function takeResume(): { text: string; encoding: EncodingId; custom: boolean; pa
     const v = JSON.parse(raw)
     if (typeof v?.text !== 'string' || typeof v?.encoding !== 'string') return null
     if (!ENCODINGS.some((e) => e.id === v.encoding)) return null
+    /*
+     * And the index, which nothing checked. Same shape as DR-F10 one door over:
+     * a value from outside used without asking whether the corpus still has it.
+     * Measured by writing `pair: 999` into the resume record and pressing a
+     * language button: **TypeError: Cannot read properties of undefined
+     * (reading 'en')**, and the page is dead from there. A record can outlive a
+     * corpus that shrank between the reload and the deploy that caused it.
+     */
+    if (!Number.isInteger(v.pair) || v.pair < 0 || v.pair >= corpus.pairs.length) return null
+    if (typeof v.custom !== 'boolean') return null
     return v
   } catch {
     return null
@@ -796,13 +807,40 @@ function showUnitNote(elTokens: number, enTokens: number, ratio: number) {
   el.unitNote.hidden = false
 }
 
-/** `?pair=N`, clamped, or null when it is absent or not a number. */
+/**
+ * What `?pair=N` asked for, when the corpus has it, and nothing otherwise.
+ *
+ * DR-F10. It used to `parseInt` and clamp, which meant a link could point at a
+ * sentence nobody wrote and look exactly as pinned as a link that worked.
+ * Measured on the built page, 40 pairs in the corpus:
+ *
+ *   ?pair=3abc   loaded pair 3       ?pair=999  loaded pair 39
+ *   ?pair=1e9    loaded pair 1       ?pair=42   loaded pair 39
+ *   ?pair=3.9    loaded pair 3       ?pair=-5   loaded pair 0
+ *
+ * The corpus lost three pairs on 21 September, so every link written at 40, 41
+ * or 42 became a link to 39 that still looked specific.
+ *
+ * Digits only, and out of range is treated as absent rather than clamped, so a
+ * stale link falls back to the page's own random opening. That alone is still
+ * silent, which is the half the finding does not ask for and this page's habit
+ * does: `pinRejected` is what the note says.
+ */
+let pinRejected: string | null = null
+
 function pinnedPair(): number | null {
   const raw = new URLSearchParams(location.search).get('pair')
-  if (raw === null) return null
-  const n = Number.parseInt(raw, 10)
-  if (!Number.isFinite(n)) return null
-  return Math.min(Math.max(n, 0), corpus.pairs.length - 1)
+  if (raw === null || raw === '') return null
+  if (!/^\d+$/.test(raw)) {
+    pinRejected = raw
+    return null
+  }
+  const n = Number(raw)
+  if (n >= corpus.pairs.length) {
+    pinRejected = raw
+    return null
+  }
+  return n
 }
 
 /**
@@ -911,6 +949,12 @@ async function boot() {
   // cannot have its numbers checked against anything.
   const resume = takeResume()
   state.pairIndex = resume?.pair ?? pinnedPair() ?? Math.floor(Math.random() * corpus.pairs.length)
+  if (pinRejected !== null) {
+    el.pinNote.textContent =
+      `That link asks for sentence ${pinRejected}, and this corpus has ${corpus.pairs.length}, ` +
+      `numbered 0 to ${corpus.pairs.length - 1}. Showing one of its own instead.`
+    el.pinNote.hidden = false
+  }
   const pair = corpus.pairs[state.pairIndex]!
   el.input.value = resume ? resume.text : state.lang === 'el' ? pair.el : pair.en
   el.input.setAttribute('lang', state.lang)

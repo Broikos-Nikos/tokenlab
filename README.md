@@ -21,17 +21,17 @@ on `o200k`.
 
 ## The number
 
-> **Greek costs 2.06 times the tokens of English on the newest OpenAI
+> **Greek costs 1.92 times the tokens of English on the newest OpenAI
 > vocabulary. Almost none of that is the tokenizer.**
 
-Greek is 2.004 times the UTF-8 bytes of English before anything tokenizes it. On
-top of that, `o200k` adds 2.9 percent, and forty sentence pairs cannot tell that
-apart from nothing: the interval runs -2.0 to +7.6 percent and it includes zero.
+Greek is 1.904 times the UTF-8 bytes of English before anything tokenizes it. On
+top of that, `o200k` adds 1.1 percent, and forty sentence pairs cannot tell that
+apart from nothing: the interval runs -3.5 to +5.7 percent and it includes zero.
 
-The same measurement on `cl100k` adds 156 percent, interval +143.8 to +167.6,
-which is not a null result, and on `p50k` and `r50k` it adds 220 percent.
+The same measurement on `cl100k` adds 146 percent, interval +133.0 to +158.4,
+which is not a null result, and on `p50k` and `r50k` it adds 207 percent.
 
-So the honest sentence is not "o200k charges Greek 2.9 percent". It is that
+So the honest sentence is not "o200k charges Greek 1.1 percent". It is that
 whatever `o200k` charges Greek beyond the alphabet, forty sentence pairs cannot
 see it.
 
@@ -86,10 +86,10 @@ totals, not a mean of per sentence ratios. Intervals are a paired bootstrap,
 
 | encoding | used by | raw token ratio | 95% interval | bytes per token, Greek | vocabulary cost beyond the script | its 95% interval |
 |---|---|---|---|---|---|---|
-| `o200k_base` | GPT-6, GPT-5.x, GPT-4.1, GPT-4o | 2.06x | 1.94 to 2.18 | 5.10 | **+2.9%** | -2.0 to +7.6, includes zero |
-| `cl100k_base` | GPT-4, GPT-3.5 Turbo, text-embedding-3 | 5.12x | 4.79 to 5.45 | 2.05 | **+155.7%** | +143.8 to +167.6 |
-| `p50k_base` | Codex, davinci-002 | 6.42x | 6.00 to 6.82 | 1.62 | **+220.3%** | +205.6 to +235.2 |
-| `r50k_base` | GPT-3, GPT-2 | 6.42x | 6.00 to 6.82 | 1.62 | **+220.3%** | +205.6 to +235.2 |
+| `o200k_base` | GPT-6, GPT-5.x, GPT-4.1, GPT-4o | 1.92x | 1.80 to 2.05 | 5.06 | **+1.1%** | -3.5 to +5.7, includes zero |
+| `cl100k_base` | GPT-4, GPT-3.5 Turbo, text-embedding-3 | 4.68x | 4.33 to 5.04 | 2.08 | **+145.6%** | +133.0 to +158.4 |
+| `p50k_base` | Codex, davinci-002 | 5.84x | 5.43 to 6.28 | 1.65 | **+206.9%** | +191.8 to +222.8 |
+| `r50k_base` | GPT-3, GPT-2 | 5.84x | 5.43 to 6.28 | 1.65 | **+206.9%** | +191.8 to +222.8 |
 
 A raw token ratio measures the writing system and the vocabulary at once and
 hands the credit to the vocabulary, which is why the split above matters more
@@ -100,20 +100,35 @@ of resampling, so its Greek tokens, English tokens, Greek bytes and English
 bytes move together, which is what makes the second interval meaningful rather
 than a ratio of two independent guesses.
 
-English gets 5.24 bytes per token on `o200k` and 5.24 on `cl100k`, unchanged to
-two decimals. Greek goes from 2.05 to 5.10 between the two. That is what the last
+English gets 5.11 bytes per token on `o200k` and 5.11 on `cl100k`, unchanged to
+two decimals. Greek goes from 2.08 to 5.06 between the two. That is what the last
 column is measuring: how many tokens the vocabulary spends per byte of Greek,
 against how many it spends per byte of English.
 
 `p50k` and `r50k` tokenize this corpus identically, to the token. They are
 different vocabularies, but on this text they are one result, not two.
 
-The register spread is smaller than it looks. The raw ratio runs 1.58x to 2.33x
-across registers on `o200k`, but most of that is the author writing the
-conversational Greek 20 percent shorter than its English partner. Measured in
-tokens per Greek word, which is what a Greek cost model actually uses, the spread
-is 2.23 to 2.46, a 10 percent difference. On `cl100k` the same comparison is
-5.00 to 6.59, a 32 percent difference, and that one is genuinely the tokenizer.
+The raw ratio runs 1.58x to 2.24x across registers on `o200k`, and part of that
+is the author writing the conversational Greek 20 percent shorter than its
+English partner. Measured in tokens per Greek word, which is what a Greek cost
+model actually uses, the spread is 1.97 to 2.46, a 25 percent difference. On
+`cl100k` the same comparison is 4.32 to 6.59, a 53 percent difference, and that
+one is genuinely the tokenizer.
+
+**The cheapest Greek in this corpus is the technical register, on both
+vocabularies.** 1.97 tokens per word against 2.46 for commerce on `o200k`, and
+4.32 against 6.59 for formal on `cl100k`. The reason is visible in the
+sentences: a quarter of the technical Greek is Latin identifiers and digits,
+`npm run build`, `created_at`, `Cache-Control: no-cache`, `3000`, and those cost
+the same in both languages. **The more of your Greek is code, the less the
+tokenizer charges you for it**, and the register that looks most expensive to
+write is the one that is cheapest to send.
+
+That finding did not exist here until 2026-09-25. The technical register used to
+spell its numbers out and carry one Latin word in eight sentences, which made it
+the second dearest register rather than the cheapest and put the headline at
+2.06x instead of 1.92x. The corpus was measuring Greek prose about computers,
+not the Greek that developers write.
 
 Reproduce all of it:
 
@@ -180,13 +195,20 @@ open. Commit messages cite the identifiers in it.
   out. Removing them moved the headline from 2.09x to 2.06x and the o200k
   vocabulary penalty from 3.6 percent to 2.9 percent, so the finding did not
   depend on them.
+- The eight technical pairs were rewritten on 2026-09-25, for the same reason in
+  the other direction. They spelled their numbers out and carried one Latin word
+  between them, so the register named "technical" contained no identifier, no
+  version and no port number, which is not what technical Greek looks like. The
+  rewrite moved that register's ratio 2.33x to 1.67x, the headline 2.06x to
+  1.92x, and the o200k vocabulary penalty 2.9 percent to 1.1 percent. It still
+  includes zero, so again the finding did not depend on it.
 - Only the four encodings in the registry are covered, all of them tiktoken. Llama, Gemma and Qwen use
   SentencePiece vocabularies that are not here yet, and Greek behaves
   differently on each.
 - The corpus is NFC normalised. Greek written in NFD, which happens when text
   comes off some macOS pipelines, costs substantially more and is not measured
   here.
-- A larger corpus could resolve that 2.9 percent into something real or into
+- A larger corpus could resolve that 1.1 percent into something real or into
   nothing. This one cannot, and saying so is cheaper than pretending otherwise.
 
 ---

@@ -1,5 +1,5 @@
 {
-  "recorded": "2026-09-24",
+  "recorded": "2026-09-25",
   "pair": "17",
   "looked": {
     "paint": {
@@ -17,14 +17,14 @@
     "words": {
       "headline": "",
       "wordmark": "tokenlab",
-      "split": "Most of that is the alphabet. Greek is 2.004x the bytes of English before any tokenizer runs, and cl100k adds +155.7% on top (+143.8 to +167.6)."
+      "split": "Most of that is the alphabet. Greek is 1.904x the bytes of English before any tokenizer runs, and cl100k adds +145.6% on top (+133.0 to +158.4)."
     },
     "state": {
       "encoding": "cl100k_base",
-      "tokens": "82",
-      "fractured": "6",
-      "ratio": "4.82x",
-      "fracturedChips": 6
+      "tokens": "71",
+      "fractured": "5",
+      "ratio": "3.94x",
+      "fracturedChips": 5
     }
   }
 }

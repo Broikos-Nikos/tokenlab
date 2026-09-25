@@ -278,6 +278,44 @@ if (notWritten.length > 0) {
   )
   process.exit(1)
 }
+/*
+ * A register's name is a claim about what is in it, and this one was false.
+ *
+ * ME-F10: "technical" held no digit and one Latin word across its eight
+ * sentences, because it spelled its numbers out and translated its
+ * identifiers. Measured before the rewrite, that cost the register a fifth of
+ * its ratio, 2.33x against 1.67x, and the corpus headline 2.06x against 1.92x,
+ * because digits and Latin identifiers are the two things that cost the same in
+ * both languages and technical text is full of both.
+ *
+ * The thresholds are deliberately far below what the register now carries, 15
+ * digits and 26 Latin words, because this is a floor on what the word
+ * "technical" has to mean and not a description of today's eight sentences.
+ */
+const TECHNICAL_FLOOR = { digits: 6, latin: 10 }
+const technical = corpus.pairs.filter((p: { register?: string }) => p.register === 'technical')
+if (technical.length === 0) {
+  console.error('FAIL  data/pairs.json has no technical register, and the README quotes one')
+  process.exit(1)
+}
+const greek = technical.map((p: { el: string }) => p.el).join(' ')
+const digitCount = (greek.match(/[0-9]/g) ?? []).length
+const latinCount = (greek.match(/[A-Za-z]+/g) ?? []).length
+if (digitCount < TECHNICAL_FLOOR.digits || latinCount < TECHNICAL_FLOOR.latin) {
+  console.error(
+    `FAIL  the technical register holds ${digitCount} digits and ${latinCount} Latin words ` +
+      `across ${technical.length} sentences, against a floor of ${TECHNICAL_FLOOR.digits} and ${TECHNICAL_FLOOR.latin}.`,
+  )
+  console.error(
+    '      Technical Greek is full of identifiers, ports and version numbers, and those are exactly the two things',
+  )
+  console.error(
+    '      that cost the same in both languages. A technical register without them overstates the Greek penalty:',
+  )
+  console.error('      measured at 2.33x against 1.67x for this register, and 2.06x against 1.92x for the headline.')
+  process.exit(1)
+}
+
 if (corpus.pairs.length !== f.corpus.pairs) {
   console.error(`FAIL  data/pairs.json has ${corpus.pairs.length} pairs, findings.json says ${f.corpus.pairs}`)
   process.exit(1)

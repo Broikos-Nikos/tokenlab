@@ -26,7 +26,7 @@
 import { segment } from '../src/lib/segment'
 import { ENCODINGS, loadEncoder, type Encoder } from '../src/lib/tokenizers'
 
-const CASES: [string, string][] = [
+export const CASES: [string, string][] = [
   ['modern Greek', 'Θα είμαι εκεί σε δέκα λεπτά, έχει απαίσια κίνηση σήμερα.'],
   ['polytonic Greek', 'Ἄνδρα μοι ἔννεπε, Μοῦσα, πολύτροπον, ὃς μάλα πολλὰ πλάγχθη'],
   ['Greek with ano teleia', 'Καλημέρα· τιμή 1.290,50 €· τελικό σίγμα ς'],

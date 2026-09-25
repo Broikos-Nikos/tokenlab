@@ -23,7 +23,7 @@
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { segment } from '../src/lib/segment'
+import { textOf, segment } from '../src/lib/segment'
 import { loadEncoder } from '../src/lib/tokenizers'
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
@@ -63,7 +63,7 @@ export async function buildPreview(): Promise<Preview> {
         const ids = encoder.encode(pair[lang])
         const segs = segment(encoder, ids)
         out[previewKey(i, lang, id)] = {
-          s: segs.map((x) => ({ t: x.text, n: x.ids.length })),
+          s: segs.map((x) => ({ t: textOf(x), n: x.ids.length })),
           tokens: ids.length,
         }
       }

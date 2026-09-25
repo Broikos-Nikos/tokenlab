@@ -1,6 +1,6 @@
 import './style.css'
 import { ENCODINGS, loadEncoder, metaFor, type EncodingId, type Encoder } from './lib/tokenizers'
-import { segment, statsFor, countWords, type Segment, type Stats } from './lib/segment'
+import { segment, statsFor, countWords, textOf, type Segment, type Stats } from './lib/segment'
 import { compareHeat } from './lib/compare'
 import findings from './generated/findings.json'
 import corpus from '../data/pairs.json'
@@ -350,15 +350,16 @@ function chipFor(seg: Segment, index: number, total: number, stagger: boolean): 
 
   if (seg.splitIntoBytes) {
     span.classList.add('tok--fractured')
-    span.append(document.createTextNode(seg.text))
+    span.append(document.createTextNode(textOf(seg)))
     const cost = document.createElement('span')
     cost.className = 'cost'
     cost.textContent = String(seg.ids.length)
     span.append(cost)
     span.title = `${seg.ids.length} tokens for this one piece of text`
   } else {
-    if (seg.text.trim() === '') span.classList.add('tok--space')
-    span.textContent = seg.text
+    const text = textOf(seg)
+    if (text.trim() === '') span.classList.add('tok--space')
+    span.textContent = text
   }
   return span
 }
@@ -439,7 +440,14 @@ function render() {
   }
   const text = el.input.value
   const ids = encoder.encode(text)
-  const segments = segment(encoder, ids)
+  /*
+   * Only what will be drawn is decoded. drawTokens shows at most MAX_CHIPS
+   * chips, and decoding the rest cost 151 ms of the 202 ms a keystroke took on
+   * a 400,000 character paste, to produce text nothing displayed. The counts
+   * below are unaffected: they are made of segment boundaries and ids, which
+   * are still computed for every token.
+   */
+  const segments = segment(encoder, ids, MAX_CHIPS)
   const stats = statsFor(text, ids, segments)
 
   const stagger = staggerNext

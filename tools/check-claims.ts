@@ -153,6 +153,18 @@ for (const id of Object.keys(USED_BY)) {
       // 5.1 next to 1.62 because one of them happened to round short.
       `${L.bytesPerToken.el.toFixed(2)} | **+${penalty}%** | ${band} |`,
   )
+
+  /*
+   * And the normalisation row. ME-F11: the README answered "what does NFD cost"
+   * with the word "substantially", which is the one kind of answer this
+   * repository does not accept. Two decimals on the ratios so the column lines
+   * up, one on the percentage, matching what the measurement rounds to.
+   */
+  const n = e.nfd
+  add(
+    `the NFD row for ${id}`,
+    `| \`${id}\` | ${n.nfcTokens} | ${n.nfdTokens} | +${n.costPercent}% | ${n.ratioNfc.toFixed(2)}x | ${n.ratioNfd.toFixed(2)}x |`,
+  )
 }
 
 // ---- the prose around the table -------------------------------------------
@@ -292,6 +304,27 @@ if (notWritten.length > 0) {
  * digits and 26 Latin words, because this is a floor on what the word
  * "technical" has to mean and not a description of today's eight sentences.
  */
+/*
+ * The corpus is NFC, and the measurement is therefore an NFC measurement.
+ *
+ * ME-F11: that was true and said nowhere. Greek written with combining accents
+ * is the same text on screen and a different string to a tokenizer, and it
+ * costs 38 percent more on o200k, which moves the ratio a reader would be
+ * looking at from 1.92x to 2.65x. A corpus that drifted into mixed forms would
+ * move every published number without anything saying why.
+ */
+const notNormalised = corpus.pairs.filter(
+  (p: { el: string; en: string }) => p.el !== p.el.normalize('NFC') || p.en !== p.en.normalize('NFC'),
+)
+if (notNormalised.length > 0) {
+  console.error(
+    `FAIL  ${notNormalised.length} of ${corpus.pairs.length} pairs in data/pairs.json are not in NFC, ` +
+      'and every figure here is measured as if they were.',
+  )
+  console.error('      Greek with combining accents costs 38 percent more on o200k than the same text precomposed.')
+  process.exit(1)
+}
+
 const TECHNICAL_FLOOR = { digits: 6, latin: 10 }
 const technical = corpus.pairs.filter((p: { register?: string }) => p.register === 'technical')
 if (technical.length === 0) {

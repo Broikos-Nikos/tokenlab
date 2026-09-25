@@ -476,6 +476,15 @@ textarea:focus-visible {
 .tokens {
   display: block;
   unicode-bidi: plaintext;
+  /*
+   * Inline boxes with nothing between them give a line no place to break, so at
+   * 390 the row ran 413px off the side. The flex row used to wrap for free and
+   * this is what replaces that. It creates break opportunities between the
+   * chips; `white-space: pre` on each chip is what stops one breaking inside
+   * itself, which would split a token across two lines and draw a thing the
+   * tokenizer never produced.
+   */
+  overflow-wrap: anywhere;
   min-height: clamp(8.5rem, 17vh, 13rem);
   padding: var(--s4);
   border: 1px solid var(--edge);
@@ -561,6 +570,28 @@ textarea:focus-visible {
 
 /* A fixed slot, so the column does not change height when the note appears and
    the page does not jump under the reader. */
+/*
+ * The normalisation note, quieter than the fracture note beside it.
+ *
+ * A fractured chip is the page's finding, so it wears the alarm hue. This is a
+ * fact about what the visitor pasted rather than about the tokenizer, and it is
+ * a caveat on every number above it rather than a number itself, so it is a
+ * dashed aside in the body colour.
+ */
+.nfd-note {
+  margin: 0 0 var(--s3);
+  padding: var(--s3);
+  border: 1px dashed var(--edge);
+  border-radius: var(--r-card);
+  font-size: var(--f2);
+  color: var(--text-dim);
+  max-width: 62ch;
+}
+
+.nfd-note strong {
+  color: var(--text);
+}
+
 .fracture-note {
   margin: 0;
   min-height: 3.25rem;

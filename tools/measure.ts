@@ -232,6 +232,26 @@ async function main() {
         penaltyIndistinguishableFromZero: penaltyLo <= 0 && penaltyHi >= 0,
       },
       byRegister,
+      /*
+       * What the other normalisation costs. ME-F11: every figure here is an NFC
+       * measurement and the README used to answer the question with the word
+       * "substantially". Greek with combining accents is the same text on
+       * screen and a different string to a tokenizer, and `o200k` is hit
+       * hardest because it has tokens for precomposed Greek letters and none
+       * for base plus combining mark: the vocabulary that is best at Greek is
+       * the one that loses most when the accents arrive separately.
+       */
+      nfd: (() => {
+        const nfc = corpus.pairs.reduce((t, p) => t + encode(p.el.normalize("NFC")).length, 0)
+        const nfd = corpus.pairs.reduce((t, p) => t + encode(p.el.normalize("NFD")).length, 0)
+        return {
+          nfcTokens: nfc,
+          nfdTokens: nfd,
+          costPercent: round((nfd / nfc - 1) * 100, 1),
+          ratioNfc: round(nfc / totalEn, 2),
+          ratioNfd: round(nfd / totalEn, 2),
+        }
+      })(),
       worstPair: worst,
       figureSentence: {
         el: encode(FIGURE_SENTENCE.el).length,

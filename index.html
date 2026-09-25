@@ -101,6 +101,19 @@
 
         <output class="tokens" id="tokens" dir="auto" aria-live="off"></output>
 
+        <!--
+          ME-F11. Greek written with combining accents, which is what comes off
+          some macOS pipelines, is a different string to a tokenizer even though
+          it is the same text on screen. Measured on this corpus: NFD costs
+          38 percent more on o200k, and the headline ratio a visitor would be
+          looking at moves from 1.92x to 2.65x. The page used to charge them
+          that silently.
+        -->
+        <p class="nfd-note" data-nfd-note hidden>
+          <strong>This text is not in NFC.</strong>
+          <span data-nfd-body></span>
+        </p>
+
         <p class="fracture-note" data-fracture-note hidden>
           <span data-fracture-count>0</span>
           <span data-fracture-body>

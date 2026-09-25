@@ -127,6 +127,13 @@
           "wordRatio": 0.897
         }
       ],
+      "nfd": {
+        "nfcTokens": 1093,
+        "nfdTokens": 1508,
+        "costPercent": 38,
+        "ratioNfc": 1.92,
+        "ratioNfd": 2.65
+      },
       "worstPair": {
         "ratio": 2.79,
         "en": "Customer service answers by phone on weekdays and by email at all times.",
@@ -230,6 +237,13 @@
           "wordRatio": 0.897
         }
       ],
+      "nfd": {
+        "nfcTokens": 2656,
+        "nfdTokens": 2896,
+        "costPercent": 9,
+        "ratioNfc": 4.68,
+        "ratioNfd": 5.1
+      },
       "worstPair": {
         "ratio": 7.36,
         "en": "Customer service answers by phone on weekdays and by email at all times.",
@@ -333,6 +347,13 @@
           "wordRatio": 0.897
         }
       ],
+      "nfd": {
+        "nfcTokens": 3343,
+        "nfdTokens": 3730,
+        "costPercent": 11.6,
+        "ratioNfc": 5.84,
+        "ratioNfd": 6.52
+      },
       "worstPair": {
         "ratio": 8.77,
         "en": "Returns are accepted within fourteen days, provided the item is unused.",
@@ -436,6 +457,13 @@
           "wordRatio": 0.897
         }
       ],
+      "nfd": {
+        "nfcTokens": 3343,
+        "nfdTokens": 3730,
+        "costPercent": 11.6,
+        "ratioNfc": 5.84,
+        "ratioNfd": 6.52
+      },
       "worstPair": {
         "ratio": 8.77,
         "en": "Returns are accepted within fourteen days, provided the item is unused.",

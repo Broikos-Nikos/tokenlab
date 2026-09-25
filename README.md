@@ -205,9 +205,25 @@ open. Commit messages cite the identifiers in it.
 - Only the four encodings in the registry are covered, all of them tiktoken. Llama, Gemma and Qwen use
   SentencePiece vocabularies that are not here yet, and Greek behaves
   differently on each.
-- The corpus is NFC normalised. Greek written in NFD, which happens when text
-  comes off some macOS pipelines, costs substantially more and is not measured
-  here.
+- The corpus is NFC normalised, so every figure above is an NFC measurement.
+  Greek written in NFD, with combining accents rather than precomposed letters,
+  is the same text on screen and a different string to a tokenizer. Measured on
+  this corpus, `npm run measure` reads NFC and this is what the other form
+  costs:
+
+  | encoding | NFC | NFD | NFD costs | ratio, NFC | ratio, NFD |
+  |---|---|---|---|---|---|
+  | `o200k_base` | 1093 | 1508 | +38% | 1.92x | 2.65x |
+  | `cl100k_base` | 2656 | 2896 | +9% | 4.68x | 5.10x |
+  | `p50k_base` | 3343 | 3730 | +11.6% | 5.84x | 6.52x |
+  | `r50k_base` | 3343 | 3730 | +11.6% | 5.84x | 6.52x |
+
+  `o200k` is hit hardest because it has tokens for precomposed Greek letters and
+  none for base plus combining mark, so the vocabulary that is best at Greek is
+  the one that loses most when the accents arrive separately. The page detects
+  it now: paste NFD and it says so, and says what the same text would cost in
+  NFC. That is a caveat on the numbers rather than a measurement of its own, so
+  it is not in the table above.
 - A larger corpus could resolve that 1.1 percent into something real or into
   nothing. This one cannot, and saying so is cheaper than pretending otherwise.
 

@@ -44,18 +44,37 @@ const CASES = [
   { label: 'Greek', text: 'Καλημέρα κόσμε 1290 σήμερα.', dir: 'ltr', digits: '1290' },
   { label: 'Hebrew', text: 'שלום עולם 42 היום.', dir: 'rtl', digits: '42' },
   { label: 'Arabic', text: 'الثمن 1290 ريال.', dir: 'rtl', digits: '1290' },
+  /*
+   * Long enough to wrap at 390, which the three above are not. The row wrapping
+   * is where the first version of this gate was wrong: it compared the first
+   * chip against the whole row rather than against its own line and called a
+   * correct layout reversed.
+   */
+  {
+    label: 'Arabic, wrapping',
+    text: 'الثمن 1290 ريال. مرحبا بالعالم اليوم. اضبط مؤقتا لعشر دقائق من فضلك.',
+    dir: 'rtl',
+    digits: '1290',
+  },
 ]
 
 const server = process.env.TOKENLAB_URL ? await useShared(process.env.TOKENLAB_URL) : await serve()
 const browser = await chromium.launch()
 
 try {
-  const page = await browser.newPage({ viewport: { width: 1280, height: 900 } })
+  /*
+   * Both widths, because the row wraps at 390 and a wrapped bidi paragraph is
+   * where this goes wrong: the layout was right and the first version of this
+   * gate was not.
+   */
+  for (const width of [1280, 390]) {
+  const page = await browser.newPage({ viewport: { width, height: 900 } })
   await page.goto(server.url, { waitUntil: 'networkidle' })
   await page.waitForFunction(() => document.querySelectorAll('#tokens .tok').length > 0, null, { timeout: 60_000 })
   await page.waitForTimeout(2500)
 
-  for (const { label, text, dir: want, digits } of CASES) {
+  for (const { label: base, text, dir: want, digits } of CASES) {
+    const label = `${base} at ${width}`
     await page.evaluate((t) => {
       const ta = document.querySelector('#input')
       ta.value = t
@@ -66,14 +85,30 @@ try {
     const r = await page.evaluate(() => {
       const chips = [...document.querySelectorAll('#tokens .tok')]
       const xs = chips.map((c) => c.getBoundingClientRect().x)
+      /*
+       * Per line, not across the row. A wrapped right to left paragraph puts
+       * the first token rightmost on *its* line, and a chip three lines down
+       * can sit further right than that, so comparing against the whole row
+       * reports a correct layout as broken. Found at 390, where the Arabic
+       * sentence wraps and the first version of this gate called it reversed.
+       */
+      const ys = chips.map((c) => Math.round(c.getBoundingClientRect().y))
+      const firstLine = xs.filter((_, i) => ys[i] === ys[0])
+      const lastLine = xs.filter((_, i) => ys[i] === ys[ys.length - 1])
       return {
         chips: chips.length,
+        lines: new Set(ys).size,
         firstX: xs[0],
         lastX: xs[xs.length - 1],
-        minX: Math.min(...xs),
-        maxX: Math.max(...xs),
+        minX: Math.min(...firstLine),
+        maxX: Math.max(...firstLine),
+        lastMinX: Math.min(...lastLine),
+        lastMaxX: Math.max(...lastLine),
         // The chips of the number, in token order, with where each was drawn.
         digitXs: chips.map((c, i) => [c.textContent, xs[i]]).filter(([t]) => /^\d+$/.test(t)).map(([, x]) => x),
+        overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+        // A chip that wraps internally draws in more than one rectangle.
+        splitChips: chips.filter((c) => c.getClientRects().length > 1).length,
         boxDir: getComputedStyle(document.querySelector('#input')).direction,
         spelled: chips.map((c) => c.textContent).join(''),
         typed: document.querySelector('#input').value,
@@ -94,8 +129,8 @@ try {
      * visual order is meant to differ from the logical one, and an assertion
      * that they match is an assertion that the fix is absent.
      */
-    const startsRight = r.firstX === r.maxX && r.lastX === r.minX
-    const startsLeft = r.firstX === r.minX && r.lastX === r.maxX
+    const startsRight = r.firstX === r.maxX && r.lastX === r.lastMinX
+    const startsLeft = r.firstX === r.minX && r.lastX === r.lastMaxX
     const ok = want === 'rtl' ? startsRight : startsLeft
     if (!ok) {
       fail(
@@ -123,7 +158,29 @@ try {
       }
     }
 
-    /* 4. And the chips still spell the sentence in token order. */
+    /*
+     * 4. The row stays inside the page, and no chip is broken across two lines.
+     *
+     * This assertion exists because nothing here had it. Making the chips plain
+     * inlines, which is what fixed the reading order, removed the flex wrap that
+     * used to break the row for free, and inline boxes with nothing between them
+     * give a line no place to break: the row ran **413px** off the side of a
+     * 390 wide page and `npm run verify` exited 0. Six browser gates and 46
+     * assertions, and not one of them asked whether the page fits.
+     */
+    if (r.overflow > 0) {
+      fail(`${label}: the page scrolls sideways by ${r.overflow}px`, 'A row of inline boxes with nothing between them has no place to break.')
+      continue
+    }
+    if (r.splitChips > 0) {
+      fail(
+        `${label}: ${r.splitChips} chips are broken across two lines`,
+        'A token drawn in two pieces is a token the tokenizer never produced. `white-space: pre` on the chip is what prevents it.',
+      )
+      continue
+    }
+
+    /* 5. And the chips still spell the sentence in token order. */
     if (r.spelled !== r.typed) {
       fail(`${label}: the chips spell ${JSON.stringify(r.spelled)} and the box holds ${JSON.stringify(r.typed)}`)
       continue
@@ -136,6 +193,7 @@ try {
   }
 
   await page.close()
+  }
 } finally {
   await browser.close()
   server.stop()

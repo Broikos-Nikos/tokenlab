@@ -27,6 +27,8 @@ const el = {
   headlineRatio: document.querySelector<HTMLElement>('[data-headline-ratio]')!,
   split: document.querySelector<HTMLElement>('[data-split]')!,
   fractureNote: document.querySelector<HTMLElement>('[data-fracture-note]')!,
+  nfdNote: document.querySelector<HTMLElement>('[data-nfd-note]')!,
+  nfdBody: document.querySelector<HTMLElement>('[data-nfd-body]')!,
   fractureCount: document.querySelector<HTMLElement>('[data-fracture-count]')!,
   fractureBody: document.querySelector<HTMLElement>('[data-fracture-body]')!,
   loadError: document.querySelector<HTMLElement>('[data-load-error]')!,
@@ -448,6 +450,36 @@ function announce(stats: Stats, fractured: number, cost: string | null, model: s
 
 /* -------------------------------------------------------------- the render */
 
+/**
+ * Say so when the text is not in NFC, and say what it costs.
+ *
+ * ME-F11: the measurement assumes NFC and never said so, and a visitor pasting
+ * Greek with combining accents, which is what comes off some macOS pipelines,
+ * was charged for it silently. It is the same text on screen and a different
+ * string to a tokenizer. Measured on this corpus:
+ *
+ *   o200k    1093 tokens NFC, 1508 NFD, +38%, and the headline ratio a
+ *            visitor is looking at moves from 1.92x to 2.65x
+ *   cl100k   +9.0%    p50k and r50k   +11.6%
+ *
+ * The comparison is only computed when the text is actually not NFC, which is
+ * rare, so the common path is one `normalize` and a string compare rather than
+ * a second pass through the tokenizer.
+ */
+function checkNormalisation(text: string, tokens: number) {
+  if (!encoder || text === '' || text === text.normalize('NFC')) {
+    el.nfdNote.hidden = true
+    return
+  }
+  const asNfc = encoder.encode(text.normalize('NFC')).length
+  const extra = asNfc === 0 ? 0 : Math.round(100 * (tokens / asNfc - 1))
+  el.nfdNote.hidden = false
+  el.nfdBody.textContent =
+    `It uses combining accents, so this is ${tokens.toLocaleString('en-US')} tokens where the same text in NFC is ` +
+    `${asNfc.toLocaleString('en-US')}, ${extra >= 0 ? extra + '% more' : -extra + '% less'}. ` +
+    `Every number on this page measures what you pasted, and the corpus behind the findings is NFC.`
+}
+
 function render() {
   // Before any vocabulary has landed, the opening sentence is still drawable,
   // because it was computed at build time. Anything the visitor types is not,
@@ -485,6 +517,7 @@ function render() {
       ? 'piece of this text cost more than one token. The tokenizer had no token for it, so it spelled it out in raw bytes and charged for every byte.'
       : 'pieces of this text cost more than one token each. The tokenizer had no token for them, so it spelled them out in raw bytes and charged for every byte.'
   el.fractureNote.hidden = fractured === 0
+  checkNormalisation(text, stats.tokens)
 
   // A price is only true for the encoding its model actually uses. Every model
   // in pricing.json records that, so the page refuses rather than guesses.

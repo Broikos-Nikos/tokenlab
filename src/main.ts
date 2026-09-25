@@ -285,12 +285,21 @@ async function setEncoding(id: EncodingId): Promise<boolean> {
   // interval crosses zero, so the bare number reads as a small penalty when the
   // measurement cannot tell it from none.
   el.split.innerHTML =
-    `Most of that is the alphabet. Greek is ` +
-    `<strong>${findings.headline.scriptCost}x</strong> the bytes of English before any ` +
-    `tokenizer runs, and ${meta.label} adds ` +
+    /*
+     * The corpus size leads, on every encoding.
+     *
+     * HE-F5. It used to arrive only in the branch for a penalty that cannot be
+     * told from zero, which is `o200k` and nothing else, so on the other three
+     * the first screen carried a ratio of 4.68x or 5.84x with no sample size
+     * anywhere on it. Measured at 1440x900: the first mention of forty was at
+     * y=1,227 against a fold at 900, and on a phone at y=1,557 against 844.
+     */
+    `Over ${spell(findings.corpus.pairs)} sentence pairs, most of that is the ` +
+    `alphabet: Greek is <strong>${findings.headline.scriptCost}x</strong> the bytes of ` +
+    `English before any tokenizer runs, and ${meta.label} adds ` +
     `<strong>${signed(add)}%</strong> on top` +
     (lc.penaltyIndistinguishableFromZero
-      ? `, which ${spell(findings.corpus.pairs)} sentence pairs cannot tell apart from nothing ` +
+      ? `, which those pairs cannot tell apart from nothing ` +
         `<span class="band">(${signed(plo)} to ${signed(phi)}, includes zero)</span>.`
       : ` <span class="band">(${signed(plo)} to ${signed(phi)})</span>.`)
 

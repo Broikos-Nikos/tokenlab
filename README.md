@@ -22,7 +22,8 @@ on `o200k`.
 ## The number
 
 > **Greek costs 1.92 times the tokens of English on the newest OpenAI
-> vocabulary. Almost none of that is the tokenizer.**
+> vocabulary, over forty sentence pairs written by hand in both languages.
+> Almost none of that is the tokenizer.**
 
 Greek is 1.904 times the UTF-8 bytes of English before anything tokenizes it. On
 top of that, `o200k` adds 1.1 percent, and forty sentence pairs cannot tell that

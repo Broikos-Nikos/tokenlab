@@ -17,7 +17,7 @@
     "words": {
       "headline": "",
       "wordmark": "tokenlab",
-      "split": "Most of that is the alphabet. Greek is 1.904x the bytes of English before any tokenizer runs, and cl100k adds +145.6% on top (+133.0 to +158.4)."
+      "split": "Over forty sentence pairs, most of that is the alphabet: Greek is 1.904x the bytes of English before any tokenizer runs, and cl100k adds +145.6% on top (+133.0 to +158.4)."
     },
     "state": {
       "encoding": "cl100k_base",

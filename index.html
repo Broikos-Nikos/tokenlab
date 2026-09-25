@@ -130,9 +130,17 @@
             <span class="figure" data-token-count>0</span>
             <span class="unit">tokens</span>
           </div>
+          <!--
+            ME-F13. "per word" with no language on it is an invitation to
+            divide the Greek reading by the English one, and that division is
+            not the cost: Greek says the same thing in fewer words, so it comes
+            out above the ratio the card below measures. The unit says which
+            language it belongs to, and the note under the card does the
+            arithmetic the reader was about to do.
+          -->
           <p class="sub" id="live-summary">
             <span data-words>0</span> words,
-            <span data-tpw>0</span> per word
+            <span data-tpw>0</span> per <span data-word-unit>word</span>
           </p>
         </div>
 
@@ -155,6 +163,18 @@
             English
           </span>
         </div>
+
+        <!--
+          The division, done for them, with both figures the page printed and
+          the ratio it measured. Measured on this corpus: the two per word
+          readings divide to 2.02x on the conversational pair whose card says
+          1.46x, 38 percent above, and the sign flips, so it is not a bias a
+          reader could learn to subtract.
+        -->
+        <p class="unit-note" data-unit-note hidden>
+          <strong>Per word is a figure inside one language.</strong>
+          <span data-unit-note-body></span>
+        </p>
 
         <div class="bill">
           <label for="model">per thousand requests on</label>

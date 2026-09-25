@@ -60,6 +60,25 @@
         "el": 2.31,
         "en": 1.14
       },
+      "perWordDivision": {
+        "fromPrinted": 2.03,
+        "measured": 1.92,
+        "overstatesPercent": 5.5,
+        "hottest": {
+          "pair": 2,
+          "register": "conversational",
+          "divided": 2.02,
+          "card": 1.46,
+          "percent": 38.4
+        },
+        "coldest": {
+          "pair": 22,
+          "register": "technical",
+          "divided": 1.37,
+          "card": 1.71,
+          "percent": -19.9
+        }
+      },
       "lengthControlled": {
         "byteRatio": 1.904,
         "charRatio": 1.061,
@@ -169,6 +188,25 @@
       "tokensPerWord": {
         "el": 5.6,
         "en": 1.14
+      },
+      "perWordDivision": {
+        "fromPrinted": 4.91,
+        "measured": 4.68,
+        "overstatesPercent": 5.5,
+        "hottest": {
+          "pair": 6,
+          "register": "conversational",
+          "divided": 4.82,
+          "card": 3.5,
+          "percent": 37.7
+        },
+        "coldest": {
+          "pair": 22,
+          "register": "technical",
+          "divided": 3.02,
+          "card": 3.79,
+          "percent": -20.3
+        }
       },
       "lengthControlled": {
         "byteRatio": 1.904,
@@ -280,6 +318,25 @@
         "el": 7.05,
         "en": 1.14
       },
+      "perWordDivision": {
+        "fromPrinted": 6.18,
+        "measured": 5.84,
+        "overstatesPercent": 5.5,
+        "hottest": {
+          "pair": 2,
+          "register": "conversational",
+          "divided": 5.19,
+          "card": 3.77,
+          "percent": 37.7
+        },
+        "coldest": {
+          "pair": 22,
+          "register": "technical",
+          "divided": 3.65,
+          "card": 4.57,
+          "percent": -20.1
+        }
+      },
       "lengthControlled": {
         "byteRatio": 1.904,
         "charRatio": 1.061,
@@ -389,6 +446,25 @@
       "tokensPerWord": {
         "el": 7.05,
         "en": 1.14
+      },
+      "perWordDivision": {
+        "fromPrinted": 6.18,
+        "measured": 5.84,
+        "overstatesPercent": 5.5,
+        "hottest": {
+          "pair": 2,
+          "register": "conversational",
+          "divided": 5.19,
+          "card": 3.77,
+          "percent": 37.7
+        },
+        "coldest": {
+          "pair": 22,
+          "register": "technical",
+          "divided": 3.65,
+          "card": 4.57,
+          "percent": -20.1
+        }
       },
       "lengthControlled": {
         "byteRatio": 1.904,

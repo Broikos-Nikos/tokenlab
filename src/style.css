@@ -741,6 +741,24 @@ textarea:focus-visible {
   line-height: 1.4;
 }
 
+/* A footnote to the card above it, not a second card: the correction belongs to
+   that number, and boxing it would make it a third claim competing with it. */
+.unit-note {
+  /* The column is a flex stack with a --s5 gap, and this belongs to the card
+     above rather than to the stack, so it pulls most of that gap back. */
+  margin: calc(-1 * var(--s4)) 0 0;
+  padding: 0 var(--s4);
+  color: var(--text-dim);
+  font-size: var(--f1);
+  line-height: 1.45;
+  text-wrap: pretty;
+}
+
+.unit-note strong {
+  color: var(--text);
+  font-weight: 600;
+}
+
 .bill {
   padding: var(--s4) 0 0;
   border: 0;

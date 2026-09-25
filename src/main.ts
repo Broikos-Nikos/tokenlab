@@ -19,6 +19,9 @@ const el = {
   count: document.querySelector<HTMLElement>('[data-token-count]')!,
   words: document.querySelector<HTMLElement>('[data-words]')!,
   tpw: document.querySelector<HTMLElement>('[data-tpw]')!,
+  wordUnit: document.querySelector<HTMLElement>('[data-word-unit]')!,
+  unitNote: document.querySelector<HTMLElement>('[data-unit-note]')!,
+  unitNoteBody: document.querySelector<HTMLElement>('[data-unit-note-body]')!,
   compare: document.querySelector<HTMLElement>('[data-compare]')!,
   compareRatio: document.querySelector<HTMLElement>('[data-compare-ratio]')!,
   model: document.querySelector<HTMLSelectElement>('[data-model]')!,
@@ -438,7 +441,10 @@ function announce(stats: Stats, fractured: number, cost: string | null, model: s
     const parts = [
       `${stats.tokens} tokens`,
       `${stats.words} words`,
-      `${stats.tokensPerWord.toFixed(2)} tokens per word`,
+      // With the unit on it, because a screen reader visitor gets this line
+      // instead of the readout and would otherwise be the one reader who still
+      // hears a bare "per word" and has nothing beside it to correct them.
+      `${stats.tokensPerWord.toFixed(2)} tokens per ${unitLabel()}`,
     ]
     if (fractured > 0) {
       parts.push(`${fractured} ${fractured === 1 ? 'piece' : 'pieces'} cost more than one token`)
@@ -449,6 +455,19 @@ function announce(stats: Stats, fractured: number, cost: string | null, model: s
 }
 
 /* -------------------------------------------------------------- the render */
+
+/**
+ * Which language the per word figure belongs to.
+ *
+ * It used to belong to nobody, which is ME-F13: a bare "2.38 per word" beside a
+ * bare "1.18 per word" is an invitation to divide, and the quotient is not what
+ * the sentence costs. Their own text has no language this page knows, so there
+ * the unit stays bare, and the comparison it would belong to is hidden anyway.
+ */
+function unitLabel(): string {
+  if (state.custom) return 'word'
+  return state.lang === 'el' ? 'Greek word' : 'English word'
+}
 
 /**
  * Say so when the text is not in NFC, and say what it costs.
@@ -509,6 +528,7 @@ function render() {
   tickTo(el.count, stats.tokens, (n) => n.toLocaleString('en-US'))
   el.words.textContent = String(stats.words)
   el.tpw.textContent = stats.tokensPerWord.toFixed(2)
+  el.wordUnit.textContent = unitLabel()
 
   const fractured = segments.filter((s) => s.splitIntoBytes).length
   el.fractureCount.textContent = String(fractured)
@@ -548,6 +568,9 @@ function render() {
   } else {
     el.compare.hidden = true
     el.compareNote.hidden = false
+    // Their own text has no partner, so there is no division to disarm, and no
+    // language to attach to the unit either.
+    el.unitNote.hidden = true
   }
 }
 
@@ -563,6 +586,7 @@ function drawFromPreview(entry: PreviewEntry) {
   tickTo(el.count, entry.tokens, (n) => n.toLocaleString('en-US'))
   el.words.textContent = String(words)
   el.tpw.textContent = (words === 0 ? 0 : entry.tokens / words).toFixed(2)
+  el.wordUnit.textContent = unitLabel()
 
   const fractured = segs.filter((s) => s.splitIntoBytes).length
   el.fractureCount.textContent = String(fractured)
@@ -588,6 +612,8 @@ interface EncodingFinding {
   /** The dearest pair in the corpus for this encoding. The comparison card's ramp ends at the worst of these. */
   worstPair: { ratio: number; el: string; en: string }
   tokensPerWord: { el: number; en: number }
+  /** Word counts, which are what make the two figures above incomparable. */
+  totals: { elWords: number; enWords: number }
   lengthControlled: {
     bytesPerToken: { el: number; en: number }
     vocabularyPenaltyPercent: number
@@ -681,6 +707,53 @@ function showCompare(elTokens: number, enTokens: number) {
   el.compareNote.hidden = true
   el.compareRatio.textContent = `${ratio.toFixed(2)}x`
   el.compare.style.setProperty('--heat', String(compareHeat(ratio, WORST_RATIO)))
+  showUnitNote(elTokens, enTokens, ratio)
+}
+
+/**
+ * The division the two per word readings invite, carried out on the page.
+ *
+ * ME-F13. The readout prints tokens per word for whichever language is loaded,
+ * so a visitor reads one figure, presses the other button, reads the second,
+ * and divides. That quotient is not the cost of the sentence, because a word is
+ * not the same unit on the two sides: Greek incorporates into one word what
+ * English splits into two. Measured over this corpus, 474 Greek words carry
+ * what English needs 500 to say, so the division runs 5.5 percent above the
+ * measured ratio, and per sentence it is far worse: the conversational pair at
+ * index 2 divides to 2.02x beside a card that says 1.46x, 38 percent high. The
+ * sign flips, too, so it is not a bias a reader could learn to subtract.
+ *
+ * Built from the **printed** figures rather than the underlying quotients. Two
+ * decimals is what the reader has in front of them, and a note stating
+ * arithmetic they cannot reproduce would be a second wrong number rather than a
+ * correction of the first.
+ */
+function showUnitNote(elTokens: number, enTokens: number, ratio: number) {
+  const pair = corpus.pairs[state.pairIndex]!
+  const elWords = countWords(pair.el)
+  const enWords = countWords(pair.en)
+  const elPer = (elTokens / elWords).toFixed(2)
+  const enPer = (enTokens / enWords).toFixed(2)
+  const divided = (Number(elPer) / Number(enPer)).toFixed(2)
+  const card = ratio.toFixed(2)
+
+  const totals = (findings.encodings as unknown as Record<string, EncodingFinding>)[
+    state.encoding
+  ]!.totals
+  const skewPct = (totals.enWords / totals.elWords - 1) * 100
+  const skew = `${Math.abs(skewPct).toFixed(1)} percent ${skewPct >= 0 ? 'high' : 'low'}`
+
+  el.unitNoteBody.textContent =
+    elWords === enWords
+      ? `Here they agree: ${elWords} words on each side, so ${elPer} divided by ${enPer} ` +
+        `is ${divided}x beside a measured ${card}x. That is this sentence. Over the corpus ` +
+        `Greek uses ${totals.elWords} words where English uses ${totals.enWords}, and the ` +
+        `same division runs ${skew}.`
+      : `${elWords} words in Greek, ${enWords} in English, so ${elPer} divided by ${enPer} ` +
+        `is ${divided}x where the sentence itself costs ${card}x. Greek packs more into a ` +
+        `word and the division charges the tokenizer for it: over the corpus, ` +
+        `${totals.elWords} Greek words against ${totals.enWords} English, it runs ${skew}.`
+  el.unitNote.hidden = false
 }
 
 /** `?pair=N`, clamped, or null when it is absent or not a number. */

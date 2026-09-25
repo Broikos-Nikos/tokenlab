@@ -206,6 +206,45 @@ add('the raw register spread on o200k', `runs ${o.rawLo}x to ${o.rawHi}x across 
 add('the honest register spread on o200k', `${o.tpwLo} to ${o.tpwHi}, ${article(o.spreadPct)} ${o.spreadPct} percent difference`)
 add('the register spread on cl100k', `${c.tpwLo.toFixed(2)} to ${c.tpwHi.toFixed(2)}, ${article(c.spreadPct)} ${c.spreadPct} percent difference`)
 
+// ---- the division the two per word figures invite, ME-F13 ------------------
+
+/*
+ * Every figure in this paragraph is one a reader can arrive at themselves by
+ * dividing two numbers the page prints, which is exactly why it has to be
+ * derived here rather than typed: the README is claiming what that division
+ * gives, and a stale one would be a wrong answer to arithmetic the reader is
+ * being invited to check.
+ */
+{
+  const e = enc('o200k_base')
+  const d = e.perWordDivision
+  const t = e.totals
+  add(
+    'the word counts, which are what make the two per word figures incomparable',
+    `${t.elWords} words in Greek and ${t.enWords} in English`,
+  )
+  add(
+    'the two figures a reader divides',
+    `${e.tokensPerWord.el} tokens per Greek word by ${e.tokensPerWord.en} per English word`,
+  )
+  add(
+    'what the division gives, against what was measured',
+    `the answer is ${d.fromPrinted}x, above the ${d.measured}x measured`,
+  )
+  add(
+    'that the excess is the word counts and nothing else',
+    `${t.enWords} against ${t.elWords} is ${pct(d.overstatesPercent)} percent`,
+  )
+  add(
+    'the hottest sentence, where the division runs furthest above the cost',
+    `${pct(d.hottest.percent)} percent high on the ${d.hottest.register} pair at index ${d.hottest.pair}`,
+  )
+  add(
+    'the coldest sentence, which is what stops a reader correcting for it',
+    `${pct(Math.abs(d.coldest.percent))} percent low on the ${d.coldest.register} pair at index ${d.coldest.pair}`,
+  )
+}
+
 // ---- the corpus ------------------------------------------------------------
 
 /**

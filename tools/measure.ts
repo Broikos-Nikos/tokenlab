@@ -176,6 +176,11 @@ async function main() {
         ratio: round(el / en),
         // The ratio above moves with how long the author wrote each side. These
         // two do not, and they are what a cost model for Greek actually uses.
+        //
+        // Inside one language. ME-F13: dividing the Greek figure by the English
+        // one is a comparison of a unit that is not the same in the two
+        // languages: the quotient is this row's `ratio` divided by `wordRatio`
+        // below, which is why that number sits in this same object.
         elTokensPerWord: round(el / elW),
         enTokensPerWord: round(en / enW),
         wordRatio: round(elW / enW, 3),
@@ -219,6 +224,41 @@ async function main() {
       ratio: round(totalEl / totalEn),
       ratioInterval95: [round(lo), round(hi)],
       tokensPerWord: { el: round(totalEl / elWords), en: round(totalEn / enWords) },
+      /*
+       * What the two figures above give when a reader divides them, which the
+       * page invited without ever saying so. ME-F13.
+       *
+       * They are not divisible. Each is correct inside its own language and the
+       * denominator is not the same unit on the two sides: Greek incorporates
+       * into one word what English splits into two, so the corpus needs fewer
+       * Greek words to say the same thing and the quotient charges the
+       * tokenizer for the difference. Over the whole corpus the excess is
+       * exactly the ratio of the word counts. Per sentence it is several times
+       * that and it changes sign, which is why a reader cannot learn to correct
+       * for it and why the page now does the division for them.
+       *
+       * From the **printed** figures, two decimals, because that is what a
+       * reader has in front of them and the page states arithmetic they can
+       * reproduce.
+       */
+      perWordDivision: (() => {
+        const fromPrinted = round(round(totalEl / elWords) / round(totalEn / enWords))
+        const perPair = corpus.pairs.map((p, i) => {
+          const elPer = round(elCounts[i] / countWords(p.el))
+          const enPer = round(enCounts[i] / countWords(p.en))
+          const card = round(elCounts[i] / enCounts[i])
+          const divided = round(elPer / enPer)
+          return { pair: i, register: p.register, divided, card, percent: round((divided / card - 1) * 100, 1) }
+        })
+        const by = [...perPair].sort((a, b) => a.percent - b.percent)
+        return {
+          fromPrinted,
+          measured: round(totalEl / totalEn),
+          overstatesPercent: round((enWords / elWords - 1) * 100, 1),
+          hottest: by[by.length - 1],
+          coldest: by[0],
+        }
+      })(),
       /** The length control. See the note on utf8Bytes above. */
       lengthControlled: {
         byteRatio: round(elBytes / enBytes, 3),

@@ -115,6 +115,19 @@ model actually uses, the spread is 1.97 to 2.46, a 25 percent difference. On
 `cl100k` the same comparison is 4.32 to 6.59, a 53 percent difference, and that
 one is genuinely the tokenizer.
 
+**Tokens per word is a figure inside one language, and the two sides do not
+divide.** This corpus takes 474 words in Greek and 500 in English to say the
+same things, because Greek incorporates into one word what English splits into
+two. Divide 2.31 tokens per Greek word by 1.14 per English word and the answer
+is 2.03x, above the 1.92x measured, and the excess is exactly the word counts:
+500 against 474 is 5.5 percent. Per sentence it is several times that and it
+changes sign, from 38.4 percent high on the conversational pair at index 2 to
+19.9 percent low on the technical pair at index 22, so it is not a bias a reader
+can learn to subtract. The page does that division under the comparison card
+rather than leave it to be done quietly. The unit that is comparable between the
+two languages is the byte, which is what the last two columns of the table
+measure.
+
 **The cheapest Greek in this corpus is the technical register, on both
 vocabularies.** 1.97 tokens per word against 2.46 for commerce on `o200k`, and
 4.32 against 6.59 for formal on `cl100k`. The reason is visible in the

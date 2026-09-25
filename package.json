@@ -7,6 +7,7 @@
   "scripts": {
     "dev": "vite",
     "measure:paint": "node tools/measure-paint.mjs",
+    "measure:controls": "node tools/measure-controls.mjs",
     "build": "tsc --noEmit && npm run check && vite build",
     "preview": "vite preview",
     "measure": "tsx tools/measure.ts",
@@ -33,6 +34,7 @@
     "check:perword": "node tools/check-perword.mjs",
     "check:typing": "node tools/check-typing.mjs",
     "check:reader": "node tools/check-reader.mjs",
+    "check:contrast": "node tools/check-contrast.mjs",
     "check:models": "tsx tools/check-models.ts"
   },
   "dependencies": {

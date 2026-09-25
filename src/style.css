@@ -41,6 +41,31 @@
   --ink-deep: #000000;
   --ink-lift: #141010;
   --edge: #2e2621;
+
+  /*
+   * The line around anything you can use, which is a different job from the
+   * line between two rows of a table.
+   *
+   * PA-F10. `--edge` is the only boundary the text box, the model picker, the
+   * shuffle button and the idle encoding buttons had, and measured on the built
+   * page it is **1.36:1 against the page, 1.27 against a lifted surface, 1.24
+   * against the box's own fill and 1.12 against the picker's**. WCAG 1.4.11 asks
+   * for 3:1 on the visual boundary of a control, and at 1.2 the boundary is not
+   * there at all: the text box ends wherever the visitor guesses.
+   *
+   * 0.55 rather than the 0.53 that first cleared it. The binding surface is the
+   * picker's own fill, where 0.53 gives 3.11 and this gives 3.39, and a value
+   * that sits on its threshold is a value that fails on the next rounding
+   * change. The same argument as the encoding hues sitting 110 degrees from the
+   * alarm rather than the 100 the gate requires.
+   *
+   *   against the page    4.14:1
+   *   against --ink-lift  3.87:1
+   *   against the box     3.78:1
+   *   against the picker  3.39:1
+   */
+  --edge-control: oklch(0.55 0.014 40);
+
   --text: #ffffff;
   --text-dim: #9a8f88;
   --text-faint: #8a7f76;
@@ -275,7 +300,7 @@ main {
 .lang-toggle {
   display: inline-flex;
   padding: 3px;
-  border: 1px solid var(--edge);
+  border: 1px solid var(--edge-control);
   border-radius: var(--r-pill);
   background: oklch(0.2 0.012 40);
 }
@@ -301,7 +326,7 @@ main {
 
 .shuffle {
   appearance: none;
-  border: 1px solid var(--edge);
+  border: 1px solid var(--edge-control);
   border-radius: var(--r-pill);
   padding: var(--s2) var(--s4);
   font: inherit;
@@ -323,7 +348,7 @@ textarea {
   resize: vertical;
   min-height: 5.5rem;
   padding: var(--s4) var(--s4);
-  border: 1px solid var(--edge);
+  border: 1px solid var(--edge-control);
   border-radius: var(--r-card);
   background: oklch(0.2 0.012 40);
   color: var(--text);
@@ -357,7 +382,7 @@ textarea:focus-visible {
 .enc {
   appearance: none;
   cursor: pointer;
-  border: 1px solid var(--edge);
+  border: 1px solid var(--edge-control);
   border-radius: var(--r-card);
   padding: var(--s2) var(--s3);
   background: transparent;
@@ -692,7 +717,7 @@ textarea:focus-visible {
 
 .restore {
   padding: var(--s2) var(--s3);
-  border: 1px solid var(--edge);
+  border: 1px solid var(--edge-control);
   border-radius: var(--r-pill);
   background: var(--ink-lift);
   color: var(--text-dim);
@@ -786,14 +811,28 @@ textarea:focus-visible {
   letter-spacing: 0.02em;
 }
 
+/*
+ * The only control on the page that changes the price, and until now the only
+ * one with nothing to say it opens: `appearance: none` took the native arrow
+ * away and the stylesheet never replaced it, so the model picker rendered as a
+ * rounded box with a word in it. PA-F10.
+ *
+ * The chevron is drawn in --text-dim, which is 4.9:1 on this fill, because it is
+ * the only thing carrying the meaning "this opens" and a 1.4:1 hint would be the
+ * same defect one level down.
+ */
 .bill select {
   appearance: none;
   width: 100%;
   margin-top: var(--s2);
-  padding: var(--s2) var(--s3);
-  border: 1px solid var(--edge);
+  padding: var(--s2) calc(var(--s3) + 1.1rem) var(--s2) var(--s3);
+  border: 1px solid var(--edge-control);
   border-radius: var(--r-card);
-  background: oklch(0.24 0.014 40);
+  background-color: oklch(0.24 0.014 40);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8' fill='none' stroke='%239a8f88' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M1 1.5 6 6.5 11 1.5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right var(--s3) center;
+  background-size: 0.7rem;
   color: var(--text);
   font: inherit;
   font-size: var(--f2);

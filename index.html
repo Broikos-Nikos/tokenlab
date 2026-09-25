@@ -8,6 +8,46 @@
       name="description"
       content="Type Greek, watch a tokenizer shatter it, watch the bill. Every number on the page is measured in the repository, on a corpus committed beside it."
     />
+    <!--
+      RC-F11. Pasting this URL into Slack, a mail client or LinkedIn produced a
+      bare link with no preview, and the tab showed a blank page icon while the
+      browser asked for /favicon.ico and got a 404 on every load. Measured on the
+      live page at tick 153: a title, a description, and nothing else in the
+      head at all.
+
+      The recruiter pass ends by asking whether it would forward the link, so
+      the one action it was willing to take produced nothing.
+
+      The card is `public/card.png`, taken by `npm run stills` at 1200 by 630,
+      which is what these services crop to. It lives in `public/` because that
+      is what ships: `docs/` is in the repository and not on the site, so an
+      og:image pointing there unfurls into a 404. The URL is absolute because a
+      relative one is resolved against the service's own domain, not this page's.
+    -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://broikos-nikos.github.io/tokenlab/" />
+    <meta property="og:title" content="What Greek costs a tokenizer" />
+    <meta
+      property="og:description"
+      content="Type Greek, watch it shatter into tokens, watch the bill. Greek costs 1.92 times the tokens of English, and almost none of that is the tokenizer."
+    />
+    <meta property="og:image" content="https://broikos-nikos.github.io/tokenlab/card.png" />
+    <meta
+      property="og:image:alt"
+      content="A Greek sentence broken into 71 tokens on an older vocabulary, five of them fractured into raw bytes"
+    />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content="https://broikos-nikos.github.io/tokenlab/card.png" />
+    <!--
+      An inline icon, so the tab has one without a second request and without a
+      file the build has to remember to copy. `rel="icon"` is also what stops the
+      browser asking for /favicon.ico, which is where the 404 came from.
+    -->
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><rect width='16' height='16' rx='3' fill='%23080604'/><rect x='2.5' y='4' width='4.5' height='8' rx='1' fill='%23e8a33d'/><rect x='8.5' y='4' width='1.6' height='8' rx='.5' fill='%23d4553a'/><rect x='11' y='4' width='1.6' height='8' rx='.5' fill='%23d4553a'/></svg>"
+    />
+    <meta name="theme-color" content="#080604" />
     <link rel="preload" href="./fonts/manrope-var.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="./fonts/robotomono-var.woff2" as="font" type="font/woff2" crossorigin />
   </head>

@@ -17,6 +17,20 @@
       "fractured": "5",
       "chips": 66,
       "sentence": "Εγκαταστήστε τις εξαρτήσεις, εκτελέστε npm run build και ανοίξτε τη σελίδα στη θύρα 3000."
+    },
+    {
+      "encoding": "cl100k_base",
+      "file": "public/card.png",
+      "viewport": {
+        "width": 1200,
+        "height": 630
+      },
+      "whole": true,
+      "scale": 1,
+      "tokens": "71",
+      "fractured": "5",
+      "chips": 66,
+      "sentence": "Εγκαταστήστε τις εξαρτήσεις, εκτελέστε npm run build και ανοίξτε τη σελίδα στη θύρα 3000."
     }
   ]
 }

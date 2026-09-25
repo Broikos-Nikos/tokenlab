@@ -8,7 +8,7 @@ no write access to the project: it produced a findings file and a list, and the
 fixes were separate work afterwards. Nobody audited their own code twenty
 minutes after writing it, which is the only reason any of this was found.
 
-**130 findings, 102 closed, 28 open**, across the 9 perspectives, every one of them run.
+**130 findings, 103 closed, 27 open**, across the 9 perspectives, every one of them run.
 
 That line and the count under every table below are checked against the tables
 themselves on every build, by `npm run check:audits`, and against the queue this
@@ -149,7 +149,7 @@ The deep reviewer: correctness, read as code rather than as comments.
 
 The recruiter, ten seconds, not technical: does anything here stop the scroll.
 
-13 findings, 11 closed.
+13 findings, 12 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -158,7 +158,7 @@ The recruiter, ten seconds, not technical: does anything here stop the scroll.
 | `RC-F3` | high | fixed, tick 13 | The first two sentences assume the reader knows what a tokenizer is and why Greek matters |
 | `RC-F4` | high | fixed, tick 13 | No repository description and no topics, so on a profile listing it is one word |
 | `RC-F10` | medium | fixed, tick 13 | The two pictures meant to be compared are captioned in two different units |
-| `RC-F11` | medium | open | Forwarding the link produces a blank card, and the tab has no icon |
+| `RC-F11` | medium | fixed, tick 153 | Forwarding the link produces a blank card, and the tab has no icon |
 | `RC-F5` | medium | fixed, tick 27 | The moving picture is a scroll and 2.5 MB away, and the lighter webm is gitignored |
 | `RC-F6` | medium | fixed, tick 151 | The loop spends two thirds of a second on the answer and a second and a half frozen on the problem |
 | `RC-F7` | medium | fixed, tick 14 | Five different ratios in twenty seconds and no way to tell which one is the claim |

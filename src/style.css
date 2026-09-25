@@ -156,7 +156,17 @@ body {
   font-family: var(--sans);
   font-size: clamp(0.95rem, 0.9rem + 0.25vw, 1.05rem);
   line-height: 1.55;
-  transition: background var(--t-state) var(--ease);
+  /*
+   * There was a `transition: background` here, left from when the wash followed
+   * the encoding. Nothing changes this background any more, so it could never
+   * fire. Measured rather than reasoned: three encoding switches fire 46
+   * transitions, 40 of them on the encoding buttons and 3 on the headline
+   * figure, and not one on body.
+   *
+   * PA-F12 named this line as the second half of a paint cost. It was neither
+   * half: the transition was dead, and the blend above is 2 percent of the
+   * raster work rather than the most expensive thing in the paint path.
+   */
 }
 
 /* A very slight tooth over the flat fields, so the dark does not read as plastic. */

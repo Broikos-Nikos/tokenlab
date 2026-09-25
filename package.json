@@ -6,6 +6,7 @@
   "description": "An interactive page that shows what tokenizers do to Greek text, and what it costs. Type Greek, watch it shatter into tokens, watch the price update.",
   "scripts": {
     "dev": "vite",
+    "measure:paint": "node tools/measure-paint.mjs",
     "build": "tsc --noEmit && npm run check && vite build",
     "preview": "vite preview",
     "measure": "tsx tools/measure.ts",

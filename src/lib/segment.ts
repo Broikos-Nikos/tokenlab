@@ -103,7 +103,7 @@ function owedAfter(owed: number, b: number): number {
  * every multi-token character.
  *
  * One thing that was tried first and was worse: reusing a single buffer instead
- * of allocating a view per token. It was **five times slower**, 825 ms against
+ * of allocating a view per token. It took **five times as long**, 825 ms against
  * 168 ms, and it disagreed with this function's own output. The allocation was
  * never the cost. The decoder calls were.
  */

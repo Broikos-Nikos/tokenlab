@@ -216,8 +216,10 @@ body {
 /*
  * The one number the page exists to say, in the colour the house reserves for
  * the thing being argued about. It followed the encoding hue before, which
- * meant the sentence "one of them costs 2.06x more" was written in the colour
- * of whichever vocabulary happened to be selected.
+ * meant the sentence, quoted:
+ * "one of them costs 2.06x more", was written in the colour of whichever
+ * vocabulary happened to be selected.
+
  */
 .ratio-inline {
   color: var(--alarm-bright);

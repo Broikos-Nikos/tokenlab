@@ -255,7 +255,14 @@ async function setEncoding(id: EncodingId): Promise<boolean> {
   }
   setBusy(id, false)
   const f = findings.encodings as unknown as Record<string, EncodingFinding>
-  el.headlineRatio.textContent = `${f[id]!.ratio}x more`
+  /*
+   * "as much", not "more". ME-F5, quoted:
+   * `${ratio}x more`, which a reader takes as one plus the ratio. The
+   * overstatement is the reciprocal of the ratio, so it ran at 52 percent on
+   * o200k, the vocabulary this project spends its README arguing is innocent,
+   * and at 17 on p50k, the one it warns about.
+   */
+  el.headlineRatio.textContent = `${f[id]!.ratio}x as much`
 
   // Say which part of that is the alphabet and which part is this vocabulary,
   // because the ratio on its own credits all of it to the vocabulary.

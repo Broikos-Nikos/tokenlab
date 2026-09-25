@@ -1,0 +1,5 @@
+{
+  "cap": 23,
+  "set": "2026-09-25",
+  "why": "The packages npm actually installs on one machine, platform optional entries excluded. It may only fall. SC-F5 is why it exists: wait-on was one line of CI and dragged in 40 of the 63 that were installed before tick 155, 10.6 MB, none of it shared with vite, tsx, playwright or typescript, to poll a URL that tools/verify.mjs had been polling in thirteen lines of its own since the day it was written. A tree grows one convenience at a time and nothing ever says so, which is what a ratchet is for."
+}

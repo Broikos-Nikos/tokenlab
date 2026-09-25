@@ -16,6 +16,7 @@ import { writeFileSync } from 'node:fs'
 import { createServer } from 'node:net'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { reachable } from './wait-for.mjs'
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 /*
@@ -39,19 +40,6 @@ function freePort() {
   })
 }
 
-async function reachable(url, timeoutMs) {
-  const until = Date.now() + timeoutMs
-  while (Date.now() < until) {
-    try {
-      const res = await fetch(url, { signal: AbortSignal.timeout(2000) })
-      if (res.ok) return true
-    } catch {
-      // not up yet
-    }
-    await new Promise((r) => setTimeout(r, 150))
-  }
-  return false
-}
 
 function run(cmd, args) {
   const r = spawnSync(cmd, args, { cwd: root, stdio: 'inherit', shell: useShell })

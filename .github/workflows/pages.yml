@@ -110,7 +110,7 @@ jobs:
       - name: serve the built page and gate it
         run: |
           npx vite preview --port 4173 --strictPort &
-          npx wait-on http://localhost:4173/ --timeout 60000
+          node tools/wait-for.mjs http://localhost:4173/ 60000
           TOKENLAB_URL=http://localhost:4173/ npm run check:loading
 
   deploy:

@@ -172,6 +172,24 @@ for (const m of pricing.models as { id: string; label: string; encoding: string;
   }
 }
 
+/*
+ * And which row the page opens on, which is the one thing about this file the
+ * block above could not see.
+ *
+ * MA-F8. `src/main.ts` selected it as `pricing.models[1]`. Measured at tick 146
+ * by adding one row at the top of the list, the natural place to add a newer
+ * model: the page opened on GPT-6 Astra at $0.280 instead of GPT-5.6 Sol at
+ * $0.132, and `npm run build` was green, this gate included. A row is now
+ * chosen by name in this file, and a name that is not here is a page that opens
+ * on something nobody picked.
+ */
+if (typeof pricing.opensOn !== 'string' || !seenIds.has(pricing.opensOn)) {
+  fail(
+    `data/pricing.json opensOn is ${JSON.stringify(pricing.opensOn)}, which is not one of the ${seenIds.size} models it lists`,
+    'The page opens on that id. Without it the bill falls back to the first row, which is the positional choice this field replaced.',
+  )
+}
+
 if (failed > 0) {
   console.error('\nA model attributed to the wrong vocabulary prices every token on this page wrongly.')
   process.exit(1)

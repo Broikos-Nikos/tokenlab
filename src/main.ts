@@ -51,12 +51,36 @@ const el = {
 
 type Lang = 'el' | 'en'
 
+/**
+ * The model the bill opens on, named in `data/pricing.json` as `opensOn`.
+ *
+ * MA-F8. This was `pricing.models[1]!.id`, and index 1 was a choice nothing in
+ * the repository recorded. `data/pricing.json` carries a note inviting a
+ * maintainer to edit it, prices change, and the natural way to add a model is
+ * at the top of the list. Measured at tick 146 by doing exactly that, one new
+ * row above the others:
+ *
+ *   as shipped      opens on GPT-5.6 Sol, $0.132 per thousand requests
+ *   one row added   opens on GPT-6 Astra, $0.280, 2.1 times as much
+ *
+ * `npm run build` was green both times, including `check:models`, which since
+ * tick 144 validates every field of every row and had nothing to say about
+ * which row the page starts on.
+ *
+ * The id lives in the data file rather than here because that is the file being
+ * edited: the choice is now visible to the person whose edit would move it.
+ * `check:models` refuses an `opensOn` that names no model, so the fallback
+ * below cannot ship, and it is a fallback rather than a throw because a bill
+ * that opens on the first model is a smaller failure than a blank page.
+ */
+const openingModel = pricing.models.find((m) => m.id === pricing.opensOn) ?? pricing.models[0]!
+
 const state = {
   encoding: 'o200k_base' as EncodingId,
   lang: 'el' as Lang,
   pairIndex: 0,
   custom: false,
-  model: pricing.models[1]!.id,
+  model: openingModel.id,
 }
 
 let encoder: Encoder | null = null

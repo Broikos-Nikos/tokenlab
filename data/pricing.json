@@ -2,6 +2,8 @@
   "checked": "2026-09-20",
   "source": "https://developers.openai.com/api/docs/pricing",
   "note": "Standard tier, per million tokens, in US dollars. Batch, flex and long context tiers differ. Regional processing endpoints carry a 10 percent uplift for models released on or after 2026-03-05. These are the only numbers in this repository that are not measured here, which is why they carry a date and a link.",
+  "opensOn": "gpt-5.6-sol",
+  "opensOnWhy": "Which model the bill quotes on arrival, by id. It was the second row of the list below, so adding a model at the top changed the opening price and nothing said so. Any id in the list is a valid answer; check:models refuses one that is not.",
   "models": [
     { "id": "gpt-6-astra", "label": "GPT-6 Astra", "encoding": "o200k_base", "inputPerMillion": 10.0, "outputPerMillion": 50.0 },
     { "id": "gpt-5.6-sol", "label": "GPT-5.6 Sol", "encoding": "o200k_base", "inputPerMillion": 4.0, "outputPerMillion": 20.0 },

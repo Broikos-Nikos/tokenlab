@@ -8,7 +8,7 @@ no write access to the project: it produced a findings file and a list, and the
 fixes were separate work afterwards. Nobody audited their own code twenty
 minutes after writing it, which is the only reason any of this was found.
 
-**135 findings, 108 closed, 27 open**, across the 9 perspectives, every one of them run.
+**136 findings, 109 closed, 27 open**, across the 9 perspectives, every one of them run.
 
 That line and the count under every table below are checked against the tables
 themselves on every build, by `npm run check:audits`, and against the queue this
@@ -234,11 +234,12 @@ The supply chain: what this project installs, what it ships inside the bundle, a
 
 Not a perspective and not an agent. Findings this project raised against its own code while a class found somewhere else in the workspace was being swept, kept here because commit messages cite them like any other.
 
-6 findings, 2 closed.
+7 findings, 3 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
 | `TLANG-F1` | medium | fixed, tick 177 | Every token chip of the Greek corpus sentence was declared English, and the box claimed a language for text somebody else typed |
+| `TGRP-F1` | medium | fixed, tick 182 | serve.mjs kills a process group the spawn never creates, so cleanup off Windows leaves the server running |
 | `TCLAIM-F1` | medium | open | Every number in the README is held to the measurement and the sentence around them is held by nothing |
 | `TRAW-F1` | medium | open | Three browser gates and not one of them recomputes a token count, on the page whose subject is token counts |
 | `TFOR-F1` | low | open | Whether a fractured token chip survives forced colours has not been measured |

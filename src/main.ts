@@ -437,6 +437,19 @@ function drawTokens(shown: Segment[], total: number, stagger: boolean) {
     more.textContent = `and ${total - shown.length} more`
     frag.append(more)
   }
+  /*
+   * The row says which language it is in, or says nothing.
+   *
+   * WP-F11 one project over: three Greek buttons inside `lang="en"`, read by a
+   * screen reader with an English voice. Measured here at tick 177 in the
+   * opening state, 28 chips of "Το δικαστήριο ανέβαλε..." every one of them
+   * declared English. A corpus sentence has a language this page chose and can
+   * state; their own text does not, and line 551 already says so, so the
+   * attribute goes away rather than guessing from the code points.
+   */
+  if (state.custom) el.tokens.removeAttribute('lang')
+  else el.tokens.setAttribute('lang', state.lang)
+
   el.tokens.replaceChildren(frag)
 }
 
@@ -1012,6 +1025,10 @@ function wire() {
   el.input.addEventListener('input', () => {
     cancelHeal()
     state.custom = true
+    /* And the box stops claiming a language, for the same reason the token row
+       does: this page knows which language its own corpus sentence is in and
+       does not know what somebody else has typed. */
+    el.input.removeAttribute('lang')
     // The held text exists to undo one language press. Once they are typing
     // again it is a stale offer to overwrite what is in front of them.
     setHeld('')

@@ -35,7 +35,7 @@
  */
 
 import { execFileSync } from 'node:child_process'
-import { mkdirSync, readdirSync, rmSync, renameSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, readdirSync, rmSync, renameSync, statSync, writeFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { serve, useShared } from './serve.mjs'
@@ -65,6 +65,15 @@ const OUT = resolve(root, 'docs/shatter.gif')
 const WORK = resolve(root, '.capture')
 
 const SIZE = { width: 1340, height: 760 }
+
+/*
+ * A seam for the failure path. DR-F9 was measured here by making the wait time
+ * out by hand; `CAPTURE_FAIL_AT=start` is that, repeatably, and
+ * `check-capture-exit.mjs` at the workspace drives it against all seven
+ * projects that film themselves. Added at tick 199 with the sweep that gave the
+ * other six this project's `finally`.
+ */
+const FAIL_AT = process.env.CAPTURE_FAIL_AT ?? ''
 const FPS = 12
 const WIDTH = 880
 /*
@@ -155,6 +164,13 @@ const page = await context.newPage()
 
 const started = Date.now()
 await page.goto(URL_, { waitUntil: 'domcontentloaded' })
+
+/* Not a line earlier: a context with no page in it has no video to finalise,
+   so throwing sooner tests the message and not the thing it is about. */
+if (FAIL_AT === 'start') {
+  await page.waitForTimeout(500)
+  throw new Error('CAPTURE_FAIL_AT=start, the seam the failure path is tested through')
+}
 
 // The headline is the argument but the token box is the evidence, and the
 // evidence has to be in frame. Scroll before anything animates.
@@ -271,7 +287,14 @@ if (midway.state.encoding !== SHATTER_ENCODING || midway.state.fracturedChips ==
 
 if (failure) {
   console.error(`FAIL  ${failure.message}`)
-  console.error(`      the recording is in ${WORK}, finished and kept, for looking at`)
+  const kept = existsSync(WORK) ? readdirSync(WORK).filter((f) => f.endsWith('.webm')) : []
+  const bytes = kept.reduce((n, f) => n + statSync(resolve(WORK, f)).size, 0)
+  if (kept.length > 0) {
+    console.error(`      the recording is in ${WORK}, ${bytes} bytes, finished and kept, for looking at`)
+    console.error('      .capture is in .gitignore, so it cannot reach a commit. Delete it when you are done.')
+  } else {
+    console.error(`      nothing was recorded, and ${WORK} is empty`)
+  }
   process.exit(1)
 }
 

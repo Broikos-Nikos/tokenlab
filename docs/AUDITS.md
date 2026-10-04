@@ -5,7 +5,7 @@ Commit messages cite identifiers like `DE-F1`. This is what they refer to.
 Nine audit passes and the workspace sweeps. Each pass was run against one
 assigned perspective and nothing else.
 
-**138 findings, 110 closed, 28 open**.
+**139 findings, 111 closed, 28 open**.
 
 Held to the workspace queue this project is built from by
 `tools/check-audit-status.mjs`, which fails if a row here says anything the
@@ -209,7 +209,7 @@ Not a perspective and not an agent. Findings raised against this project while
 a class found somewhere else in the workspace was being swept across all eight,
 kept here because commit messages cite them like any other.
 
-9 findings, 4 closed.
+10 findings, 5 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -218,6 +218,7 @@ kept here because commit messages cite them like any other.
 | `TGRP-F1` | medium | fixed, tick 182 | serve.mjs kills a process group the spawn never creates, so cleanup off Windows leaves the server running |
 | `TLANG-F1` | medium | fixed, tick 177 | Every token chip of the Greek corpus sentence was declared English, and the box claimed a language for text somebody else typed |
 | `TRAW-F1` | medium | open | Three browser gates and not one of them recomputes a token count, on the page whose subject is token counts |
+| `TREL-F1` | medium | fixed, tick 195 | The publish document has named USERNAME.github.io since the day the repository went public |
 | `TLANG-F2` | medium | fixed, tick 183 | check:lang judged a token chip as a block of text, so it failed one run in five on correct markup |
 | `TCAP-F1` | low | open | check:capture caps the gif at 4 MB and the gif is 2.77 MB, so the ceiling permits silent growth |
 | `TFOR-F1` | low | open | Whether a fractured token chip survives forced colours has not been measured |

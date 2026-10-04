@@ -44,12 +44,18 @@ live, add this as the first line under the title in `README.md`, above the
 opening paragraph:
 
 ```markdown
-**[Open it](https://USERNAME.github.io/tokenlab/)** and type Greek into it.
+**[Open it](https://broikos-nikos.github.io/tokenlab/)** and type Greek into it.
 ```
 
 and set the same URL as the repository Website so it shows in the About box.
 
-Then add `"homepage": "https://USERNAME.github.io/tokenlab/"` to `package.json`.
+The owner was `USERNAME` here until tick 195, four days after the repository was
+public and the real URL was in the README two lines away. `check-releasable.mjs`
+at the workspace asks this document for the page it will publish and refuses a
+placeholder, because a publish document nobody can follow is a publish document
+that was written and never read.
+
+Then add `"homepage": "https://broikos-nikos.github.io/tokenlab/"` to `package.json`.
 
 ## 4. What is deliberately not automated
 

@@ -5,7 +5,7 @@ Commit messages cite identifiers like `DE-F1`. This is what they refer to.
 Nine audit passes and the workspace sweeps. Each pass was run against one
 assigned perspective and nothing else.
 
-**139 findings, 111 closed, 28 open**.
+**139 findings, 111 closed, 28 open**, across the 9 perspectives that produced them.
 
 Held to the workspace queue this project is built from by
 `tools/check-audit-status.mjs`, which fails if a row here says anything the

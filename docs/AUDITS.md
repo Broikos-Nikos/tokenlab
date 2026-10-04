@@ -1,28 +1,17 @@
 # The audits
 
-Commit messages in this repository cite identifiers like `DR-F1` and `HE-F2`.
-This is what they refer to.
+Commit messages cite identifiers like `DE-F1`. This is what they refer to.
 
-Each audit was run by a separate agent against one assigned perspective, with
-no write access to the project: it produced a findings file and a list, and the
-fixes were separate work afterwards. Nobody audited their own code twenty
-minutes after writing it, which is the only reason any of this was found.
+Nine audit passes and the workspace sweeps. Each pass was run against one
+assigned perspective and nothing else.
 
-**137 findings, 110 closed, 27 open**, across the 9 perspectives, every one of them run.
+**138 findings, 110 closed, 28 open**.
 
-That line and the count under every table below are checked against the tables
-themselves on every build, by `npm run check:audits`, and against the queue this
-project is built from by the loop that closes the findings. They were typed by
-hand until tick 148, and by then a third of the table was wrong.
-
-The full audit files are not in this repository. They are working documents of
-the workspace this project was built in, and they quote intermediate states of
-files that no longer exist. What follows is the list itself, which is the part
-a commit message needs to resolve.
+Held to the workspace queue this project is built from by
+`tools/check-audit-status.mjs`, which fails if a row here says anything the
+queue does not.
 
 ## `HS`, hostile stranger
-
-The hostile stranger: empty input, a megabyte of it, emoji, RTL, a phone sized window, keyboard only.
 
 16 findings, 12 closed.
 
@@ -31,14 +20,14 @@ The hostile stranger: empty input, a megabyte of it, emoji, RTL, a phone sized w
 | `HS-F1` | high | fixed, tick 4 | The headline number is a placeholder on every fresh load |
 | `HS-F2` | high | fixed, tick 4 | One pasted U+FFFD swallows the rest of the text into a single chip, because isReadable cannot tell a decoder failure from a real replacement character |
 | `HS-F3` | high | fixed, tick 4 | The encoding buttons lie while a vocabulary loads and can end up lying permanently |
-| `HS-F10` | medium | fixed, tick 4 | Nothing the page computes is ever announced |
-| `HS-F11` | medium | fixed, tick 127 | Right to left text is laid out in reverse reading order |
 | `HS-F4` | medium | fixed, tick 124 | Typing kills the language toggle and deletes the comparison |
 | `HS-F5` | medium | fixed, tick 125 | Every keystroke re-tokenizes everything, so a large paste drops the page to about 3 fps |
 | `HS-F6` | medium | fixed, tick 126 | The token counter stutters backwards on every keystroke |
 | `HS-F7` | medium | fixed, tick 4 | Anything typed before the vocabulary arrives is silently thrown away |
 | `HS-F8` | medium | fixed, tick 4 | With JavaScript off the built page is a styled skeleton with no explanation |
 | `HS-F9` | medium | fixed, tick 28 | The findings table is cut off on a phone and unreachable by keyboard |
+| `HS-F10` | medium | fixed, tick 4 | Nothing the page computes is ever announced |
+| `HS-F11` | medium | fixed, tick 127 | Right to left text is laid out in reverse reading order |
 | `HS-F12` | low | fixed, tick 4 | 1 pieces of this text cost more than one token each |
 | `HS-F13` | low | open | Number formatting is inconsistent inside one view |
 | `HS-F14` | low | open | The truncation message is dressed as a whitespace token |
@@ -46,8 +35,6 @@ The hostile stranger: empty input, a megabyte of it, emoji, RTL, a phone sized w
 | `HS-F16` | low | open | The only explanation of a red chip is a mouse only tooltip, and its wording is wrong |
 
 ## `ME`, measurement
-
-The measurement auditor: is every number reproducible, is the sample size stated, is any comparison unfair.
 
 20 findings, 16 closed.
 
@@ -57,15 +44,15 @@ The measurement auditor: is every number reproducible, is the sample size stated
 | `ME-F2` | high | fixed, tick 4 | The per register claim is mostly a sentence length artefact: tokens per Greek word is flat at 2.46 in four of five registers, and understate by a third is really 9 percent |
 | `ME-F3` | high | fixed, tick 4 | The page prints a dollar figure for a named model using an encoding that model does not use, up to 165 percent inflation. pricing.json already carries the encoding field and main.ts never reads it |
 | `ME-F4` | high | fixed, tick 4 | The headline ratio is never length controlled. Greek is 2.015x the UTF-8 bytes of English, so on o200k the tokenizer contributes only 3.6 percent. On cl100k it genuinely contributes 2.55x. The README presents both as the same kind of finding |
-| `ME-F10` | medium | fixed, tick 128 | The corpus has no digits and one Latin word, so the technical register does not describe technical Greek |
-| `ME-F11` | medium | fixed, tick 129 | The measurement silently assumes NFC input, and NFD Greek costs 39 percent more |
-| `ME-F12` | medium | fixed, tick 130 | davinci-002 attributed to the wrong encoding, and the GPT-5.x and GPT-6 attributions are unsourced |
-| `ME-F13` | medium | fixed, tick 131 | The tokens per word column invites a division that exceeds the headline, because word is not the same unit in the two languages |
 | `ME-F5` | medium | fixed, tick 132 | The measured ratio is restated on the page and in the README in two forms that do not mean what was measured |
 | `ME-F6` | medium | fixed, tick 4 | p50k and r50k are one measurement presented as two, with no note saying so |
 | `ME-F7` | medium | fixed, tick 17 | Per register ratios quoted to two decimals with no interval and no n, against the README own rule |
 | `ME-F8` | medium | fixed, tick 17 | The last printed digit of every interval is Monte Carlo noise |
 | `ME-F9` | medium | fixed, tick 7 | Two of the eight formal pairs are the Universal Declaration of Human Rights, contradicting the stated corpus method |
+| `ME-F10` | medium | fixed, tick 128 | The corpus has no digits and one Latin word, so the technical register does not describe technical Greek |
+| `ME-F11` | medium | fixed, tick 129 | The measurement silently assumes NFC input, and NFD Greek costs 39 percent more |
+| `ME-F12` | medium | fixed, tick 130 | davinci-002 attributed to the wrong encoding, and the GPT-5.x and GPT-6 attributions are unsourced |
+| `ME-F13` | medium | fixed, tick 131 | The tokens per word column invites a division that exceeds the headline, because word is not the same unit in the two languages |
 | `ME-F14` | low | fixed, tick 5 | No number in this repository is typed by hand is false on at least four counts |
 | `ME-F15` | low | fixed, tick 5 | findings.json is the only thing the page reads is false |
 | `ME-F16` | low | open | Three small correctness issues in the measurement code |
@@ -75,8 +62,6 @@ The measurement auditor: is every number reproducible, is the sample size stated
 | `ME-F20` | low | open | The word counting regex is duplicated verbatim, so word has two definitions |
 
 ## `PA`, performance access
-
-Performance and access: bytes on first paint, main thread cost, contrast, focus, screen readers.
 
 18 findings, 14 closed.
 
@@ -88,13 +73,13 @@ Performance and access: bytes on first paint, main thread cost, contrast, focus,
 | `PA-F4` | high | fixed, tick 4 | --text-faint is 3.47:1 on ink and 3.22:1 on ink-lift, failing AA in 10 places including the interval column |
 | `PA-F5` | high | fixed, tick 4 | textarea:focus outline:none beats the :where() focus-visible rule on specificity, so the main control has no visible focus |
 | `PA-F6` | high | fixed, tick 4 | No live region at all: nothing the page computes is ever announced, and live-summary is a plain p |
+| `PA-F7` | medium | fixed, tick 133 | MAX_CHIPS caps the cheap half of the work and leaves tokenize and segment uncapped |
+| `PA-F8` | medium | fixed, tick 135 | The token list is a wall of noise for a screen reader with no way past it |
+| `PA-F9` | medium | fixed, tick 6 | The 2MB chunk is two round trips deep with no loading state |
 | `PA-F10` | medium | fixed, tick 136 | Control boundaries effectively invisible, the select does not read as a control |
 | `PA-F11` | medium | fixed, tick 126 | tickTo starts an uncancelled animation loop on every render |
 | `PA-F12` | medium | not reproduced, tick 134 | Full viewport grain overlay forces a blend of the whole viewport on every repaint |
 | `PA-F13` | medium | not reproduced, tick 137 | The README contradicts itself about network at runtime |
-| `PA-F7` | medium | fixed, tick 133 | MAX_CHIPS caps the cheap half of the work and leaves tokenize and segment uncapped |
-| `PA-F8` | medium | fixed, tick 135 | The token list is a wall of noise for a screen reader with no way past it |
-| `PA-F9` | medium | fixed, tick 6 | The 2MB chunk is two round trips deep with no loading state |
 | `PA-F14` | low | open | Whitespace marker and table rules fall below every non text contrast threshold |
 | `PA-F15` | low | open | @font-face uses the removed woff2-variations format keyword with no fallback source |
 | `PA-F16` | low | open | Truncation chip styled as a whitespace token, and MAX_CHIPS caps segments not tokens |
@@ -102,8 +87,6 @@ Performance and access: bytes on first paint, main thread cost, contrast, focus,
 | `PA-F18` | low | fixed, tick 27 | Small first paint wins left on the table |
 
 ## `DE`, design eye
-
-The design eye: type, spacing, rhythm, colour, motion, and whether it reads as designed or as a template.
 
 13 findings, 12 closed.
 
@@ -113,19 +96,17 @@ The design eye: type, spacing, rhythm, colour, motion, and whether it reads as d
 | `DE-F2` | high | fixed, tick 4 | Four different kinds of number share one typographic costume, so no number reads as the claim |
 | `DE-F3` | high | fixed, tick 4 | Page opens on o200k, the one encoding that does not shatter, so the finding is absent at second zero |
 | `DE-F4` | high | fixed, tick 4 | Entrance stagger restarts on every keystroke and the chip you just typed is the slowest to appear |
-| `DE-F10` | medium | fixed, tick 28 | Seven durations, two near identical easings, one rolling figure among four static ones |
-| `DE-F11` | medium | fixed, tick 123 | Compare card is permanently alarm red whatever its value, so the red means nothing |
 | `DE-F5` | medium | fixed, tick 28 | Type scale: a 34px hole in the middle, ten steps piled into a 6px band at the bottom |
 | `DE-F6` | medium | fixed, tick 28 | Spacing and radii are nineteen ad hoc values, not a scale |
 | `DE-F7` | medium | fixed, tick 22 | Four encoding hues are a rainbow over an ordinal series, and the oldest sits nearest the alarm |
 | `DE-F8` | medium | fixed, tick 28 | Token box pinned at its 7rem minimum and the hero column ends 127px short of the rail |
 | `DE-F9` | medium | fixed, tick 28 | Right rail is three identical cards, the dashboard template shape |
+| `DE-F10` | medium | fixed, tick 28 | Seven durations, two near identical easings, one rolling figure among four static ones |
+| `DE-F11` | medium | fixed, tick 123 | Compare card is permanently alarm red whatever its value, so the red means nothing |
 | `DE-F12` | low | open | Headline ratio takes the encoding hue, so the worst number can turn calm teal |
 | `DE-F13` | low | fixed, tick 28 | The two best small decisions are under committed to the point of invisibility |
 
 ## `DR`, deep reviewer
-
-The deep reviewer: correctness, read as code rather than as comments.
 
 13 findings, 12 closed.
 
@@ -136,18 +117,16 @@ The deep reviewer: correctness, read as code rather than as comments.
 | `DR-F3` | high | fixed, tick 11 | Clicking an encoding while the first vocabulary is loading is silently undone 1.8 seconds later by the heal timer |
 | `DR-F4` | high | fixed, tick 10 | check-claims matches a flattened whole document, so a claim can pass off a different row. The entire r50k table line can be deleted and all 30 claims still pass |
 | `DR-F5` | high | fixed, tick 10 | The corpus size is hand typed at both ends of the check: Forty sentence pairs is a literal in the checker and f.corpus.pairs is never read |
-| `DR-F10` | medium | fixed, tick 140 | ?pair=N accepts nonsense and clamps in silence, so a pinned link goes stale without looking stale |
 | `DR-F6` | medium | fixed, tick 14 | The page still tells the story the README says is wrong, the raw ratio with no length control |
 | `DR-F7` | medium | fixed, tick 10 | identically, to the token is asserted by comparing two rounded aggregates |
 | `DR-F8` | medium | fixed, tick 138 | Nothing ties the recording pinned pair to the sentence whose counts the README quotes |
 | `DR-F9` | medium | fixed, tick 139 | capture.mjs leaves Chromium running, loses the recording, and can truncate the committed GIF |
+| `DR-F10` | medium | fixed, tick 140 | ?pair=N accepts nonsense and clamps in silence, so a pinned link goes stale without looking stale |
 | `DR-F11` | low | open | worstPair compares an unrounded candidate against a rounded incumbent |
 | `DR-F12` | low | fixed, tick 9 | Segment.start is computed, documented and never read |
 | `DR-F13` | low | fixed, tick 15 | The page reports a measurement date that predates the corpus it measured |
 
 ## `RC`, recruiter
-
-The recruiter, ten seconds, not technical: does anything here stop the scroll.
 
 13 findings, 12 closed.
 
@@ -157,19 +136,17 @@ The recruiter, ten seconds, not technical: does anything here stop the scroll.
 | `RC-F2` | high | fixed, tick 12b | A permanent empty red error bar on every load: display:flex on .load-error beats the hidden attribute. Regression introduced in tick 11 |
 | `RC-F3` | high | fixed, tick 13 | The first two sentences assume the reader knows what a tokenizer is and why Greek matters |
 | `RC-F4` | high | fixed, tick 13 | No repository description and no topics, so on a profile listing it is one word |
-| `RC-F10` | medium | fixed, tick 13 | The two pictures meant to be compared are captioned in two different units |
-| `RC-F11` | medium | fixed, tick 153 | Forwarding the link produces a blank card, and the tab has no icon |
 | `RC-F5` | medium | fixed, tick 27 | The moving picture is a scroll and 2.5 MB away, and the lighter webm is gitignored |
 | `RC-F6` | medium | fixed, tick 151 | The loop spends two thirds of a second on the answer and a second and a half frozen on the problem |
 | `RC-F7` | medium | fixed, tick 14 | Five different ratios in twenty seconds and no way to tell which one is the claim |
 | `RC-F8` | medium | fixed, tick 152 | The one box a non technical reader can read instantly says n/a on arrival |
 | `RC-F9` | medium | fixed, tick 13 | The second paragraph of the README is about the README |
+| `RC-F10` | medium | fixed, tick 13 | The two pictures meant to be compared are captioned in two different units |
+| `RC-F11` | medium | fixed, tick 153 | Forwarding the link produces a blank card, and the tab has no icon |
 | `RC-F12` | low | fixed, tick 14 | The columns of the main table are labelled in terms a non technical reader cannot use |
 | `RC-F13` | low | open | The project name is the smallest text on its own page |
 
 ## `HE`, hiring engineer
-
-The hiring engineer, three minutes: does this person ship and measure, and would you open a second repository.
 
 9 findings, 8 closed.
 
@@ -186,8 +163,6 @@ The hiring engineer, three minutes: does this person ship and measure, and would
 | `HE-F9` | low | fixed, tick 18 | CI never runs on a pull request, so the gates only fire after main has moved |
 
 ## `MA`, maintainer
-
-The maintainer six months from now: what rots first, what a stranger cannot reconstruct, and what the repository says about itself that has stopped being true.
 
 17 findings, 13 closed.
 
@@ -213,8 +188,6 @@ The maintainer six months from now: what rots first, what a stranger cannot reco
 
 ## `SC`, supply chain
 
-The supply chain: what this project installs, what it ships inside the bundle, and whether either is what the README says it is.
-
 10 findings, 7 closed.
 
 | id | severity | status | finding |
@@ -230,27 +203,22 @@ The supply chain: what this project installs, what it ships inside the bundle, a
 | `SC-F9` | low | open | Three innerHTML sinks, all safe today, none of them guarded |
 | `SC-F10` | low | open | Nothing in the repository or in CI watches the dependency tree |
 
-## `self`, this project against itself (not an audit pass)
+## `self`, swept from elsewhere (not an audit pass)
 
-Not a perspective and not an agent. Findings this project raised against its own code while a class found somewhere else in the workspace was being swept, kept here because commit messages cite them like any other.
+Not a perspective and not an agent. Findings raised against this project while
+a class found somewhere else in the workspace was being swept across all eight,
+kept here because commit messages cite them like any other.
 
-8 findings, 4 closed.
+9 findings, 4 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
-| `TLANG-F1` | medium | fixed, tick 177 | Every token chip of the Greek corpus sentence was declared English, and the box claimed a language for text somebody else typed |
-| `TGRP-F1` | medium | fixed, tick 182 | serve.mjs kills a process group the spawn never creates, so cleanup off Windows leaves the server running |
 | `TCLAIM-F1` | medium | open | Every number in the README is held to the measurement and the sentence around them is held by nothing |
+| `TFOLD-F1` | medium | open | The picture the page is built on is below the fold at both widths |
+| `TGRP-F1` | medium | fixed, tick 182 | serve.mjs kills a process group the spawn never creates, so cleanup off Windows leaves the server running |
+| `TLANG-F1` | medium | fixed, tick 177 | Every token chip of the Greek corpus sentence was declared English, and the box claimed a language for text somebody else typed |
 | `TRAW-F1` | medium | open | Three browser gates and not one of them recomputes a token count, on the page whose subject is token counts |
 | `TLANG-F2` | medium | fixed, tick 183 | check:lang judged a token chip as a block of text, so it failed one run in five on correct markup |
-| `TFOR-F1` | low | open | Whether a fractured token chip survives forced colours has not been measured |
 | `TCAP-F1` | low | open | check:capture caps the gif at 4 MB and the gif is 2.77 MB, so the ceiling permits silent growth |
+| `TFOR-F1` | low | open | Whether a fractured token chip survives forced colours has not been measured |
 | `TPRE-F1` | low | fixed, tick 165 | npm run verify started a server and handed the same missing browser to every gate in turn |
-
-## One note on the log itself
-
-The commit `a8631e1`, "Close every high finding from the four audits", is the
-one message in this history that says what was typed rather than what was
-wrong, and it is the batch commit a reader reaches first when reading upward.
-It stays as it is: rewriting it would be tidying the evidence after the fact,
-and the audit that pointed it out is in the table above.

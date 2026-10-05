@@ -74,7 +74,7 @@ try {
 
   for (const i of PAIRS) {
     await page.goto(`${server.url}?pair=${i}`, { waitUntil: 'networkidle' })
-    await page.waitForFunction(() => document.querySelectorAll('#tokens .tok').length > 0, null, { timeout: 60_000 })
+    await page.waitForFunction(() => document.querySelectorAll('#tokens [data-tok]').length > 0, null, { timeout: 60_000 })
     /*
      * Pinned, because the page opens on cl100k and heals to o200k 1.8 seconds
      * later. Every assertion below is made of what the page printed, so either
@@ -159,7 +159,7 @@ try {
    * than explaining a comparison that is not on screen.
    */
   await page.goto(server.url, { waitUntil: 'networkidle' })
-  await page.waitForFunction(() => document.querySelectorAll('#tokens .tok').length > 0, null, { timeout: 60_000 })
+  await page.waitForFunction(() => document.querySelectorAll('#tokens [data-tok]').length > 0, null, { timeout: 60_000 })
   await page.fill('#input', 'Καλημέρα κόσμε, this is my own text.')
   await page.waitForTimeout(900)
   const own = await read(page)

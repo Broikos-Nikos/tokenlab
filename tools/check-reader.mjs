@@ -43,7 +43,7 @@ let client
 try {
   const page = await browser.newPage({ viewport: { width: 1280, height: 900 } })
   await page.goto(server.url, { waitUntil: 'networkidle' })
-  await page.waitForFunction(() => document.querySelectorAll('#tokens .tok').length > 0, null, { timeout: 60_000 })
+  await page.waitForFunction(() => document.querySelectorAll('#tokens [data-tok]').length > 0, null, { timeout: 60_000 })
 
   client = await page.context().newCDPSession(page)
   await client.send('Accessibility.enable')
@@ -80,9 +80,9 @@ try {
 
   const check = async (label) => {
     const seen = await page.evaluate(() => ({
-      chips: document.querySelectorAll('#tokens .tok').length,
+      chips: document.querySelectorAll('#tokens [data-tok]').length,
       fractured: document.querySelector('[data-fracture-count]').textContent,
-      truncated: document.querySelector('#tokens .tok--space:last-child')?.textContent ?? '',
+      truncated: document.querySelector('#tokens [data-tok][data-space]:last-child')?.textContent ?? '',
     }))
     const tree = await rowTree()
 

@@ -63,13 +63,13 @@ try {
    * state the finding is about: the page opens on cl100k and heals to o200k
    * 1.8 seconds later, and the bill has to hold a number the whole way.
    */
-  await page.waitForFunction(() => document.querySelectorAll('.tok').length > 0, { timeout: 30_000 })
+  await page.waitForFunction(() => document.querySelectorAll('[data-tok]').length > 0, { timeout: 30_000 })
   const arrival = []
   for (let i = 0; i < 16; i++) {
     arrival.push(
       await page.evaluate(() => ({
         cost: document.querySelector('[data-cost]')?.textContent ?? '',
-        enc: document.querySelector('.enc.is-on')?.getAttribute('data-enc') ?? '',
+        enc: document.querySelector('[data-enc][data-on]')?.getAttribute('data-enc') ?? '',
       })),
     )
     await page.waitForTimeout(200)
@@ -87,7 +87,7 @@ try {
   for (const enc of ENCODINGS) {
     await page.click(`button[data-enc='${enc}']`)
     await page.waitForFunction(
-      (want) => document.querySelector('.enc.is-on')?.getAttribute('data-enc') === want,
+      (want) => document.querySelector('[data-enc][data-on]')?.getAttribute('data-enc') === want,
       enc,
       { timeout: 20_000 },
     )

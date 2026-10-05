@@ -74,7 +74,7 @@ try {
   for (const viewport of [{ width: 1440, height: 900 }, { width: 390, height: 844 }]) {
     const page = await browser.newPage({ viewport })
     await page.goto(server.url, { waitUntil: 'networkidle' })
-    await page.waitForFunction(() => document.querySelectorAll('#tokens .tok').length > 0, null, { timeout: 60_000 })
+    await page.waitForFunction(() => document.querySelectorAll('#tokens [data-tok]').length > 0, null, { timeout: 60_000 })
     await page.waitForTimeout(2000)
 
     for (const id of ['o200k_base', 'cl100k_base', 'p50k_base', 'r50k_base']) {

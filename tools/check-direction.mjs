@@ -70,7 +70,7 @@ try {
   for (const width of [1280, 390]) {
   const page = await browser.newPage({ viewport: { width, height: 900 } })
   await page.goto(server.url, { waitUntil: 'networkidle' })
-  await page.waitForFunction(() => document.querySelectorAll('#tokens .tok').length > 0, null, { timeout: 60_000 })
+  await page.waitForFunction(() => document.querySelectorAll('#tokens [data-tok]').length > 0, null, { timeout: 60_000 })
   await page.waitForTimeout(2500)
 
   for (const { label: base, text, dir: want, digits } of CASES) {
@@ -83,7 +83,7 @@ try {
     await page.waitForTimeout(700)
 
     const r = await page.evaluate(() => {
-      const chips = [...document.querySelectorAll('#tokens .tok')]
+      const chips = [...document.querySelectorAll('#tokens [data-tok]')]
       const xs = chips.map((c) => c.getBoundingClientRect().x)
       /*
        * Per line, not across the row. A wrapped right to left paragraph puts

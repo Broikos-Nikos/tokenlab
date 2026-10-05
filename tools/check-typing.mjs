@@ -52,7 +52,7 @@ try {
   })
 
   await page.goto(server.url, { waitUntil: 'networkidle' })
-  await page.waitForFunction(() => document.querySelectorAll('#tokens .tok').length > 0, null, { timeout: 60_000 })
+  await page.waitForFunction(() => document.querySelectorAll('#tokens [data-tok]').length > 0, null, { timeout: 60_000 })
   // cl100k, because it shatters Greek and is the expensive one to walk.
   await page.click('.enc[data-enc="cl100k_base"]')
   await page.waitForTimeout(2500)

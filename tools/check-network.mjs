@@ -61,7 +61,7 @@ try {
   page.on('request', (r) => requests.push({ url: r.url(), method: r.method(), type: r.resourceType(), body: r.postData() ?? '' }))
 
   await page.goto(server.url, { waitUntil: 'networkidle' })
-  await page.waitForFunction(() => document.querySelectorAll('#tokens .tok').length > 0, null, { timeout: 60_000 })
+  await page.waitForFunction(() => document.querySelectorAll('#tokens [data-tok]').length > 0, null, { timeout: 60_000 })
   await page.waitForTimeout(2500)
   const onLoad = requests.length
 

@@ -128,7 +128,7 @@ try {
    * ends by clicking back, so comparing against whatever happens to be on
    * screen would be comparing against a stopwatch.
    */
-  await page.waitForSelector('.tok--fractured', { timeout: 60_000 })
+  await page.waitForSelector('[data-tok][data-fractured]', { timeout: 60_000 })
   await page.waitForTimeout(2600)
   await page.click(`button[data-enc='${FINAL_ENCODING}']`)
 

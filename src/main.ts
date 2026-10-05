@@ -193,7 +193,10 @@ function buildEncodingButtons() {
     b.setAttribute('aria-pressed', String(meta.id === state.encoding))
     b.innerHTML = `<span>${meta.label}</span><small></small>`
     b.querySelector('small')!.textContent = meta.models
-    if (meta.id === state.encoding) b.classList.add('is-on')
+    if (meta.id === state.encoding) {
+      b.classList.add('is-on')
+      b.dataset.on = ''
+    }
     b.addEventListener('click', () => {
       cancelHeal()
       void setEncoding(meta.id)
@@ -286,6 +289,7 @@ async function setEncoding(id: EncodingId): Promise<boolean> {
   for (const b of el.encodings.querySelectorAll<HTMLButtonElement>('.enc')) {
     const on = b.dataset.enc === id
     b.classList.toggle('is-on', on)
+    b.toggleAttribute('data-on', on)
     b.setAttribute('aria-pressed', String(on))
   }
   setBusy(id, false)
@@ -393,6 +397,7 @@ function loadPair(i: number) {
 function chipFor(seg: Segment, index: number, total: number, stagger: boolean): HTMLElement {
   const span = document.createElement('span')
   span.className = 'tok'
+  span.dataset.tok = ''
   /*
    * PA-F8. `role="img"` on the row drops the chip elements from the
    * accessibility tree and leaves their text in it, which is the wall itself:
@@ -413,15 +418,23 @@ function chipFor(seg: Segment, index: number, total: number, stagger: boolean): 
 
   if (seg.splitIntoBytes) {
     span.classList.add('tok--fractured')
+    span.dataset.fractured = ''
     span.append(document.createTextNode(textOf(seg)))
     const cost = document.createElement('span')
     cost.className = 'cost'
+    /* `data-chip-cost`, not `data-cost`: the bill panel owns that name, and a
+       second element carrying it made `document.querySelector('[data-cost]')`
+       return a chip badge. check:bill read "2" as the price. WM2-F11. */
+    cost.dataset.chipCost = ''
     cost.textContent = String(seg.ids.length)
     span.append(cost)
     span.title = `${seg.ids.length} tokens for this one piece of text`
   } else {
     const text = textOf(seg)
-    if (text.trim() === '') span.classList.add('tok--space')
+    if (text.trim() === '') {
+      span.classList.add('tok--space')
+      span.dataset.space = ''
+    }
     span.textContent = text
   }
   return span
@@ -433,6 +446,8 @@ function drawTokens(shown: Segment[], total: number, stagger: boolean) {
   if (total > shown.length) {
     const more = document.createElement('span')
     more.className = 'tok tok--space'
+    more.dataset.tok = ''
+    more.dataset.space = ''
     more.setAttribute('aria-hidden', 'true')
     more.textContent = `and ${total - shown.length} more`
     frag.append(more)

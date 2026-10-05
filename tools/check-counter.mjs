@@ -56,7 +56,7 @@ const browser = await chromium.launch()
 try {
   const page = await browser.newPage({ viewport: { width: 1280, height: 900 } })
   await page.goto(server.url, { waitUntil: 'networkidle' })
-  await page.waitForFunction(() => document.querySelectorAll('#tokens .tok').length > 0, null, { timeout: 60_000 })
+  await page.waitForFunction(() => document.querySelectorAll('#tokens [data-tok]').length > 0, null, { timeout: 60_000 })
   // The opening move heals the page shortly after load. Measure a settled page.
   await page.waitForTimeout(2500)
 

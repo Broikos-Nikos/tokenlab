@@ -47,7 +47,7 @@ const browser = await chromium.launch()
 try {
   const page = await browser.newPage({ viewport: { width: 1280, height: 900 } })
   await page.goto(server.url, { waitUntil: 'networkidle' })
-  await page.waitForFunction(() => document.querySelectorAll('#tokens .tok').length > 0, null, { timeout: 60_000 })
+  await page.waitForFunction(() => document.querySelectorAll('#tokens [data-tok]').length > 0, null, { timeout: 60_000 })
   await page.waitForTimeout(2500)
   await page.click(`.enc[data-enc="${ENCODING}"]`)
   await page.waitForTimeout(1200)

@@ -80,7 +80,7 @@ if (wants('healthy')) {
     check(`${sel} marked hidden actually takes no space`, box === null, JSON.stringify(box))
   }
 
-  check('tokens are drawn', (await page.locator('.tok').count()) > 0)
+  check('tokens are drawn', (await page.locator('[data-tok]').count()) > 0)
 
   /*
    * The red chips, in the DOM this time.
@@ -95,7 +95,7 @@ if (wants('healthy')) {
   await page.fill('#input', 'Ἄνδρα μοι ἔννεπε, Μοῦσα, πολύτροπον, ὃς μάλα πολλὰ πλάγχθη')
   await page.waitForTimeout(700)
 
-  const fractured = page.locator('.tok--fractured')
+  const fractured = page.locator('[data-tok][data-fractured]')
   const n = await fractured.count()
   check('red chips are on the page for text that fractures', n > 0, `found ${n}`)
 
@@ -103,7 +103,7 @@ if (wants('healthy')) {
     const box = await fractured.first().boundingBox()
     check('a red chip is actually visible, not just present', box !== null && box.height > 0)
 
-    const badge = await fractured.first().locator('.cost').textContent()
+    const badge = await fractured.first().locator('[data-chip-cost]').textContent()
     check(
       'the chip carries a cost badge of at least two',
       Number(badge) >= 2,
@@ -120,7 +120,7 @@ if (wants('healthy')) {
   await page.click("button[data-enc='o200k_base']")
   await page.fill('#input', 'Θα είμαι εκεί σε δέκα λεπτά, έχει απαίσια κίνηση σήμερα.')
   await page.waitForTimeout(700)
-  const onNewest = await page.locator('.tok--fractured').count()
+  const onNewest = await page.locator('[data-tok][data-fractured]').count()
   check('no red chips on modern Greek with the newest vocabulary', onNewest === 0, `found ${onNewest}`)
 
   await page.close()
@@ -167,7 +167,7 @@ if (wants('failure')) {
     cl100kRequests > before,
     `requests before ${before}, after ${cl100kRequests}`,
   )
-  check('the page recovers and draws tokens', (await page.locator('.tok').count()) > 0)
+  check('the page recovers and draws tokens', (await page.locator('[data-tok]').count()) > 0)
   check('the error message is gone once it works', !(await alert.isVisible()))
   check(
     'the text survives the retry',
@@ -205,7 +205,7 @@ if (wants('race')) {
   const pressed = await page.getAttribute("button[data-enc='p50k_base']", 'aria-pressed')
   check('the encoding the visitor chose is still the one selected', pressed === 'true')
 
-  const onCount = await page.locator('.enc.is-on').count()
+  const onCount = await page.locator('[data-enc][data-on]').count()
   check('exactly one encoding is marked selected', onCount === 1, `found ${onCount}`)
 
   const headline = (await page.textContent('[data-headline-ratio]')) ?? ''

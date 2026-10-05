@@ -115,7 +115,7 @@ try {
         heat: cs.getPropertyValue('--heat').trim(),
         border: cs.borderTopColor,
         background: cs.backgroundColor,
-        figure: getComputedStyle(document.querySelector('.compare-figure')).color,
+        figure: getComputedStyle(document.querySelector('[data-compare-figure]')).color,
       }
     })
     if (got.hidden) {

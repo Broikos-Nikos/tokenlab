@@ -39,8 +39,8 @@
  * the source half runs in `npm run check`.
  */
 
-import { readFileSync, existsSync, readdirSync } from 'node:fs'
-import { dirname, resolve } from 'node:path'
+import { readFileSync, readdirSync, existsSync } from 'node:fs'
+import { dirname, relative, resolve, sep } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { notices } from './third-party.mjs'
 
@@ -77,6 +77,66 @@ const pkg = JSON.parse(readFileSync(resolve(root, 'package.json'), 'utf8'))
 for (const [name, version] of Object.entries(pkg.dependencies ?? {})) {
   if (!shipped.includes(`${name} ${version}`)) {
     fail(`the notices do not carry ${name} ${version}`, 'Every runtime dependency is inside the bundle this site serves.')
+  }
+}
+
+/*
+ * ---- and every version written in prose anywhere -------------------------
+ *
+ * Swept here from `watch-it-think` WM2-F8, where two source comments quoted
+ * four latency figures out of `meta.json` and three of them were from a
+ * different measurement run. Measured in this project at tick 209:
+ * `gpt-tokenizer 4.0.0` appears in six places, two gate headers, three source
+ * comments and the shipped notices, and nothing anywhere derives any of them
+ * from `package.json`.
+ *
+ * They all agree today. The day somebody bumps the dependency, five of them go
+ * stale at once and the sixth is the file a licence reader checks. That is the
+ * same defect as the latency comments, one bump away.
+ */
+const sources = []
+for (const dir of ['src', 'tools']) {
+  const walk = (d) => {
+    for (const entry of readdirSync(d, { withFileTypes: true })) {
+      const p = resolve(d, entry.name)
+      if (entry.isDirectory()) walk(p)
+      else if (/\.(ts|mjs|js)$/.test(entry.name)) {
+        sources.push([relative(root, p).split(sep).join('/'), readFileSync(p, 'utf8')])
+      }
+    }
+  }
+  walk(resolve(root, dir))
+}
+sources.push(['public/THIRD-PARTY-NOTICES.txt', shipped])
+sources.push(['README.md', readFileSync(resolve(root, 'README.md'), 'utf8')])
+
+for (const [name, version] of Object.entries(pkg.dependencies ?? {})) {
+  const wrong = []
+  for (const [file, text] of sources) {
+    /* String.raw, because `\s` and `\d` inside a template literal are the bare
+       letters: the first version of this built `gpt-tokenizers+(d+.d+.d+)`,
+       matched nothing anywhere, and printed "written 0 times" as a pass. */
+    for (const m of text.matchAll(new RegExp(String.raw`${name}\s+(\d+\.\d+\.\d+)`, 'g'))) {
+      if (m[1] !== version) wrong.push(`${file} says ${m[1]}`)
+    }
+  }
+  if (wrong.length > 0) {
+    fail(
+      `${wrong.length} ${wrong.length === 1 ? 'place writes' : 'places write'} a different ${name} version from the pin of ${version}`,
+      `${wrong.slice(0, 3).join('; ')}. A comment that quotes a pin and disagrees with it teaches a reader to stop trusting the comments.`,
+    )
+  } else {
+    const mentions = sources.reduce(
+      (n, [, text]) => n + [...text.matchAll(new RegExp(String.raw`${name}\s+\d+\.\d+\.\d+`, 'g'))].length,
+      0,
+    )
+    /* A gate that counts nothing passes everything: this said "written 0 times"
+       and called it ok until the regex was fixed. */
+    if (mentions === 0) {
+      fail(`${name} ${version} is never written in prose anywhere, so this measured nothing`)
+      continue
+    }
+    console.log(`  ok      ${name} ${version} is written ${mentions} times and every one of them is the pin`)
   }
 }
 

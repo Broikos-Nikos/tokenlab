@@ -17,6 +17,8 @@ That is the real page in a real browser, recorded by `npm run capture`. One
 sentence, pinned so the recording can be checked: 71 tokens on `cl100k` and 35
 on `o200k`.
 
+`npm run capture`, which makes the recording at the top of this file, needs one program npm does not install: **ffmpeg**. Install it (`winget install Gyan.FFmpeg`, `brew install ffmpeg`, `apt install ffmpeg`). Nothing else here needs it and the page does not.
+
 ---
 
 ## The number
@@ -291,6 +293,11 @@ Before committing:
 npx playwright install chromium   # once, for the two browser driven tools
 npm run verify                    # build, then drive the built page in a real browser
 ```
+
+`check:licences` reads each font's own copyright and licence out of its binary,
+and it does that through **python** with `fontTools` installed (`pip install
+fonttools`), because the authority on what a font claims is the font rather
+than the prose next to it.
 
 ### The three switches
 

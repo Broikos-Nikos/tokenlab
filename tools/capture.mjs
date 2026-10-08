@@ -39,6 +39,7 @@ import { existsSync, mkdirSync, readdirSync, rmSync, renameSync, statSync, write
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { serve, useShared } from './serve.mjs'
+import { requireFfmpeg } from './ffmpeg.mjs'
 import { lookAt, PAIR, FINAL_ENCODING, SHATTER_ENCODING } from './capture-state.mjs'
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
@@ -126,6 +127,18 @@ const { chromium } = await loadPlaywright()
 rmSync(WORK, { recursive: true, force: true })
 mkdirSync(WORK, { recursive: true })
 
+
+/*
+ * ffmpeg before the browser.
+ *
+ * The encoder is 150 to 180 lines below this, after a browser launch and the
+ * whole recording, and without ffmpeg it threw `spawnSync ffmpeg ENOENT` at
+ * the end of all of it. WS-F6, ported from watch-it-think at tick 226 along
+ * with tools/ffmpeg.mjs. FFMPEG overrides PATH; the version is kept for
+ * docs/capture.json.
+ */
+const FFMPEG = requireFfmpeg()
+console.log(`ffmpeg ${FFMPEG.version}${process.env.FFMPEG ? ` (FFMPEG=${FFMPEG.path})` : ''}`)
 /*
  * DR-F9. None of what follows used to be wrapped, and Playwright only finalises
  * a video when its context closes. Measured by making the wait time out, which
@@ -315,7 +328,7 @@ const webm = resolve(WORK, video)
  * the one that is not this project's fault.
  */
 try {
-  execFileSync('ffmpeg', ['-version'], { stdio: 'ignore' })
+  execFileSync(FFMPEG.path, ['-version'], { stdio: 'ignore' })
 } catch {
   console.error(
     'ffmpeg not found, and this script encodes the GIF with it. Install it from\n' +
@@ -324,7 +337,7 @@ try {
   process.exit(1)
 }
 
-const ff = (args) => execFileSync('ffmpeg', ['-y', '-loglevel', 'error', ...args], { stdio: 'inherit' })
+const ff = (args) => execFileSync(FFMPEG.path, ['-y', '-loglevel', 'error', ...args], { stdio: 'inherit' })
 const palette = resolve(WORK, 'palette.png')
 // The viewport is taller than the part worth watching, so the frame is cut
 // down to the stage and the readout beside it. Everything else is prose that
@@ -360,7 +373,11 @@ const filters = `${CROP},fps=${FPS},scale=${WIDTH}:-1:flags=lanczos`
  */
 function motionIn(file) {
   const out = execFileSync(
-    'ffmpeg',
+    /* The resolved path, not the bare name. This second call was missed when
+       the encoder was routed through the resolver at tick 226, and the
+       workspace gate found it: one file, two ways of starting the same program,
+       and only one of them honouring FFMPEG. */
+    FFMPEG.path,
     ['-v', 'error', '-i', file, '-vf', `${CROP},tblend=all_mode=difference,signalstats,metadata=print:key=lavfi.signalstats.YAVG:file=-`, '-f', 'null', '-'],
     { encoding: 'utf8' },
   )
@@ -478,6 +495,7 @@ writeFileSync(
   resolve(root, 'docs/capture.json'),
   JSON.stringify({
     recorded: new Date().toISOString().slice(0, 10),
+    ffmpeg: FFMPEG.version,
     pair: PAIR,
     opensOn: FINAL_ENCODING,
     // Where the two redraws land inside the finished GIF, in seconds. This is

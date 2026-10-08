@@ -5,7 +5,7 @@ Commit messages cite identifiers like `DE-F1`. This is what they refer to.
 Nine audit passes and the workspace sweeps. Each pass was run against one
 assigned perspective and nothing else.
 
-**140 findings, 111 closed, 29 open**, across the 9 perspectives that produced them.
+**140 findings, 112 closed, 28 open**, across the 9 perspectives that produced them.
 
 Held to the workspace queue this project is built from by
 `tools/check-audit-status.mjs`, which fails if a row here says anything the
@@ -209,7 +209,7 @@ Not a perspective and not an agent. Findings raised against this project while
 a class found somewhere else in the workspace was being swept across all eight,
 kept here because commit messages cite them like any other.
 
-11 findings, 5 closed.
+11 findings, 6 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -223,4 +223,4 @@ kept here because commit messages cite them like any other.
 | `TCAP-F1` | low | open | check:capture caps the gif at 4 MB and the gif is 2.77 MB, so the ceiling permits silent growth |
 | `TFOR-F1` | low | open | Whether a fractured token chip survives forced colours has not been measured |
 | `TPRE-F1` | low | fixed, tick 165 | npm run verify started a server and handed the same missing browser to every gate in turn |
-| `TFF-F1` | low | open | npm run capture resolves ffmpeg off PATH and asks for it only after the browser has launched |
+| `TFF-F1` | low | fixed, tick 226 | npm run capture resolves ffmpeg off PATH and asks for it only after the browser has launched |

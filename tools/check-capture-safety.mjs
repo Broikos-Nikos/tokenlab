@@ -100,9 +100,25 @@ for (const name of tools) {
     }
   }
 
-  /* 3. And a missing requirement is named rather than thrown. */
+  /*
+   * 3. And a missing requirement is named rather than thrown.
+   *
+   * Two shapes count. The original was `execFileSync('ffmpeg', ['-version'])`
+   * in `capture.mjs` itself. Since tick 226 the probe lives in
+   * `tools/ffmpeg.mjs`, which resolves `FFMPEG` or the bare name, runs
+   * `-version`, and exits with the install line, and `capture.mjs` calls
+   * `requireFfmpeg()` before it launches a browser.
+   *
+   * This gate failed the moment that landed, with "capture.mjs runs ffmpeg
+   * without asking for it first", because it was looking for the literal the
+   * fix had just removed. That is the third time in this workspace a gate has
+   * gone red at a fix for the thing it gates, after `check:tools` and
+   * `check-binaries` at tick 217, and the lesson is the same: a scan for a
+   * string is a scan for one spelling of a property.
+   */
   if (ffmpegCalls.length > 0) {
-    const probes = /execFileSync\('ffmpeg', \['-version'\]/.test(flat)
+    const probes =
+      /execFileSync\('ffmpeg', \['-version'\]/.test(flat) || /requireFfmpeg\(\)/.test(flat)
     if (!probes) {
       fail(
         `${name} runs ffmpeg without asking for it first`,

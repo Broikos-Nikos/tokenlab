@@ -299,9 +299,9 @@ and it does that through **python** with `fontTools` installed (`pip install
 fonttools`), because the authority on what a font claims is the font rather
 than the prose next to it.
 
-### The three switches
+### The four switches
 
-Three environment variables change what these tools do. They were documented
+Four environment variables change what these tools do. They were documented
 only inside the files that read them, which is `watch-it-think`'s WM2-F10 in this
 repository: a switch armed by a string that exists nowhere else is a switch
 nobody finds.
@@ -311,6 +311,7 @@ nobody finds.
 | `TOKENLAB_ONLY` | runs one section of `check:loading` alone. That is what makes a negative control possible: revert one fix, run only the section that covers it. |
 | `TOKENLAB_PAIR` | the corpus pair `npm run capture` films, by id. Defaults to the pinned `17`, which is the pair the README's numbers come from. |
 | `PLAYWRIGHT_PATH` | a path to an existing Playwright install, for a machine that will not download a second browser. Tried before the local `node_modules`. |
+| `FFMPEG` | the ffmpeg `npm run capture` runs. Defaults to whatever PATH answers, and either way the program is checked before the browser starts rather than after the whole recording, which is `watch-it-think`'s WS-F6. |
 
 `TOKENLAB_URL` and `CAPTURE_FAIL_AT` are not in that table on purpose: nobody
 sets them by hand. `npm run verify` sets the first to hand one preview server to

@@ -15,7 +15,7 @@
  * can hold the captions to the pictures rather than to a memory of them.
  */
 
-import { mkdirSync, writeFileSync } from 'node:fs'
+import { mkdirSync, statSync, writeFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { chromium } from 'playwright'
@@ -41,6 +41,7 @@ const SHOTS = [
 const server = process.env.TOKENLAB_URL ? await useShared(process.env.TOKENLAB_URL) : await serve()
 const browser = await chromium.launch()
 const recorded = { made: new Date().toISOString().slice(0, 10), pair: PINNED_PAIR, shots: [] }
+let card = null
 
 try {
   for (const shot of SHOTS) {
@@ -75,6 +76,25 @@ try {
        */
       await page.evaluate(() => window.scrollTo(0, 240))
       await page.screenshot({ path: resolve(root, shot.file) })
+
+      /*
+       * And what the page said while the card was being taken, in the shape
+       * the workspace's `tools/check-head.mjs` reads from every project: the
+       * colour the browser composited, the headline, and every number the
+       * rendered page shows. The head is prose and prose carries numbers
+       * nobody recomputes, which cost three of the other seven projects a
+       * wrong number in their own description, found at tick 229.
+       */
+      card = await page.evaluate(() => {
+        const rgb = getComputedStyle(document.body).backgroundColor
+        const hex = rgb.match(/\d+/g)?.slice(0, 3).map((n) => Number(n).toString(16).padStart(2, '0')).join('') ?? ''
+        return {
+          title: document.title,
+          background: hex ? `#${hex}` : rgb,
+          headline: (document.querySelector('[data-headline]') ?? document.querySelector('h1'))?.textContent?.replace(/\s+/g, ' ').trim() ?? '',
+          numbers: [...new Set(document.body.innerText.match(/\d[\d,]*(?:\.\d+)?/g) ?? [])].sort(),
+        }
+      })
     } else {
       const stage = await page.$('.stage')
       await stage.screenshot({ path: resolve(root, shot.file) })
@@ -85,6 +105,23 @@ try {
   }
 
   writeFileSync(resolve(root, 'docs/stills.json'), JSON.stringify(recorded, null, 2) + '\n')
+
+  if (!card) throw new Error('no card shot ran, so docs/card.json would describe nothing')
+  writeFileSync(
+    resolve(root, 'docs/card.json'),
+    `${JSON.stringify(
+      {
+        why: "What was on screen when public/card.png was taken. The workspace gate tools/check-head.mjs holds this page's head to it: theme-color to the colour the browser composited, og:title to the title or the headline, and every number in the description to a number the page shows.",
+        made: new Date().toISOString().slice(0, 10),
+        viewport: { width: 1200, height: 630 },
+        deviceScaleFactor: 1,
+        bytes: statSync(resolve(root, 'public/card.png')).size,
+        seen: card,
+      },
+      null,
+      2,
+    )}\n`,
+  )
   console.log(`docs/stills.json records pair ${PINNED_PAIR}: ${JSON.stringify(recorded.shots[0].sentence.slice(0, 60))}`)
 } finally {
   await browser.close()
